@@ -110,7 +110,7 @@ export const NumberLineReadExercise = ({ exerciseNumber = 1, min = 0, max = 10, 
                                 size="lg"
                                 aria-label={t("instructions.number-line-read.input-aria")}
                                 inputMode="numeric"
-                                value={revealed && !isCorrect ? target : inputValue}
+                                value={revealed && !isCorrect ? (target ?? "") : inputValue}
                                 onChange={(event) => !revealed && setInputValue(event.target.value)}
                                 disabled={revealed && !isCorrect}
                                 wrapperClassName={cx(

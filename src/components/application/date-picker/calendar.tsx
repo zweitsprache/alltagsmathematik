@@ -24,7 +24,20 @@ export const CalendarContextProvider = ({ children }: PropsWithChildren) => {
     const [value, onChange] = useState<DateValue | null>(null);
     const [focusedValue, onFocusChange] = useState<DateValue | undefined>();
 
-    return <AriaCalendarContext.Provider value={{ value, onChange, focusedValue, onFocusChange }}>{children}</AriaCalendarContext.Provider>;
+    return (
+        <AriaCalendarContext.Provider
+            value={{
+                value,
+                onChange: (nextValue) => {
+                    if (!Array.isArray(nextValue)) onChange(nextValue as DateValue);
+                },
+                focusedValue,
+                onFocusChange,
+            }}
+        >
+            {children}
+        </AriaCalendarContext.Provider>
+    );
 };
 
 interface CalendarProps extends AriaCalendarProps<DateValue> {

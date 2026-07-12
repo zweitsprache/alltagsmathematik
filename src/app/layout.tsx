@@ -1,16 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Encode_Sans_Semi_Condensed } from "next/font/google";
 import { RouteProvider } from "@/providers/router-provider";
 import { Theme } from "@/providers/theme";
 import "@/styles/globals.css";
-import { cx } from "@/utils/cx";
-
-const encodeSansSemiCondensed = Encode_Sans_Semi_Condensed({
-    subsets: ["latin"],
-    display: "swap",
-    weight: ["400", "500", "600", "700", "900"],
-    variable: "--font-encode-sans-semi-condensed",
-});
 
 export const metadata: Metadata = {
     title: "Starter kit — Untitled UI",
@@ -28,8 +19,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" suppressHydrationWarning>
-            <body className={cx(encodeSansSemiCondensed.variable, "bg-primary antialiased")}>
+        <html lang="de" suppressHydrationWarning>
+            <body className="bg-primary antialiased">
                 <RouteProvider>
                     <Theme>{children}</Theme>
                 </RouteProvider>
