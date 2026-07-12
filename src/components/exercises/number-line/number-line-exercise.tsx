@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, PlayCircle, RefreshCw01, X } from "@untitledui/icons";
+import { Check, Play, RefreshCw01, X } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { translate as t } from "@/i18n/translate";
@@ -115,8 +115,8 @@ export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labe
             ) : (
                 <>
                     <div className="border-b border-secondary pb-4">
-                        <p className="text-md font-medium text-secondary">
-                            <span className="mr-2 font-black">{pad(exerciseNumber)}</span>{" "}
+                        <p className="flex items-baseline gap-2 text-md font-medium text-secondary">
+                            <span className="font-black">{pad(exerciseNumber)}</span>
                             {t(presentation === "audio" ? "instructions.number-line-listen.prompt" : "instructions.number-line.prompt")}
                         </p>
                     </div>
@@ -130,7 +130,7 @@ export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labe
                                 aria-label={t("instructions.number-line-listen.play-aria")}
                                 className="flex size-14 items-center justify-center rounded-full bg-brand-solid text-white shadow-xs-skeuomorphic outline-focus-ring transition hover:bg-brand-solid_hover focus-visible:outline-2 focus-visible:outline-offset-2"
                             >
-                                <PlayCircle className="size-7" />
+                                <Play className="size-7" />
                             </button>
                         </div>
                     ) : (

@@ -1,4 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import "@fontsource/encode-sans-semi-condensed/400.css";
+import "@fontsource/encode-sans-semi-condensed/500.css";
+import "@fontsource/encode-sans-semi-condensed/600.css";
+import "@fontsource/encode-sans-semi-condensed/700.css";
+import "@fontsource/encode-sans-semi-condensed/900.css";
 import { RouteProvider } from "@/providers/router-provider";
 import { Theme } from "@/providers/theme";
 import "@/styles/globals.css";

@@ -43,6 +43,11 @@
             "prompt": "Hören Sie die Zahl und markieren Sie sie auf dem Zahlenstrahl.",
             "play-aria": "Zahl abspielen"
         },
+        "number-line-listen-pair": {
+            "prompt": "Hören Sie die zwei Zahlen und markieren Sie beide auf dem Zahlenstrahl.",
+            "play-aria": "Zahlen abspielen",
+            "mark-number-aria": "Zahl {number} markieren"
+        },
         "number-line-read": {
             "prompt": "Welche Zahl ist markiert? Geben Sie sie ein.",
             "input-aria": "Markierte Zahl eingeben"

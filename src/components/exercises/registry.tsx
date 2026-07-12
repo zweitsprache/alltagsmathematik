@@ -1,4 +1,5 @@
 import type { ExerciseConfig } from "@/content/curriculum";
+import { NumberLineListenPairExercise } from "./number-line-listen-pair/number-line-listen-pair-exercise";
 import { NumberLineReadExercise } from "./number-line-read/number-line-read-exercise";
 import { NumberLineExercise } from "./number-line/number-line-exercise";
 import { NumberSequenceExercise } from "./number-sequence/number-sequence-exercise";
@@ -21,6 +22,10 @@ export const ExerciseRenderer = ({ exercise, exerciseNumber }: { exercise: Exerc
                     labeledNumbers={exercise.labeledNumbers}
                     presentation="audio"
                 />
+            );
+        case "number-line-listen-pair":
+            return (
+                <NumberLineListenPairExercise exerciseNumber={exerciseNumber} min={exercise.min} max={exercise.max} labeledNumbers={exercise.labeledNumbers} />
             );
         case "number-line-read":
             return <NumberLineReadExercise exerciseNumber={exerciseNumber} min={exercise.min} max={exercise.max} labeledNumbers={exercise.labeledNumbers} />;

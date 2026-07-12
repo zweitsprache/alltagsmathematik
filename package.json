@@ -8,6 +8,7 @@
         "start": "next start"
     },
     "dependencies": {
+        "@fontsource/encode-sans-semi-condensed": "^5.2.8",
         "@react-aria/utils": "^3.34.1",
         "@react-stately/utils": "^3.12.1",
         "@tailwindcss/postcss": "^4.2.2",
