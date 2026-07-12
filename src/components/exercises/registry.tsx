@@ -12,6 +12,16 @@ export const ExerciseRenderer = ({ exercise, exerciseNumber }: { exercise: Exerc
     switch (exercise.type) {
         case "number-line":
             return <NumberLineExercise exerciseNumber={exerciseNumber} min={exercise.min} max={exercise.max} labeledNumbers={exercise.labeledNumbers} />;
+        case "number-line-listen":
+            return (
+                <NumberLineExercise
+                    exerciseNumber={exerciseNumber}
+                    min={exercise.min}
+                    max={exercise.max}
+                    labeledNumbers={exercise.labeledNumbers}
+                    presentation="audio"
+                />
+            );
         case "number-line-read":
             return <NumberLineReadExercise exerciseNumber={exerciseNumber} min={exercise.min} max={exercise.max} labeledNumbers={exercise.labeledNumbers} />;
         case "number-sort":

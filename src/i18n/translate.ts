@@ -1,6 +1,7 @@
 import de from "./messages/de.json";
 
-export type TranslationKey = `levels.${string}` | `instructions.${"number-line" | "number-line-read" | "number-sort" | "number-sequence"}.${string}`;
+export type TranslationKey =
+    `levels.${string}` | `instructions.${"number-line" | "number-line-listen" | "number-line-read" | "number-sort" | "number-sequence"}.${string}`;
 
 type TranslationVariables = Record<string, string | number>;
 

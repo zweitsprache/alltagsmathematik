@@ -19,6 +19,7 @@
             "zahlen-von-0-bis-10": "Zahlen von 0 bis 10",
             "zahlenstrahl": "Zahlenstrahl",
             "zahlenstrahl-lesen": "Zahlenstrahl lesen",
+            "zahlenstrahl-hoeren": "Zahlenstrahl hören",
             "zahlen-sortieren": "Zahlen sortieren",
             "dezimalsystem-verstehen": "Das Dezimalsystem, negative Zahlen usw. verstehen",
             "informationen-sortieren": "Informationen und Zahlen sortieren und ordnen",
@@ -37,6 +38,10 @@
         "number-line": {
             "prompt": "Markieren Sie die Zahl auf dem Zahlenstrahl.",
             "mark-number-aria": "Zahl {number} markieren"
+        },
+        "number-line-listen": {
+            "prompt": "Hören Sie die Zahl und markieren Sie sie auf dem Zahlenstrahl.",
+            "play-aria": "Zahl abspielen"
         },
         "number-line-read": {
             "prompt": "Welche Zahl ist markiert? Geben Sie sie ein.",

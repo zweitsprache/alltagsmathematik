@@ -8,7 +8,7 @@ import type { IconKey } from "./icons";
  * as data and rendered from a server component.
  */
 export type ExerciseConfig = {
-    type: "number-line" | "number-line-read" | "number-sort" | "number-sequence";
+    type: "number-line" | "number-line-listen" | "number-line-read" | "number-sort" | "number-sequence";
     /** Lowest number on the line. */
     min?: number;
     /** Highest number on the line. */
@@ -82,6 +82,15 @@ export const curriculum: CurriculumNode[] = [
                                     { type: "number-line-read", min: 0, max: 10, labeledNumbers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
                                     { type: "number-line-read", min: 0, max: 10, labeledNumbers: [0, 5, 10] },
                                     { type: "number-line-read", min: 0, max: 10, labeledNumbers: [0, 10] },
+                                ],
+                            },
+                            {
+                                slug: "zahlenstrahl-hoeren",
+                                title: t("levels.zahlen-und-variablen.zahlenstrahl-hoeren"),
+                                exercises: [
+                                    { type: "number-line-listen", min: 0, max: 10, labeledNumbers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
+                                    { type: "number-line-listen", min: 0, max: 10, labeledNumbers: [0, 5, 10] },
+                                    { type: "number-line-listen", min: 0, max: 10, labeledNumbers: [0, 10] },
                                 ],
                             },
                             {

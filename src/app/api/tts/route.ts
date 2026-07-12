@@ -2,10 +2,13 @@ import { NextResponse } from "next/server";
 
 const synthesisUrl = "https://api.inworld.ai/tts/v1/voice";
 const maxTextLength = 2000;
+const maxInstructionLength = 200;
+const defaultInstruction = "well-pronounced and much slower than native";
 
 type TtsRequest = {
     text?: unknown;
     voiceId?: unknown;
+    instruction?: unknown;
 };
 
 export async function POST(request: Request) {
@@ -22,12 +25,22 @@ export async function POST(request: Request) {
     }
 
     const text = typeof body.text === "string" ? body.text.trim() : "";
+    const requestedInstruction = typeof body.instruction === "string" ? body.instruction.trim() : "";
+    const instruction = requestedInstruction || process.env.INWORLD_TTS_INSTRUCTION || defaultInstruction;
     const requestedVoice = typeof body.voiceId === "string" ? body.voiceId.trim() : "";
     const voiceId = requestedVoice || process.env.INWORLD_TTS_VOICE_ID || "Matthias";
 
     if (!text) return NextResponse.json({ error: "Text is required." }, { status: 400 });
-    if (text.length > maxTextLength) {
-        return NextResponse.json({ error: `Text must not exceed ${maxTextLength} characters.` }, { status: 400 });
+    if (instruction.length > maxInstructionLength) {
+        return NextResponse.json({ error: `Instruction must not exceed ${maxInstructionLength} characters.` }, { status: 400 });
+    }
+    if (instruction.includes("[") || instruction.includes("]")) {
+        return NextResponse.json({ error: "Instruction must not contain square brackets." }, { status: 400 });
+    }
+
+    const steeredText = instruction ? `[${instruction}]${text}` : text;
+    if (steeredText.length > maxTextLength) {
+        return NextResponse.json({ error: `Combined instruction and text must not exceed ${maxTextLength} characters.` }, { status: 400 });
     }
 
     const response = await fetch(synthesisUrl, {
@@ -37,7 +50,7 @@ export async function POST(request: Request) {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            text,
+            text: steeredText,
             voiceId,
             modelId: "inworld-tts-2",
             language: "de-DE",

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Check, RefreshCw01, X } from "@untitledui/icons";
+import { useEffect, useRef, useState } from "react";
+import { Check, PlayCircle, RefreshCw01, X } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { translate as t } from "@/i18n/translate";
@@ -16,6 +16,8 @@ export interface NumberLineExerciseProps {
     max?: number;
     /** Which numbers show a label under the tick. */
     labeledNumbers?: number[];
+    /** Whether to show the target as text or play it as audio. */
+    presentation?: "text" | "audio";
 }
 
 const shuffle = (items: number[]) => {
@@ -29,7 +31,7 @@ const shuffle = (items: number[]) => {
 
 const pad = (value: number) => value.toString().padStart(2, "0");
 
-export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labeledNumbers = [0, 5, 10] }: NumberLineExerciseProps) => {
+export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labeledNumbers = [0, 5, 10], presentation = "text" }: NumberLineExerciseProps) => {
     const numbers = Array.from({ length: max - min + 1 }, (_, index) => min + index);
 
     const [sequence, setSequence] = useState<number[]>(numbers);
@@ -37,6 +39,7 @@ export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labe
     const [selected, setSelected] = useState<number | null>(null);
     const [revealed, setRevealed] = useState(false);
     const [wrongAttempts, setWrongAttempts] = useState(0);
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     // Shuffle on the client after mount so server and client render the same
     // initial (ordered) sequence and avoid a hydration mismatch.
@@ -94,6 +97,12 @@ export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labe
         setRevealed(false);
     };
 
+    const playTarget = async () => {
+        if (!audioRef.current) return;
+        audioRef.current.currentTime = 0;
+        await audioRef.current.play();
+    };
+
     return (
         <div className="flex max-w-2xl flex-col gap-8 rounded-xl bg-primary p-6 ring-4 ring-secondary ring-inset">
             {isFinished ? (
@@ -106,10 +115,27 @@ export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labe
             ) : (
                 <>
                     <div className="border-b border-secondary pb-4">
-                        <p className="text-md font-medium text-secondary"><span className="font-black mr-2">{pad(exerciseNumber)}</span> {t("instructions.number-line.prompt")}</p>
+                        <p className="text-md font-medium text-secondary">
+                            <span className="mr-2 font-black">{pad(exerciseNumber)}</span>{" "}
+                            {t(presentation === "audio" ? "instructions.number-line-listen.prompt" : "instructions.number-line.prompt")}
+                        </p>
                     </div>
 
-                    <p className="text-center text-display-md font-black text-primary">{target}</p>
+                    {presentation === "audio" && target !== null ? (
+                        <div className="flex justify-center">
+                            <audio ref={audioRef} src={`/api/audio/numbers/${target}`} preload="auto" />
+                            <button
+                                type="button"
+                                onClick={playTarget}
+                                aria-label={t("instructions.number-line-listen.play-aria")}
+                                className="flex size-14 items-center justify-center rounded-full bg-brand-solid text-white shadow-xs-skeuomorphic outline-focus-ring transition hover:bg-brand-solid_hover focus-visible:outline-2 focus-visible:outline-offset-2"
+                            >
+                                <PlayCircle className="size-7" />
+                            </button>
+                        </div>
+                    ) : (
+                        <p className="text-center text-display-md font-black text-primary">{target}</p>
+                    )}
 
                     {/* Number line */}
                     <div className="py-2">
