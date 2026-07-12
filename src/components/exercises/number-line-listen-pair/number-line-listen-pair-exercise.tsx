@@ -79,20 +79,9 @@ export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max 
         }
     };
 
-    const selectNumber = (number: number) => {
-        if (!targets || result === "correct" || revealed) return;
-        if (selected.includes(number)) {
-            setSelected(selected.filter((item) => item !== number));
-            setResult(null);
-            return;
-        }
-        if (selected.length >= 2) return;
-
-        const next = [...selected, number];
-        setSelected(next);
-        if (next.length < 2) return;
-
-        if (targets.every((target) => next.includes(target))) {
+    useEffect(() => {
+        if (!targets || selected.length !== 2) return;
+        if (targets.every((target) => selected.includes(target))) {
             setResult("correct");
             return;
         }
@@ -102,6 +91,16 @@ export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max 
             const nextAttempts = attempts + 1;
             if (nextAttempts >= 3) setRevealed(true);
             return nextAttempts;
+        });
+    }, [selected, targets]);
+
+    const selectNumber = (number: number) => {
+        if (!targets || result === "correct" || revealed) return;
+        setResult(null);
+        setSelected((current) => {
+            if (current.includes(number)) return current.filter((item) => item !== number);
+            if (current.length >= 2) return current;
+            return [...current, number];
         });
     };
 
@@ -150,6 +149,7 @@ export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max 
                             {numbers.map((number) => {
                                 const isSelected = selected.includes(number);
                                 const isTarget = targets?.includes(number) ?? false;
+                                const isPendingSelection = isSelected && result === null;
                                 const isCorrectSelection = isSelected && result === "correct";
                                 const isWrongSelection = isSelected && result === "wrong";
                                 const isRevealedSolution = revealed && isTarget && !isSelected;
@@ -166,6 +166,7 @@ export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max 
                                         <span
                                             className={cx(
                                                 "flex size-6 items-center justify-center rounded-full bg-primary ring-2 ring-border-primary transition duration-100 ease-linear group-hover:ring-brand group-focus-visible:ring-brand",
+                                                isPendingSelection && "bg-brand-solid ring-brand",
                                                 isCorrectSelection && "bg-success-solid ring-[var(--color-bg-success-solid)]",
                                                 isWrongSelection && "bg-error-solid ring-[var(--color-bg-error-solid)]",
                                                 isRevealedSolution && "bg-sky-solid ring-[var(--color-bg-sky-solid)]",
@@ -178,6 +179,7 @@ export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max 
                                         <span
                                             className={cx(
                                                 "text-sm font-medium text-tertiary transition-colors",
+                                                isPendingSelection && "text-brand-secondary",
                                                 isCorrectSelection && "text-success-primary",
                                                 isWrongSelection && "text-error-primary",
                                                 isRevealedSolution && "text-sky-primary",
