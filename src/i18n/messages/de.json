@@ -1,0 +1,60 @@
+{
+    "levels": {
+        "raum-und-zeit": {
+            "title": "Raum und Zeit",
+            "description": "Orientierung, Wege und Entfernungen im Raum.",
+            "objekte-lokalisieren": "Objekte lokalisieren",
+            "einen-weg-beschreiben": "einen Weg beschreiben",
+            "koordinatensystem-nutzen": "ein Koordinatensystem nutzen",
+            "entfernungen-abschaetzen": "Entfernungen abschätzen und errechnen"
+        },
+        "groessen-und-einheiten": {
+            "title": "Grössen und Einheiten",
+            "description": "Messen, schätzen und umrechnen von Grössen."
+        },
+        "zahlen-und-variablen": {
+            "title": "Zahlen und Variablen",
+            "description": "Rechnen mit Zahlen, Termen und Variablen.",
+            "zahlen-benennen-und-schreiben": "Zahlen benennen und schreiben",
+            "zahlen-von-0-bis-10": "Zahlen von 0 bis 10",
+            "zahlenstrahl": "Zahlenstrahl",
+            "zahlenstrahl-lesen": "Zahlenstrahl lesen",
+            "zahlen-sortieren": "Zahlen sortieren",
+            "dezimalsystem-verstehen": "Das Dezimalsystem, negative Zahlen usw. verstehen",
+            "informationen-sortieren": "Informationen und Zahlen sortieren und ordnen",
+            "variablen-verstehen": "Variablen verstehen und anwenden"
+        },
+        "geometrie": {
+            "title": "Geometrie",
+            "description": "Formen, Körper und geometrische Darstellungen."
+        },
+        "funktionale-zusammenhaenge": {
+            "title": "Funktionale Zusammenhänge",
+            "description": "Zusammenhänge erkennen, darstellen und deuten."
+        }
+    },
+    "instructions": {
+        "number-line": {
+            "prompt": "Markieren Sie die Zahl auf dem Zahlenstrahl.",
+            "mark-number-aria": "Zahl {number} markieren"
+        },
+        "number-line-read": {
+            "prompt": "Welche Zahl ist markiert? Geben Sie sie ein.",
+            "input-aria": "Markierte Zahl eingeben"
+        },
+        "number-sort": {
+            "prompt-ascending": "Sortieren Sie die Zahlen – von klein nach gross.",
+            "prompt-descending": "Sortieren Sie die Zahlen – von gross nach klein.",
+            "move-aria": "Zahl {number}, Position {position} von {total}. Mit den Pfeiltasten verschieben.",
+            "check": "Korrigieren"
+        },
+        "number-sequence": {
+            "prompt": "Vervollständigen Sie die Zahlenreihe.",
+            "bank-aria": "Verfügbare Zahlen",
+            "sequence-aria": "Zahlenreihe mit fünf Positionen",
+            "number-aria": "Zahl {number} einsetzen",
+            "empty-aria": "Leere Position {position}",
+            "check": "Korrigieren"
+        }
+    }
+}
