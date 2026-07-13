@@ -137,7 +137,7 @@ export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max 
                             onClick={playTargets}
                             disabled={isPlaying}
                             aria-label={t("instructions.number-line-listen-pair.play-aria")}
-                            className="flex size-14 items-center justify-center rounded-full bg-brand-solid text-white shadow-xs-skeuomorphic outline-focus-ring transition hover:bg-brand-solid_hover focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60"
+                            className="flex size-14 items-center justify-center rounded-lg bg-brand-solid text-white shadow-xs-skeuomorphic outline-focus-ring transition hover:bg-brand-solid_hover focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60"
                         >
                             <Play className="size-7" />
                         </button>
