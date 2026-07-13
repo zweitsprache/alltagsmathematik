@@ -62,9 +62,9 @@ const CurriculumItem = ({
     const children = node.children ?? [];
 
     return (
-        <div className="flex flex-col gap-1">
-            <div className="grid items-end gap-2 rounded-lg bg-primary p-2 ring-1 ring-secondary ring-inset sm:grid-cols-[minmax(8rem,1fr)_minmax(8rem,1fr)_minmax(12rem,2fr)_auto]">
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-secondary">
+        <div className="flex flex-col">
+            <div className="grid items-center gap-2 border-b border-secondary px-2 py-2 sm:grid-cols-[minmax(8rem,1fr)_minmax(8rem,1fr)_minmax(12rem,2fr)_auto]">
+                <label className="sr-only">
                     Titel
                     <input
                         value={node.title}
@@ -72,7 +72,7 @@ const CurriculumItem = ({
                         className="rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
                     />
                 </label>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-secondary">
+                <label className="sr-only">
                     Slug
                     <input
                         value={node.slug}
@@ -80,7 +80,7 @@ const CurriculumItem = ({
                         className="rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
                     />
                 </label>
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-secondary">
+                <label className="sr-only">
                     Beschreibung
                     <input
                         value={node.description ?? ""}
@@ -88,7 +88,7 @@ const CurriculumItem = ({
                         className="rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
                     />
                 </label>
-                <div className="flex items-center justify-end gap-1 pb-0.5">
+                <div className="flex items-center justify-end gap-1">
                     <Button size="xs" color="tertiary" iconLeading={ArrowUp} aria-label="Nach oben" onClick={() => onMove(path, -1)} />
                     <Button size="xs" color="tertiary" iconLeading={ArrowDown} aria-label="Nach unten" onClick={() => onMove(path, 1)} />
                     <Button size="xs" color="tertiary" iconLeading={Plus} aria-label="Unterthema hinzufügen" onClick={() => onAdd(path)} />
@@ -161,19 +161,29 @@ export default function CurriculumManagementPage() {
                     nodes.length === 0 && "rounded-xl border border-dashed border-secondary p-8 text-center text-sm text-tertiary",
                 )}
             >
-                {nodes.length === 0
-                    ? "Noch keine Bereiche vorhanden."
-                    : nodes.map((node, index) => (
-                          <CurriculumItem
-                              key={`${node.slug}-${index}`}
-                              node={node}
-                              path={[index]}
-                              onChange={change}
-                              onDelete={remove}
-                              onMove={move}
-                              onAdd={add}
-                          />
-                      ))}
+                {nodes.length === 0 ? (
+                    "Noch keine Bereiche vorhanden."
+                ) : (
+                    <>
+                        <div className="grid gap-2 border-b-2 border-secondary px-2 py-2 text-xs font-semibold text-tertiary sm:grid-cols-[minmax(8rem,1fr)_minmax(8rem,1fr)_minmax(12rem,2fr)_auto]">
+                            <span>Titel</span>
+                            <span>Slug</span>
+                            <span>Beschreibung</span>
+                            <span className="text-right">Aktionen</span>
+                        </div>
+                        {nodes.map((node, index) => (
+                            <CurriculumItem
+                                key={`${node.slug}-${index}`}
+                                node={node}
+                                path={[index]}
+                                onChange={change}
+                                onDelete={remove}
+                                onMove={move}
+                                onAdd={add}
+                            />
+                        ))}
+                    </>
+                )}
             </div>
         </div>
     );
