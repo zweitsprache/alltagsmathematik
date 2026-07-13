@@ -131,6 +131,7 @@ export default function CurriculumManagementPage() {
     const addRoot = () => setNodes((current) => [...current, newNode([])]);
     const save = () => {
         window.localStorage.setItem(storageKey, JSON.stringify(nodes));
+        window.dispatchEvent(new Event("curriculum-draft-updated"));
         setSaved(true);
         window.setTimeout(() => setSaved(false), 1800);
     };

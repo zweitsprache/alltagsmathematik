@@ -12,7 +12,7 @@ export const PageHeader = ({
     actions,
     hierarchicalNumber,
 }: {
-    title: string;
+    title: ReactNode;
     description?: string;
     icon?: FC<{ className?: string }>;
     actions?: ReactNode;

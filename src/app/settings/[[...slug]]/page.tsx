@@ -1,10 +1,11 @@
+import { ChevronRight } from "@untitledui/icons";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight } from "@untitledui/icons";
+import { CurriculumTitle } from "@/components/curriculum/curriculum-title";
 import { NodeGrid } from "@/components/curriculum/node-grid";
 import { PageHeader } from "@/components/curriculum/page-header";
 import { ExerciseRenderer } from "@/components/exercises/registry";
-import { allPaths, curriculum, resolvePath, getHierarchicalNumber } from "@/content/curriculum";
+import { allPaths, curriculum, getHierarchicalNumber, resolvePath } from "@/content/curriculum";
 import { iconMap } from "@/content/icons";
 
 export function generateStaticParams() {
@@ -56,7 +57,12 @@ export default async function CurriculumPage({ params }: { params: Promise<{ slu
                     </>
                 )}
 
-                <PageHeader title={node.title} description={node.description} icon={Icon} hierarchicalNumber={getHierarchicalNumber(slug)} />
+                <PageHeader
+                    title={<CurriculumTitle slug={node.slug} fallback={node.title} />}
+                    description={node.description}
+                    icon={Icon}
+                    hierarchicalNumber={getHierarchicalNumber(slug)}
+                />
             </div>
 
             {children.length > 0 ? (
