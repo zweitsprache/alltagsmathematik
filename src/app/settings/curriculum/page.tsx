@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowDown, ArrowUp, ChevronDown, Plus, RefreshCw01, Trash01 } from "@untitledui/icons";
+import { ArrowDown, ArrowUp, Plus, RefreshCw01, Trash01 } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
 import { PageHeader } from "@/components/curriculum/page-header";
 import type { CurriculumNode } from "@/content/curriculum";
@@ -62,75 +62,56 @@ const CurriculumItem = ({
     const children = node.children ?? [];
 
     return (
-        <details className="group rounded-lg bg-primary ring-1 ring-secondary ring-inset">
-            <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 px-3 py-2 outline-focus-ring focus-visible:outline-2">
-                <ChevronDown className="size-4 shrink-0 text-fg-quaternary transition group-open:rotate-180" />
-                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-primary">{node.title || "Unbenannt"}</span>
-                <span className="shrink-0 text-xs text-tertiary">
-                    {children.length} {children.length === 1 ? "Unterthema" : "Unterthemen"}
-                </span>
-            </summary>
-
-            <div className="flex flex-col gap-4 border-t border-secondary p-4">
-                <div className="grid gap-3 md:grid-cols-3">
-                    <label className="flex flex-col gap-1.5 text-sm font-medium text-secondary">
-                        Titel
-                        <input
-                            value={node.title}
-                            onChange={(event) => onChange(path, (current) => ({ ...current, title: event.target.value }))}
-                            className="rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
-                        />
-                    </label>
-                    <label className="flex flex-col gap-1.5 text-sm font-medium text-secondary">
-                        Slug
-                        <input
-                            value={node.slug}
-                            onChange={(event) => onChange(path, (current) => ({ ...current, slug: event.target.value }))}
-                            className="rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
-                        />
-                    </label>
-                    <label className="flex flex-col gap-1.5 text-sm font-medium text-secondary">
-                        Beschreibung
-                        <input
-                            value={node.description ?? ""}
-                            onChange={(event) => onChange(path, (current) => ({ ...current, description: event.target.value }))}
-                            className="rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
-                        />
-                    </label>
+        <div className="flex flex-col gap-1">
+            <div className="grid items-end gap-2 rounded-lg bg-primary p-2 ring-1 ring-secondary ring-inset sm:grid-cols-[minmax(8rem,1fr)_minmax(8rem,1fr)_minmax(12rem,2fr)_auto]">
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-secondary">
+                    Titel
+                    <input
+                        value={node.title}
+                        onChange={(event) => onChange(path, (current) => ({ ...current, title: event.target.value }))}
+                        className="rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
+                    />
+                </label>
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-secondary">
+                    Slug
+                    <input
+                        value={node.slug}
+                        onChange={(event) => onChange(path, (current) => ({ ...current, slug: event.target.value }))}
+                        className="rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
+                    />
+                </label>
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-secondary">
+                    Beschreibung
+                    <input
+                        value={node.description ?? ""}
+                        onChange={(event) => onChange(path, (current) => ({ ...current, description: event.target.value }))}
+                        className="rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
+                    />
+                </label>
+                <div className="flex items-center justify-end gap-1 pb-0.5">
+                    <Button size="xs" color="tertiary" iconLeading={ArrowUp} aria-label="Nach oben" onClick={() => onMove(path, -1)} />
+                    <Button size="xs" color="tertiary" iconLeading={ArrowDown} aria-label="Nach unten" onClick={() => onMove(path, 1)} />
+                    <Button size="xs" color="tertiary" iconLeading={Plus} aria-label="Unterthema hinzufügen" onClick={() => onAdd(path)} />
+                    <Button size="xs" color="link-destructive" iconLeading={Trash01} aria-label="Löschen" onClick={() => onDelete(path)} />
                 </div>
-
-                <div className="flex flex-wrap gap-2">
-                    <Button size="xs" color="secondary" iconLeading={ArrowUp} onClick={() => onMove(path, -1)}>
-                        Nach oben
-                    </Button>
-                    <Button size="xs" color="secondary" iconLeading={ArrowDown} onClick={() => onMove(path, 1)}>
-                        Nach unten
-                    </Button>
-                    <Button size="xs" color="secondary" iconLeading={Plus} onClick={() => onAdd(path)}>
-                        Unterthema hinzufügen
-                    </Button>
-                    <Button size="xs" color="link-destructive" iconLeading={Trash01} onClick={() => onDelete(path)}>
-                        Löschen
-                    </Button>
-                </div>
-
-                {children.length > 0 && (
-                    <div className="flex flex-col gap-3 border-l-2 border-secondary pl-4">
-                        {children.map((child, index) => (
-                            <CurriculumItem
-                                key={`${child.slug}-${index}`}
-                                node={child}
-                                path={[...path, index]}
-                                onChange={onChange}
-                                onDelete={onDelete}
-                                onMove={onMove}
-                                onAdd={onAdd}
-                            />
-                        ))}
-                    </div>
-                )}
             </div>
-        </details>
+
+            {children.length > 0 && (
+                <div className="ml-4 flex flex-col gap-1 border-l-2 border-secondary pl-3">
+                    {children.map((child, index) => (
+                        <CurriculumItem
+                            key={`${child.slug}-${index}`}
+                            node={child}
+                            path={[...path, index]}
+                            onChange={onChange}
+                            onDelete={onDelete}
+                            onMove={onMove}
+                            onAdd={onAdd}
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
     );
 };
 
