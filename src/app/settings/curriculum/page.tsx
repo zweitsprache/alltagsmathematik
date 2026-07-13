@@ -62,11 +62,13 @@ const CurriculumItem = ({
     const children = node.children ?? [];
 
     return (
-        <details open className="group rounded-xl bg-primary ring-1 ring-secondary ring-inset">
-            <summary className="flex cursor-pointer list-none items-center gap-3 p-4 outline-focus-ring focus-visible:outline-2">
-                <ChevronDown className="size-5 shrink-0 text-fg-quaternary transition group-open:rotate-180" />
-                <span className="flex-1 text-md font-semibold text-primary">{node.title || "Unbenannt"}</span>
-                <span className="text-xs text-tertiary">{children.length} Unterthemen</span>
+        <details className="group rounded-lg bg-primary ring-1 ring-secondary ring-inset">
+            <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 px-3 py-2 outline-focus-ring focus-visible:outline-2">
+                <ChevronDown className="size-4 shrink-0 text-fg-quaternary transition group-open:rotate-180" />
+                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-primary">{node.title || "Unbenannt"}</span>
+                <span className="shrink-0 text-xs text-tertiary">
+                    {children.length} {children.length === 1 ? "Unterthema" : "Unterthemen"}
+                </span>
             </summary>
 
             <div className="flex flex-col gap-4 border-t border-secondary p-4">
