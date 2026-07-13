@@ -64,30 +64,24 @@ const CurriculumItem = ({
     return (
         <div className="flex flex-col">
             <div className="grid items-center gap-2 border-b border-secondary px-2 py-2 sm:grid-cols-[minmax(8rem,1fr)_minmax(8rem,1fr)_minmax(12rem,2fr)_auto]">
-                <label className="sr-only">
-                    Titel
-                    <input
-                        value={node.title}
-                        onChange={(event) => onChange(path, (current) => ({ ...current, title: event.target.value }))}
-                        className="rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
-                    />
-                </label>
-                <label className="sr-only">
-                    Slug
-                    <input
-                        value={node.slug}
-                        onChange={(event) => onChange(path, (current) => ({ ...current, slug: event.target.value }))}
-                        className="rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
-                    />
-                </label>
-                <label className="sr-only">
-                    Beschreibung
-                    <input
-                        value={node.description ?? ""}
-                        onChange={(event) => onChange(path, (current) => ({ ...current, description: event.target.value }))}
-                        className="rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
-                    />
-                </label>
+                <input
+                    aria-label="Titel"
+                    value={node.title}
+                    onChange={(event) => onChange(path, (current) => ({ ...current, title: event.target.value }))}
+                    className="min-w-0 rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
+                />
+                <input
+                    aria-label="Slug"
+                    value={node.slug}
+                    onChange={(event) => onChange(path, (current) => ({ ...current, slug: event.target.value }))}
+                    className="min-w-0 rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
+                />
+                <input
+                    aria-label="Beschreibung"
+                    value={node.description ?? ""}
+                    onChange={(event) => onChange(path, (current) => ({ ...current, description: event.target.value }))}
+                    className="min-w-0 rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
+                />
                 <div className="flex items-center justify-end gap-1">
                     <Button size="xs" color="tertiary" iconLeading={ArrowUp} aria-label="Nach oben" onClick={() => onMove(path, -1)} />
                     <Button size="xs" color="tertiary" iconLeading={ArrowDown} aria-label="Nach unten" onClick={() => onMove(path, 1)} />
