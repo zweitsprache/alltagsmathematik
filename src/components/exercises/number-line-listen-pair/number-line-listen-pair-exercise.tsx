@@ -114,7 +114,7 @@ export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max 
     };
 
     return (
-        <div className="flex max-w-2xl flex-col gap-8 rounded-xl bg-primary p-6 ring-4 ring-secondary ring-inset">
+        <div className="flex max-w-2xl flex-col gap-8 rounded-xl bg-primary p-6 ring-2 ring-border-primary ring-inset">
             {isFinished ? (
                 <div className="flex flex-col items-start gap-4">
                     <p className="text-lg font-semibold text-primary">Alle Zahlen bearbeitet.</p>
