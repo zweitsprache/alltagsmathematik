@@ -72,7 +72,7 @@ const CurriculumItem = ({
             </summary>
 
             <div className="flex flex-col gap-4 border-t border-secondary p-4">
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-3 md:grid-cols-3">
                     <label className="flex flex-col gap-1.5 text-sm font-medium text-secondary">
                         Titel
                         <input
@@ -89,17 +89,15 @@ const CurriculumItem = ({
                             className="rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
                         />
                     </label>
+                    <label className="flex flex-col gap-1.5 text-sm font-medium text-secondary">
+                        Beschreibung
+                        <input
+                            value={node.description ?? ""}
+                            onChange={(event) => onChange(path, (current) => ({ ...current, description: event.target.value }))}
+                            className="rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
+                        />
+                    </label>
                 </div>
-
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-secondary">
-                    Beschreibung
-                    <textarea
-                        value={node.description ?? ""}
-                        onChange={(event) => onChange(path, (current) => ({ ...current, description: event.target.value }))}
-                        rows={2}
-                        className="resize-y rounded-lg bg-primary px-3 py-2 text-sm text-primary ring-1 ring-secondary outline-focus-ring focus-visible:outline-2"
-                    />
-                </label>
 
                 <div className="flex flex-wrap gap-2">
                     <Button size="xs" color="secondary" iconLeading={ArrowUp} onClick={() => onMove(path, -1)}>
