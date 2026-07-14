@@ -5,7 +5,6 @@ import "@fontsource/encode-sans-semi-condensed/600.css";
 import "@fontsource/encode-sans-semi-condensed/700.css";
 import "@fontsource/encode-sans-semi-condensed/900.css";
 import { RouteProvider } from "@/providers/router-provider";
-import { Theme } from "@/providers/theme";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -24,10 +23,10 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="de" suppressHydrationWarning>
+        <html lang="de" className="light-mode">
             <body className="bg-primary antialiased">
                 <RouteProvider>
-                    <Theme>{children}</Theme>
+                    {children}
                 </RouteProvider>
             </body>
         </html>

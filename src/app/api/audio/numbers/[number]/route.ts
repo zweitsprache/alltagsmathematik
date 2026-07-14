@@ -5,12 +5,12 @@ export async function GET(_request: Request, { params }: { params: Promise<{ num
     const { number: rawNumber } = await params;
     const number = Number(rawNumber);
 
-    if (!Number.isInteger(number) || number < 0 || number > 10) {
-        return NextResponse.json({ error: "Number must be an integer from 0 to 10." }, { status: 400 });
+    if (!Number.isInteger(number) || number < 0 || number > 1000) {
+        return NextResponse.json({ error: "Number must be an integer from 0 to 1000." }, { status: 400 });
     }
 
     const pathname = `audio_zahlen/male/${String(number).padStart(4, "0")}_male.mp3`;
-    const result = await get(pathname, { access: "private" });
+    const result = await get(pathname, { access: "private", useCache: false });
 
     if (!result) {
         return NextResponse.json({ error: "Audio was not found." }, { status: 404 });
@@ -19,7 +19,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ num
     return new Response(result.stream, {
         headers: {
             "Content-Type": result.blob.contentType || "audio/mpeg",
-            "Cache-Control": "public, max-age=3600, s-maxage=86400",
+            "Cache-Control": "private, no-store",
         },
     });
 }

@@ -1,0 +1,47 @@
+[
+  [
+    {"text":"Ich warte seit fünfundzwanzig Minuten auf den Bus.","numbers":[25]},
+    {"text":"Das Hotel hat sechsundzwanzig Zimmer.","numbers":[26]},
+    {"text":"Meine Cousine ist siebenundzwanzig Jahre alt.","numbers":[27]},
+    {"text":"Das Buch hat achtundzwanzig Kapitel.","numbers":[28]},
+    {"text":"Der Pullover kostet neunundzwanzig Franken.","numbers":[29]},
+    {"text":"In meiner Klasse sind dreissig Schüler.","numbers":[30]},
+    {"text":"Der Monat hat einunddreissig Tage.","numbers":[31]}
+  ],
+  [
+    {"text":"Mein Bruder ist fünfundzwanzig Jahre alt.","numbers":[25]},
+    {"text":"Die Fahrt dauert sechsundzwanzig Minuten.","numbers":[26]},
+    {"text":"Im Bus sitzen siebenundzwanzig Personen.","numbers":[27]},
+    {"text":"Ich brauche achtundzwanzig Minuten zur Arbeit.","numbers":[28]},
+    {"text":"Im Parkhaus sind neunundzwanzig Plätze frei.","numbers":[29]},
+    {"text":"Das T-Shirt kostet dreissig Franken.","numbers":[30]},
+    {"text":"Der Kurs hat einunddreissig Teilnehmer.","numbers":[31]}
+  ],
+  [
+    {"text":"Wir brauchen fünfundzwanzig Stühle für die Sitzung.","numbers":[25]},
+    {"text":"Meine Nichte ist sechsundzwanzig Jahre alt.","numbers":[26]},
+    {"text":"Das Buch kostet siebenundzwanzig Franken.","numbers":[27]},
+    {"text":"In der Firma arbeiten achtundzwanzig Personen.","numbers":[28]},
+    {"text":"Die Wanderung ist neunundzwanzig Kilometer lang.","numbers":[29]},
+    {"text":"Ich warte seit dreissig Minuten auf den Zug.","numbers":[30]},
+    {"text":"Das Hotel hat einunddreissig Zimmer.","numbers":[31]}
+  ],
+  [
+    {"text":"Ich arbeite fünfundzwanzig Tage im Monat und habe achtundzwanzig Ferientage im Jahr.","numbers":[25,28]},
+    {"text":"Das Hotel hat einunddreissig Zimmer, davon sind sechsundzwanzig besetzt.","numbers":[31,26]},
+    {"text":"Der Pullover kostet dreissig Franken, das T-Shirt siebenundzwanzig.","numbers":[30,27]},
+    {"text":"Im Bus sitzen neunundzwanzig Erwachsene und fünfundzwanzig Kinder.","numbers":[29,25]},
+    {"text":"Das Buch hat einunddreissig Kapitel und ich habe schon achtundzwanzig gelesen.","numbers":[31,28]},
+    {"text":"Meine Cousinen sind sechsundzwanzig und dreissig Jahre alt.","numbers":[26,30]},
+    {"text":"Das Parkhaus hat achtundzwanzig Plätze, sechsundzwanzig sind besetzt.","numbers":[28,26]}
+  ],
+  [
+    {"text":"Das Parkhaus hat dreissig Plätze, fünfundzwanzig sind besetzt.","numbers":[30,25]},
+    {"text":"Mein Bruder ist siebenundzwanzig, meine Schwester ist einunddreissig.","numbers":[27,31]},
+    {"text":"Im Kurs sind sechsundzwanzig Frauen und neunundzwanzig Männer.","numbers":[26,29]},
+    {"text":"In der Firma arbeiten achtundzwanzig Männer und sechsundzwanzig Frauen.","numbers":[28,26]},
+    {"text":"Das Buch hat dreissig Kapitel und kostet fünfundzwanzig Franken.","numbers":[30,25]},
+    {"text":"Wir sind neunundzwanzig Personen und brauchen neunundzwanzig Stühle.","numbers":[29,29]},
+    {"text":"Die Fahrt dauert einunddreissig Minuten, zu Fuss brauche ich siebenundzwanzig mehr.","numbers":[31,27]}
+  ]
+]

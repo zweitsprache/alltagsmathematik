@@ -11,15 +11,17 @@ export const PageHeader = ({
     icon: Icon,
     actions,
     hierarchicalNumber,
+    showDivider = true,
 }: {
     title: ReactNode;
     description?: string;
     icon?: FC<{ className?: string }>;
     actions?: ReactNode;
     hierarchicalNumber?: string;
+    showDivider?: boolean;
 }) => {
     return (
-        <div className="flex flex-col gap-4 border-b border-secondary pb-5">
+        <div className={`flex flex-col gap-4 ${showDivider ? "border-b border-secondary pb-5" : ""}`}>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-4">
                     {Icon && <FeaturedIcon icon={Icon} size="lg" color="brand" theme="light" />}

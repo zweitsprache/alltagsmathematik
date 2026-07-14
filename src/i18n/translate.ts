@@ -2,7 +2,7 @@ import de from "./messages/de.json";
 
 export type TranslationKey =
     | `levels.${string}`
-    | `instructions.${"number-line" | "number-line-listen" | "number-line-listen-pair" | "number-line-read" | "number-sort" | "number-sequence"}.${string}`;
+    | `instructions.${"analog-clock-choice" | "context-number-listen" | "counting-match" | "number-line" | "number-line-listen" | "number-line-listen-pair" | "number-line-word" | "number-line-read" | "number-word-choice" | "number-spelling-choice" | "number-sort" | "number-sequence" | "number-match"}.${string}`;
 
 type TranslationVariables = Record<string, string | number>;
 

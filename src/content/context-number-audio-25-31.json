@@ -1,0 +1,47 @@
+[
+  [
+    {"text":"Ich warte seit 28 Minuten auf den Bus.","numbers":[28]},
+    {"text":"Das Hotel hat 26 Zimmer.","numbers":[26]},
+    {"text":"Meine Cousine ist 29 Jahre alt.","numbers":[29]},
+    {"text":"Das Buch hat 25 Kapitel.","numbers":[25]},
+    {"text":"Der Pullover kostet 31 Franken.","numbers":[31]},
+    {"text":"In meiner Klasse sind 27 Schüler.","numbers":[27]},
+    {"text":"Der Monat hat 30 Tage.","numbers":[30]}
+  ],
+  [
+    {"text":"Mein Bruder ist 31 Jahre alt.","numbers":[31]},
+    {"text":"Die Fahrt dauert 29 Minuten.","numbers":[29]},
+    {"text":"Im Bus sitzen 25 Personen.","numbers":[25]},
+    {"text":"Ich brauche 30 Minuten zur Arbeit.","numbers":[30]},
+    {"text":"Im Parkhaus sind 27 Plätze frei.","numbers":[27]},
+    {"text":"Das T-Shirt kostet 26 Franken.","numbers":[26]},
+    {"text":"Der Kurs hat 28 Teilnehmer.","numbers":[28]}
+  ],
+  [
+    {"text":"Wir brauchen 29 Stühle für die Sitzung.","numbers":[29]},
+    {"text":"Meine Nichte ist 31 Jahre alt.","numbers":[31]},
+    {"text":"Das Buch kostet 25 Franken.","numbers":[25]},
+    {"text":"In der Firma arbeiten 30 Personen.","numbers":[30]},
+    {"text":"Die Wanderung ist 26 Kilometer lang.","numbers":[26]},
+    {"text":"Ich warte seit 27 Minuten auf den Zug.","numbers":[27]},
+    {"text":"Das Hotel hat 28 Zimmer.","numbers":[28]}
+  ],
+  [
+    {"text":"Ich arbeite 26 Tage im Monat und habe 30 Ferientage im Jahr.","numbers":[26,30]},
+    {"text":"Das Hotel hat 29 Zimmer, davon sind 25 besetzt.","numbers":[29,25]},
+    {"text":"Der Pullover kostet 28 Franken, das T-Shirt 25.","numbers":[28,25]},
+    {"text":"Im Bus sitzen 27 Erwachsene und 26 Kinder.","numbers":[27,26]},
+    {"text":"Das Buch hat 30 Kapitel und ich habe schon 27 gelesen.","numbers":[30,27]},
+    {"text":"Meine Cousinen sind 25 und 29 Jahre alt.","numbers":[25,29]},
+    {"text":"Das Parkhaus hat 31 Plätze, 28 sind besetzt.","numbers":[31,28]}
+  ],
+  [
+    {"text":"Das Parkhaus hat 27 Plätze, 25 sind besetzt.","numbers":[27,25]},
+    {"text":"Mein Bruder ist 30, meine Schwester ist 26.","numbers":[30,26]},
+    {"text":"Im Kurs sind 28 Frauen und 25 Männer.","numbers":[28,25]},
+    {"text":"In der Firma arbeiten 31 Männer und 29 Frauen.","numbers":[31,29]},
+    {"text":"Das Buch hat 26 Kapitel und kostet 28 Franken.","numbers":[26,28]},
+    {"text":"Wir sind 27 Personen und brauchen 27 Stühle.","numbers":[27,27]},
+    {"text":"Die Fahrt dauert 29 Minuten, zu Fuss brauche ich 26 mehr.","numbers":[29,26]}
+  ]
+]

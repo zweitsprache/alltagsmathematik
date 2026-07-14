@@ -3,6 +3,19 @@
         "raum-und-zeit": {
             "title": "Raum und Zeit",
             "description": "Orientierung, Wege und Entfernungen im Raum.",
+            "uhrzeiten": "Uhrzeiten",
+            "analog-offiziell": "Analog > offiziell",
+            "analog-inoffiziell": "Analog > inoffiziell",
+            "xx-00": "XX:00 | XX:30 lesen",
+            "xx-15-xx-45": "XX:15 | XX:45 lesen",
+            "xx-05-xx-55": "XX:05 | XX:55 lesen",
+            "xx-10-xx-50": "XX:10 | XX:50 lesen",
+            "xx-20-xx-40": "XX:20 | XX:40 lesen",
+            "xx-25-xx-35": "XX:25 | XX:35 lesen",
+            "grundbegriffe-fuer-zeit": "Grundbegriffe für Zeit",
+            "zeitpunkte": "Zeitpunkte",
+            "zeitplan": "Zeitplan",
+            "geschwindigkeit": "Geschwindigkeit",
             "objekte-lokalisieren": "Objekte lokalisieren",
             "einen-weg-beschreiben": "einen Weg beschreiben",
             "koordinatensystem-nutzen": "ein Koordinatensystem nutzen",
@@ -17,10 +30,23 @@
             "description": "Rechnen mit Zahlen, Termen und Variablen.",
             "zahlen-benennen-und-schreiben": "Zahlen benennen und schreiben",
             "zahlen-von-0-bis-10": "Zahlen von 0 bis 10",
+            "zahlen-von-11-bis-24": "Zahlen von 11 bis 24",
+            "zahlen-von-25-bis-31": "Zahlen von 25 bis 31",
+            "zahlen-bis-100": "Zahlen bis 100",
+            "zahlen-bis-1000": "Zahlen bis 1000",
+            "intro": "Intro",
+            "zaehlen": "Zählen",
+            "zahlen-vergleichen": "Zahlen vergleichen",
             "zahlenstrahl": "Zahlenstrahl",
             "zahlenstrahl-lesen": "Zahlenstrahl lesen",
             "zahlenstrahl-hoeren": "Zahlenstrahl hören",
+            "zahlenstrahl-zahlwoerter": "Zahlenstrahl mit Zahlwörtern",
+            "zahlwoerter-lesen": "Zahlwörter lesen",
+            "zahlen-hoeren-und-auswaehlen": "Zahlen hören und auswählen",
             "zahlen-sortieren": "Zahlen sortieren",
+            "zahlen-im-kontext-hoeren": "Zahlen im Kontext hören",
+            "zahlen-lesen": "Zahlen lesen",
+            "zahlen-erkennen": "Zahlen erkennen",
             "dezimalsystem-verstehen": "Das Dezimalsystem, negative Zahlen usw. verstehen",
             "informationen-sortieren": "Informationen und Zahlen sortieren und ordnen",
             "variablen-verstehen": "Variablen verstehen und anwenden"
@@ -35,6 +61,24 @@
         }
     },
     "instructions": {
+        "number-spelling-choice": {
+            "prompt": "Wählen Sie die richtige Schreibweise."
+        },
+        "context-number-listen": {
+            "prompt": "Hören Sie den Satz und wählen Sie die genannten Zahlen aus.",
+            "prompt-read": "Lesen Sie den Satz und wählen Sie die genannten Zahlen aus.",
+            "play-aria": "Satz abspielen"
+        },
+        "analog-clock-choice": {
+            "prompt": "Welche Uhrzeit zeigt die Uhr? Wählen Sie die richtige Uhrzeit aus.",
+            "prompt-pair": "Welche Uhrzeiten kann die Uhr zeigen? Wählen Sie beide Uhrzeiten aus.",
+            "clock-aria": "Analoge Uhr"
+        },
+        "counting-match": {
+            "prompt": "Wählen Sie die zwei Karten mit gleich vielen Formen aus.",
+            "card-aria": "Karte {card} auswählen",
+            "restart": "Nochmal starten"
+        },
         "number-line": {
             "prompt": "Markieren Sie die Zahl auf dem Zahlenstrahl.",
             "mark-number-aria": "Zahl {number} markieren"
@@ -42,6 +86,21 @@
         "number-line-listen": {
             "prompt": "Hören Sie die Zahl und markieren Sie sie auf dem Zahlenstrahl.",
             "play-aria": "Zahl abspielen"
+        },
+        "number-line-word": {
+            "prompt": "Lesen Sie die Zahl und markieren Sie sie auf dem Zahlenstrahl.",
+            "prompt-pair": "Lesen Sie die zwei Zahlen und markieren Sie beide auf dem Zahlenstrahl."
+        },
+        "number-word-choice": {
+            "prompt": "Lesen Sie das Zahlwort und wählen Sie die passende Zahl.",
+            "prompt-two": "Lesen Sie die zwei Zahlwörter und wählen Sie die passenden Zahlen.",
+            "prompt-three": "Lesen Sie die drei Zahlwörter und wählen Sie die passenden Zahlen.",
+            "prompt-audio": "Hören Sie die Zahl und wählen Sie die passende Zahl.",
+            "prompt-audio-two": "Hören Sie die zwei Zahlen und wählen Sie die passenden Zahlen.",
+            "prompt-audio-three": "Hören Sie die drei Zahlen und wählen Sie die passenden Zahlen.",
+            "choice-aria": "Zahl {number} auswählen",
+            "play-aria": "Zahl abspielen",
+            "restart": "Nochmal starten"
         },
         "number-line-listen-pair": {
             "prompt": "Hören Sie die zwei Zahlen und markieren Sie beide auf dem Zahlenstrahl.",
@@ -65,6 +124,12 @@
             "number-aria": "Zahl {number} einsetzen",
             "empty-aria": "Leere Position {position}",
             "check": "Korrigieren"
+        },
+        "number-match": {
+            "prompt": "Klicken Sie auf die drei gleichen Zahlen.",
+            "prompt-two": "Klicken Sie auf die zwei gleichen Zahlen.",
+            "number-aria": "Zahl {number} auswählen",
+            "restart": "Nochmal starten"
         }
     }
 }

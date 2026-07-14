@@ -5,10 +5,17 @@
     "scripts": {
         "dev": "next dev --turbopack",
         "build": "next build",
-        "start": "next start"
+        "start": "next start",
+        "db:check": "node scripts/check-database.mjs",
+        "db:migrate": "node scripts/migrate-database.mjs",
+        "audio:generate-11-24": "node scripts/generate-number-audio.mjs",
+        "audio:upload-11-24": "node scripts/upload-number-audio.mjs",
+        "capture": "node scripts/marketing-capture.mjs",
+        "capture:list": "node scripts/marketing-capture.mjs --list"
     },
     "dependencies": {
         "@fontsource/encode-sans-semi-condensed": "^5.2.8",
+        "@neondatabase/serverless": "^1.1.0",
         "@react-aria/utils": "^3.34.1",
         "@react-stately/utils": "^3.12.1",
         "@tailwindcss/postcss": "^4.2.2",
@@ -38,6 +45,7 @@
         "@types/node": "^25.5.0",
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
+        "playwright": "^1.55.0",
         "postcss": "^8.5.8",
         "postcss-loader": "^8.2.1",
         "prettier": "^3.8.1",

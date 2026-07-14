@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Play, RefreshCw01, X } from "@untitledui/icons";
+import { Check, Play, X } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
+import { numberWords } from "@/content/number-words";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
+import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
 import { translate as t } from "@/i18n/translate";
 import { cx } from "@/utils/cx";
 
@@ -17,8 +19,11 @@ export interface NumberLineExerciseProps {
     /** Which numbers show a label under the tick. */
     labeledNumbers?: number[];
     /** Whether to show the target as text or play it as audio. */
-    presentation?: "text" | "audio";
+    presentation?: "text" | "audio" | "word";
+    taskCount?: number;
+    rangeSize?: number;
 }
+
 
 const shuffle = (items: number[]) => {
     const result = [...items];
@@ -31,49 +36,92 @@ const shuffle = (items: number[]) => {
 
 const pad = (value: number) => value.toString().padStart(2, "0");
 
-export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labeledNumbers = [0, 5, 10], presentation = "text" }: NumberLineExerciseProps) => {
-    const numbers = Array.from({ length: max - min + 1 }, (_, index) => min + index);
+type NumberLineTask = { target: number; min: number; max: number };
 
-    const [sequence, setSequence] = useState<number[]>(numbers);
+const createTasks = (min: number, max: number, taskCount?: number, rangeSize?: number): NumberLineTask[] => {
+    if (!rangeSize) return shuffle(Array.from({ length: max - min + 1 }, (_, index) => min + index)).slice(0, taskCount).map((target) => ({ target, min, max }));
+    const count = taskCount ?? 10;
+    const windowCount = Math.floor((max - min) / rangeSize);
+    return Array.from({ length: count }, () => {
+        const windowMin = min + Math.floor(Math.random() * windowCount) * rangeSize;
+        const windowMax = Math.min(windowMin + rangeSize, max);
+        const target = windowMin + Math.floor(Math.random() * (windowMax - windowMin + 1));
+        return { target, min: windowMin, max: windowMax };
+    });
+};
+
+export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labeledNumbers = [0, 5, 10], presentation = "text", taskCount, rangeSize }: NumberLineExerciseProps) => {
+    const initialMax = rangeSize ? Math.min(min + rangeSize, max) : max;
+    const initialNumbers = Array.from({ length: initialMax - min + 1 }, (_, index) => min + index);
+    const [sequence, setSequence] = useState<NumberLineTask[]>(initialNumbers.slice(0, taskCount).map((target) => ({ target, min, max: initialMax })));
     const [currentIndex, setCurrentIndex] = useState(0);
     const [selected, setSelected] = useState<number | null>(null);
     const [revealed, setRevealed] = useState(false);
     const [wrongAttempts, setWrongAttempts] = useState(0);
+    const [feedback, setFeedback] = useState<"wrong" | "solution" | null>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
 
     // Shuffle on the client after mount so server and client render the same
     // initial (ordered) sequence and avoid a hydration mismatch.
     useEffect(() => {
-        setSequence(shuffle(Array.from({ length: max - min + 1 }, (_, index) => min + index)));
+        setSequence(createTasks(min, max, taskCount, rangeSize));
         setCurrentIndex(0);
         setSelected(null);
         setRevealed(false);
         setWrongAttempts(0);
-    }, [min, max]);
+        setFeedback(null);
+    }, [min, max, taskCount, rangeSize]);
 
     const isFinished = currentIndex >= sequence.length;
-    const target = isFinished ? null : sequence[currentIndex];
+    const task = isFinished ? null : sequence[currentIndex];
+    const target = task?.target ?? null;
+    const numbers = task ? Array.from({ length: task.max - task.min + 1 }, (_, index) => task.min + index) : [];
+    const visibleLabels = task && rangeSize
+        ? labeledNumbers.length >= 4 ? numbers : labeledNumbers.length === 3 ? [task.min, task.min + Math.floor((task.max - task.min) / 2), task.max] : [task.min, task.max]
+        : labeledNumbers;
 
     const isCorrect = selected !== null && selected === target;
     const isWrong = selected !== null && selected !== target;
 
     // Track wrong attempts and auto-reveal after 3 wrong attempts
     useEffect(() => {
-        if (!isWrong) return;
+        if (!isWrong || feedback) return;
         setWrongAttempts((prev) => {
             const newCount = prev + 1;
-            if (newCount >= 3) {
-                setRevealed(true);
-            }
             return newCount;
         });
-    }, [isWrong]);
+        setFeedback("wrong");
+    }, [feedback, isWrong]);
+
+    useEffect(() => {
+        if (!feedback) return;
+        const timeout = setTimeout(() => {
+            if (feedback === "wrong" && wrongAttempts >= 3) {
+                setSelected(null);
+                setRevealed(true);
+                setFeedback("solution");
+                return;
+            }
+            if (feedback === "solution") {
+                setCurrentIndex((prev) => prev + 1);
+                setSelected(null);
+                setRevealed(false);
+                setWrongAttempts(0);
+                setFeedback(null);
+                return;
+            }
+            setSelected(null);
+            setFeedback(null);
+        }, feedback === "solution" ? 1200 : 700);
+        return () => clearTimeout(timeout);
+    }, [feedback, wrongAttempts]);
 
     const nextExercise = () => {
         setCurrentIndex((prev) => prev + 1);
         setSelected(null);
         setRevealed(false);
         setWrongAttempts(0);
+        setFeedback(null);
     };
 
     // Auto-advance to the next number shortly after a correct answer.
@@ -85,16 +133,19 @@ export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labe
             setSelected(null);
             setRevealed(false);
             setWrongAttempts(0);
+            setFeedback(null);
         }, 800);
 
         return () => clearTimeout(timeout);
     }, [isCorrect]);
 
     const restart = () => {
-        setSequence(shuffle(numbers));
+        setSequence(createTasks(min, max, taskCount, rangeSize));
         setCurrentIndex(0);
         setSelected(null);
         setRevealed(false);
+        setWrongAttempts(0);
+        setFeedback(null);
     };
 
     const playTarget = async () => {
@@ -104,20 +155,19 @@ export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labe
     };
 
     return (
-        <div className="flex max-w-2xl flex-col gap-8 rounded-xl bg-primary p-6 ring-2 ring-border-primary ring-inset">
+        <div className="flex max-w-3xl flex-col gap-8 rounded-xl bg-primary p-6 ring-2 ring-border-primary ring-inset">
             {isFinished ? (
-                <div className="flex flex-col items-start gap-4">
-                    <p className="text-lg font-semibold text-primary">Alle Zahlen bearbeitet.</p>
-                    <Button size="sm" color="primary" iconLeading={RefreshCw01} onClick={restart}>
-                        Nochmal starten
-                    </Button>
-                </div>
+                <ExerciseCompletionHeader
+                    exerciseNumber={exerciseNumber}
+                    instruction={t(presentation === "audio" ? "instructions.number-line-listen.prompt" : presentation === "word" ? "instructions.number-line-word.prompt" : "instructions.number-line.prompt")}
+                    onRestart={restart}
+                />
             ) : (
                 <>
                     <div className="border-b border-secondary pb-4">
                         <p className="flex items-baseline gap-2 text-md font-medium text-secondary">
                             <span className="font-black">{pad(exerciseNumber)}</span>
-                            {t(presentation === "audio" ? "instructions.number-line-listen.prompt" : "instructions.number-line.prompt")}
+                            {t(presentation === "audio" ? "instructions.number-line-listen.prompt" : presentation === "word" ? "instructions.number-line-word.prompt" : "instructions.number-line.prompt")}
                         </p>
                     </div>
 
@@ -134,7 +184,7 @@ export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labe
                             </button>
                         </div>
                     ) : (
-                        <p className="text-center text-display-md font-black text-primary">{target}</p>
+                        <p className="text-center text-display-md font-black text-primary">{presentation === "word" && target !== null ? numberWords[target] : target}</p>
                     )}
 
                     {/* Number line */}
@@ -146,7 +196,7 @@ export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labe
                             {numbers.map((number) => {
                                 const isSelectedNumber = selected === number;
                                 const isSolution = revealed && number === target;
-                                const showLabel = labeledNumbers.includes(number);
+                                const showLabel = visibleLabels.includes(number);
 
                                 return (
                                     <button
@@ -162,19 +212,19 @@ export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labe
                                                 "flex size-6 items-center justify-center rounded-full ring-2 transition duration-100 ease-linear",
                                                 "bg-primary ring-border-primary group-hover:ring-brand group-focus-visible:ring-brand",
                                                 isSelectedNumber && isCorrect && "bg-success-solid ring-[var(--color-bg-success-solid)]",
-                                                isSelectedNumber && isWrong && "bg-error-solid ring-[var(--color-bg-error-solid)]",
+                                                feedback === "wrong" && isSelectedNumber && "bg-error-solid ring-[var(--color-bg-error-solid)]",
                                                 !isSelectedNumber && isSolution && "bg-sky-solid ring-[var(--color-bg-sky-solid)]",
                                             )}
                                         >
                                             {isSelectedNumber && isCorrect && <Check className="size-4 text-white" />}
-                                            {isSelectedNumber && isWrong && <X className="size-4 text-white" />}
+                                            {feedback === "wrong" && isSelectedNumber && <X className="size-4 text-white" />}
                                             {!isSelectedNumber && isSolution && <Check className="size-4 text-white" />}
                                         </span>
                                         <span
                                             className={cx(
                                                 "text-sm font-medium text-tertiary transition-colors",
                                                 isSelectedNumber && isCorrect && "text-success-primary",
-                                                isSelectedNumber && isWrong && "text-error-primary",
+                                                feedback === "wrong" && isSelectedNumber && "text-error-primary",
                                                 !isSelectedNumber && isSolution && "text-sky-primary",
                                             )}
                                         >

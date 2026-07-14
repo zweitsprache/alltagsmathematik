@@ -1,0 +1,47 @@
+[
+  [
+    {"text":"Ich warte seit 35 Minuten auf den Bus.","numbers":[35]},
+    {"text":"Das Hotel hat 48 Zimmer.","numbers":[48]},
+    {"text":"Meine Grossmutter ist 72 Jahre alt.","numbers":[72]},
+    {"text":"Das Buch hat 56 Kapitel.","numbers":[56]},
+    {"text":"Der Pullover kostet 89 Franken.","numbers":[89]},
+    {"text":"In der Schule sind 64 Schüler.","numbers":[64]},
+    {"text":"Die Fahrt dauert 93 Minuten.","numbers":[93]}
+  ],
+  [
+    {"text":"Mein Onkel ist 57 Jahre alt.","numbers":[57]},
+    {"text":"Die Wanderung ist 31 Kilometer lang.","numbers":[31]},
+    {"text":"Im Saal sitzen 85 Personen.","numbers":[85]},
+    {"text":"Ich brauche 42 Minuten zur Arbeit.","numbers":[42]},
+    {"text":"Im Parkhaus sind 78 Plätze frei.","numbers":[78]},
+    {"text":"Die Jacke kostet 96 Franken.","numbers":[96]},
+    {"text":"Der Kurs hat 63 Teilnehmer.","numbers":[63]}
+  ],
+  [
+    {"text":"Wir brauchen 54 Stühle für das Fest.","numbers":[54]},
+    {"text":"Mein Grossvater ist 81 Jahre alt.","numbers":[81]},
+    {"text":"Das Buch kostet 39 Franken.","numbers":[39]},
+    {"text":"In der Firma arbeiten 97 Personen.","numbers":[97]},
+    {"text":"Der Zug fährt in 46 Minuten.","numbers":[46]},
+    {"text":"Ich habe 68 Franken bezahlt.","numbers":[68]},
+    {"text":"Das Hotel hat 73 Zimmer.","numbers":[73]}
+  ],
+  [
+    {"text":"Ich verdiene 90 Franken pro Tag und gebe 65 aus.","numbers":[90,65]},
+    {"text":"Das Hotel hat 84 Zimmer, davon sind 47 besetzt.","numbers":[84,47]},
+    {"text":"Der Mantel kostet 98 Franken, die Jacke 76.","numbers":[98,76]},
+    {"text":"Im Saal sitzen 52 Erwachsene und 33 Kinder.","numbers":[52,33]},
+    {"text":"Das Buch hat 95 Seiten und ich habe schon 60 gelesen.","numbers":[95,60]},
+    {"text":"Meine Tanten sind 58 und 62 Jahre alt.","numbers":[58,62]},
+    {"text":"Das Parkhaus hat 80 Plätze, 44 sind besetzt.","numbers":[80,44]}
+  ],
+  [
+    {"text":"Das Parkhaus hat 66 Plätze, 38 sind besetzt.","numbers":[66,38]},
+    {"text":"Mein Vater ist 55, meine Mutter ist 49.","numbers":[55,49]},
+    {"text":"Im Kurs sind 34 Frauen und 41 Männer.","numbers":[34,41]},
+    {"text":"In der Firma arbeiten 87 Männer und 74 Frauen.","numbers":[87,74]},
+    {"text":"Das Buch hat 70 Kapitel und kostet 45 Franken.","numbers":[70,45]},
+    {"text":"Wir sind 36 Personen und brauchen 36 Stühle.","numbers":[36,36]},
+    {"text":"Die Fahrt mit dem Zug dauert 51 Minuten, mit dem Auto 79.","numbers":[51,79]}
+  ]
+]

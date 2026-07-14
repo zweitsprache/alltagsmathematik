@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Check, RefreshCw01 } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
+import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
 import { translate as t } from "@/i18n/translate";
 import { cx } from "@/utils/cx";
 
@@ -12,6 +13,7 @@ export interface NumberSortExerciseProps {
     min?: number;
     max?: number;
     sortOrder?: "ascending" | "descending";
+    itemCount?: number;
 }
 
 const shuffle = (items: number[]) => {
@@ -28,30 +30,35 @@ const pad = (value: number) => value.toString().padStart(2, "0");
 const shuffledWithFirstNumberFixed = (numbers: number[]) => [numbers[0], ...shuffle(numbers.slice(1))];
 const taskCount = 10;
 
-export const NumberSortExercise = ({ exerciseNumber = 1, min = 0, max = 10, sortOrder = "ascending" }: NumberSortExerciseProps) => {
+export const NumberSortExercise = ({ exerciseNumber = 1, min = 0, max = 10, sortOrder = "ascending", itemCount = max - min + 1 }: NumberSortExerciseProps) => {
     const ascendingNumbers = Array.from({ length: max - min + 1 }, (_, index) => min + index);
-    const sortedNumbers = sortOrder === "ascending" ? ascendingNumbers : [...ascendingNumbers].reverse();
+    const initialItems = ascendingNumbers.slice(0, itemCount);
+    const [sortedNumbers, setSortedNumbers] = useState(sortOrder === "ascending" ? initialItems : [...initialItems].reverse());
     const [numbers, setNumbers] = useState(sortedNumbers);
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
     const [result, setResult] = useState<"correct" | "incorrect" | null>(null);
     const [currentTask, setCurrentTask] = useState(0);
 
-    useEffect(() => {
-        const ascending = Array.from({ length: max - min + 1 }, (_, index) => min + index);
-        const expected = sortOrder === "ascending" ? ascending : ascending.reverse();
+    const loadTask = () => {
+        const selected = shuffle(ascendingNumbers).slice(0, itemCount).sort((a, b) => a - b);
+        const expected = sortOrder === "ascending" ? selected : selected.reverse();
+        setSortedNumbers(expected);
         setNumbers(shuffledWithFirstNumberFixed(expected));
         setResult(null);
+    };
+
+    useEffect(() => {
+        loadTask();
         setCurrentTask(0);
-    }, [min, max, sortOrder]);
+    }, [min, max, sortOrder, itemCount]);
 
     useEffect(() => {
         if (result !== "correct") return;
 
         const timeout = setTimeout(() => {
             setCurrentTask((task) => task + 1);
-            setNumbers(shuffledWithFirstNumberFixed(sortedNumbers));
-            setResult(null);
+            loadTask();
         }, 800);
 
         return () => clearTimeout(timeout);
@@ -74,22 +81,16 @@ export const NumberSortExercise = ({ exerciseNumber = 1, min = 0, max = 10, sort
     };
 
     const restart = () => {
-        setNumbers(shuffledWithFirstNumberFixed(sortedNumbers));
-        setResult(null);
+        loadTask();
         setCurrentTask(0);
     };
 
     const isFinished = currentTask >= taskCount;
 
     return (
-        <div className="flex max-w-2xl flex-col gap-8 rounded-xl bg-primary p-6 ring-2 ring-border-primary ring-inset">
+        <div className="flex max-w-3xl flex-col gap-8 rounded-lg bg-primary p-6 ring-2 ring-border-primary ring-inset">
             {isFinished ? (
-                <div className="flex flex-col items-start gap-4">
-                    <p className="text-lg font-semibold text-primary">Alle Aufgaben bearbeitet.</p>
-                    <Button size="sm" color="primary" iconLeading={RefreshCw01} onClick={restart}>
-                        Nochmal starten
-                    </Button>
-                </div>
+                <ExerciseCompletionHeader exerciseNumber={exerciseNumber} instruction={t(sortOrder === "ascending" ? "instructions.number-sort.prompt-ascending" : "instructions.number-sort.prompt-descending")} onRestart={restart} />
             ) : (
                 <>
                     <div className="border-b border-secondary pb-4">
@@ -101,7 +102,8 @@ export const NumberSortExercise = ({ exerciseNumber = 1, min = 0, max = 10, sort
 
                     <div className="w-full pb-1">
                         <div
-                            className="grid w-full grid-cols-[repeat(11,minmax(0,3rem))] justify-between"
+                            className="grid w-full justify-between"
+                            style={{ gridTemplateColumns: `repeat(${numbers.length}, minmax(0, 3rem))` }}
                             role="list"
                             aria-label={t(
                                 sortOrder === "ascending" ? "instructions.number-sort.prompt-ascending" : "instructions.number-sort.prompt-descending",
@@ -176,7 +178,7 @@ export const NumberSortExercise = ({ exerciseNumber = 1, min = 0, max = 10, sort
                                                 }
                                             }}
                                             className={cx(
-                                                "flex size-full cursor-grab items-center justify-center overflow-hidden rounded-md bg-primary text-lg font-black text-primary shadow-xs ring-2 ring-secondary transition duration-100 ease-linear outline-none hover:ring-brand focus-visible:ring-brand active:cursor-grabbing sm:text-xl",
+                                                    "flex size-full cursor-grab items-center justify-center overflow-hidden rounded-sm bg-primary text-lg font-black text-primary shadow-xs ring-2 ring-secondary transition duration-100 ease-linear outline-none hover:ring-brand focus-visible:ring-brand active:cursor-grabbing sm:text-xl",
                                                 isFixed && "cursor-default bg-secondary text-tertiary ring-secondary hover:ring-secondary",
                                                 draggedIndex === index && "scale-95 opacity-50 ring-brand",
                                                 !isFixed &&
@@ -195,10 +197,10 @@ export const NumberSortExercise = ({ exerciseNumber = 1, min = 0, max = 10, sort
                     <ProgressBar labelPosition="right" min={0} max={taskCount} value={currentTask} valueFormatter={(value) => `${value} / ${taskCount}`} />
 
                     <div className="flex gap-3">
-                        <Button size="sm" color="primary" iconLeading={Check} onClick={checkAnswer} disabled={result === "correct"}>
+                        <Button size="sm" color="primary" iconLeading={Check} onClick={checkAnswer} disabled={result === "correct"} className="rounded-sm">
                             {t("instructions.number-sort.check")}
                         </Button>
-                        <Button size="sm" color="secondary" iconLeading={RefreshCw01} onClick={restart}>
+                        <Button size="sm" color="secondary" iconLeading={RefreshCw01} onClick={restart} className="rounded-sm">
                             Nochmal starten
                         </Button>
                     </div>

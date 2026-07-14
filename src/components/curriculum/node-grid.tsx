@@ -5,7 +5,7 @@ import type { CurriculumNode } from "@/content/curriculum";
 import { getHierarchicalNumber } from "@/content/curriculum";
 import { iconMap } from "@/content/icons";
 
-const hrefFor = (basePath: string[], slug: string) => `/settings/${[...basePath, slug].join("/")}`;
+const hrefFor = (basePath: string[], slug: string) => `/kompetenzbereiche/${[...basePath, slug].join("/")}`;
 
 const childCount = (node: CurriculumNode) => node.children?.length ?? node.exercises?.length ?? 0;
 

@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { RefreshCw01 } from "@untitledui/icons";
-import { Button } from "@/components/base/buttons/button";
 import { InputBase } from "@/components/base/input/input";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
+import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
 import { translate as t } from "@/i18n/translate";
 import { cx } from "@/utils/cx";
 
@@ -17,6 +16,8 @@ export interface NumberLineReadExerciseProps {
     max?: number;
     /** Which numbers show a label under the tick. */
     labeledNumbers?: number[];
+    taskCount?: number;
+    rangeSize?: number;
 }
 
 const shuffle = (items: number[]) => {
@@ -30,10 +31,23 @@ const shuffle = (items: number[]) => {
 
 const pad = (value: number) => value.toString().padStart(2, "0");
 
-export const NumberLineReadExercise = ({ exerciseNumber = 1, min = 0, max = 10, labeledNumbers = [0, 5, 10] }: NumberLineReadExerciseProps) => {
-    const numbers = Array.from({ length: max - min + 1 }, (_, index) => min + index);
+type NumberLineTask = { target: number; min: number; max: number };
 
-    const [sequence, setSequence] = useState<number[]>(numbers);
+const createTasks = (min: number, max: number, taskCount?: number, rangeSize?: number): NumberLineTask[] => {
+    if (!rangeSize) return shuffle(Array.from({ length: max - min + 1 }, (_, index) => min + index)).slice(0, taskCount).map((target) => ({ target, min, max }));
+    const count = taskCount ?? 10;
+    const windowCount = Math.floor((max - min) / rangeSize);
+    return Array.from({ length: count }, () => {
+        const windowMin = min + Math.floor(Math.random() * windowCount) * rangeSize;
+        const windowMax = Math.min(windowMin + rangeSize, max);
+        return { target: windowMin + Math.floor(Math.random() * (windowMax - windowMin + 1)), min: windowMin, max: windowMax };
+    });
+};
+
+export const NumberLineReadExercise = ({ exerciseNumber = 1, min = 0, max = 10, labeledNumbers = [0, 5, 10], taskCount, rangeSize }: NumberLineReadExerciseProps) => {
+    const initialMax = rangeSize ? Math.min(min + rangeSize, max) : max;
+    const initialNumbers = Array.from({ length: initialMax - min + 1 }, (_, index) => min + index);
+    const [sequence, setSequence] = useState<NumberLineTask[]>(initialNumbers.slice(0, taskCount).map((target) => ({ target, min, max: initialMax })));
     const [currentIndex, setCurrentIndex] = useState(0);
     const [inputValue, setInputValue] = useState("");
     const [revealed, setRevealed] = useState(false);
@@ -41,14 +55,19 @@ export const NumberLineReadExercise = ({ exerciseNumber = 1, min = 0, max = 10, 
     // Shuffle on the client after mount so server and client render the same
     // initial (ordered) sequence and avoid a hydration mismatch.
     useEffect(() => {
-        setSequence(shuffle(Array.from({ length: max - min + 1 }, (_, index) => min + index)));
+        setSequence(createTasks(min, max, taskCount, rangeSize));
         setCurrentIndex(0);
         setInputValue("");
         setRevealed(false);
         setWrongAttempts(0);
-    }, [min, max]);
+    }, [min, max, taskCount, rangeSize]);
     const isFinished = currentIndex >= sequence.length;
-    const target = isFinished ? null : sequence[currentIndex];
+    const task = isFinished ? null : sequence[currentIndex];
+    const target = task?.target ?? null;
+    const numbers = task ? Array.from({ length: task.max - task.min + 1 }, (_, index) => task.min + index) : [];
+    const visibleLabels = task && rangeSize
+        ? labeledNumbers.length >= 4 ? numbers : labeledNumbers.length === 3 ? [task.min, task.min + Math.floor((task.max - task.min) / 2), task.max] : [task.min, task.max]
+        : labeledNumbers;
 
     const parsed = inputValue.trim() === "" ? null : Number(inputValue);
     const isCorrect = parsed !== null && parsed === target;
@@ -82,21 +101,16 @@ export const NumberLineReadExercise = ({ exerciseNumber = 1, min = 0, max = 10, 
     }, [isCorrect]);
 
     const restart = () => {
-        setSequence(shuffle(numbers));
+        setSequence(createTasks(min, max, taskCount, rangeSize));
         setCurrentIndex(0);
         setInputValue("");
         setRevealed(false);
     };
 
     return (
-        <div className="flex max-w-2xl flex-col gap-8 rounded-xl bg-primary p-6 ring-2 ring-border-primary ring-inset">
+        <div className="flex max-w-3xl flex-col gap-8 rounded-xl bg-primary p-6 ring-2 ring-border-primary ring-inset">
             {isFinished ? (
-                <div className="flex flex-col items-start gap-4">
-                    <p className="text-lg font-semibold text-primary">Alle Zahlen bearbeitet.</p>
-                    <Button size="sm" color="primary" iconLeading={RefreshCw01} onClick={restart}>
-                        Nochmal starten
-                    </Button>
-                </div>
+                <ExerciseCompletionHeader exerciseNumber={exerciseNumber} instruction={t("instructions.number-line-read.prompt")} onRestart={restart} />
             ) : (
                 <>
                     <div className="border-b border-secondary pb-4">
@@ -136,7 +150,7 @@ export const NumberLineReadExercise = ({ exerciseNumber = 1, min = 0, max = 10, 
 
                             {numbers.map((number) => {
                                 const isTarget = number === target;
-                                const showLabel = labeledNumbers.includes(number);
+                                const showLabel = visibleLabels.includes(number);
 
                                 return (
                                     <div key={number} className="relative flex flex-col items-center gap-2">

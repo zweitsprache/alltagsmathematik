@@ -1,0 +1,57 @@
+[
+  [
+    {"text":"Ich habe drei Mal pro Woche Deutschkurs.","numbers":[3]},
+    {"text":"Ich lebe seit fünf Jahren in der Schweiz.","numbers":[5]},
+    {"text":"Ich habe zwei Kinder.","numbers":[2]},
+    {"text":"Ich arbeite vier Tage pro Woche.","numbers":[4]},
+    {"text":"Im Sommer haben die Kinder acht Wochen Ferien.","numbers":[8]},
+    {"text":"Ich wohne an der Gartenstrasse zehn.","numbers":[10]},
+    {"text":"In unserer Gruppe sind sechs Personen.","numbers":[6]},
+    {"text":"Der Zug fährt auf Gleis sieben.","numbers":[7]},
+    {"text":"Das Ticket kostet neun Franken.","numbers":[9]}
+  ],
+  [
+    {"text":"Ich trinke jeden Tag drei Tassen Kaffee.","numbers":[3]},
+    {"text":"Wir haben vier Zimmer.","numbers":[4]},
+    {"text":"Der Termin ist in zwei Tagen.","numbers":[2]},
+    {"text":"Ich kaufe acht Äpfel im Supermarkt.","numbers":[8]},
+    {"text":"Ich schlafe jede Nacht sieben Stunden.","numbers":[7]},
+    {"text":"Die Bäckerei öffnet um sechs Uhr.","numbers":[6]},
+    {"text":"Ich stehe jeden Morgen um neun Uhr auf.","numbers":[9]},
+    {"text":"Der Kurs dauert fünf Wochen.","numbers":[5]},
+    {"text":"Das Haus hat zwei Etagen.","numbers":[2]}
+  ],
+  [
+    {"text":"Meine Nachbarin hat drei Hunde.","numbers":[3]},
+    {"text":"Ich lerne seit sechs Monaten Deutsch.","numbers":[6]},
+    {"text":"Wir brauchen acht Stühle.","numbers":[8]},
+    {"text":"Der Supermarkt ist zehn Minuten von hier.","numbers":[10]},
+    {"text":"Ich arbeite neun Stunden pro Tag.","numbers":[9]},
+    {"text":"Ich jogge zwei Mal pro Woche.","numbers":[2]},
+    {"text":"Das Baby ist vier Monate alt.","numbers":[4]},
+    {"text":"Der Laden schliesst um fünf Uhr.","numbers":[5]},
+    {"text":"Ich habe zwei Franken bezahlt.","numbers":[2]}
+  ],
+  [
+    {"text":"Ich arbeite von sieben bis vier Uhr.","numbers":[7,4]},
+    {"text":"Unsere Kinder sind drei und acht Jahre alt.","numbers":[3,8]},
+    {"text":"Der Kurs geht von acht bis neun Uhr.","numbers":[8,9]},
+    {"text":"Ich nehme das Tram Nummer fünf und dann den Bus Nummer zwei.","numbers":[5,2]},
+    {"text":"Die Praxis ist von sieben bis neun Uhr geöffnet.","numbers":[7,9]},
+    {"text":"Ich kaufe vier Äpfel und sechs Bananen.","numbers":[4,6]},
+    {"text":"Wir sind drei Erwachsene und zwei Kinder.","numbers":[3,2]},
+    {"text":"Der Zug fährt um acht Uhr auf Gleis zehn.","numbers":[8,10]},
+    {"text":"Ich habe von fünf bis acht Uhr gearbeitet.","numbers":[5,8]}
+  ],
+  [
+    {"text":"Meine Söhne sind vier und neun Jahre alt.","numbers":[4,9]},
+    {"text":"Ich arbeite sieben Stunden pro Tag, vier Tage pro Woche.","numbers":[7,4]},
+    {"text":"Der Laden ist von acht bis fünf Uhr geöffnet.","numbers":[8,5]},
+    {"text":"Wir brauchen sechs Teller und sechs Gläser.","numbers":[6,6]},
+    {"text":"Das Hotelzimmer ist für zwei Nächte und drei Personen reserviert.","numbers":[2,3]},
+    {"text":"Der Zug fährt um neun Uhr auf Gleis drei.","numbers":[9,3]},
+    {"text":"Wir bestellen vier Döner und drei Dürüm.","numbers":[4,3]},
+    {"text":"Ich koche für acht Personen und brauche zehn Kartoffeln.","numbers":[8,10]},
+    {"text":"Wir warten seit fünf Minuten auf den Bus Nummer sechs.","numbers":[5,6]}
+  ]
+]

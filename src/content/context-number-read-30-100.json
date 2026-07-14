@@ -1,0 +1,47 @@
+[
+  [
+    {"text":"Ich warte seit dreiundvierzig Minuten auf den Bus.","numbers":[43]},
+    {"text":"Das Hotel hat sechsundsiebzig Zimmer.","numbers":[76]},
+    {"text":"Meine Grossmutter ist achtundachtzig Jahre alt.","numbers":[88]},
+    {"text":"Das Buch hat einunddreissig Kapitel.","numbers":[31]},
+    {"text":"Der Pullover kostet vierundsechzig Franken.","numbers":[64]},
+    {"text":"In der Schule sind zweiundneunzig Schüler.","numbers":[92]},
+    {"text":"Die Fahrt dauert siebenundfünfzig Minuten.","numbers":[57]}
+  ],
+  [
+    {"text":"Mein Onkel ist neunundsechzig Jahre alt.","numbers":[69]},
+    {"text":"Die Wanderung ist siebenundvierzig Kilometer lang.","numbers":[47]},
+    {"text":"Im Saal sitzen achtunddreissig Personen.","numbers":[38]},
+    {"text":"Ich brauche dreiundfünfzig Minuten zur Arbeit.","numbers":[53]},
+    {"text":"Im Parkhaus sind einundneunzig Plätze frei.","numbers":[91]},
+    {"text":"Die Jacke kostet zweiundachtzig Franken.","numbers":[82]},
+    {"text":"Der Kurs hat fünfundsiebzig Teilnehmer.","numbers":[75]}
+  ],
+  [
+    {"text":"Wir brauchen zweiundsechzig Stühle für das Fest.","numbers":[62]},
+    {"text":"Mein Grossvater ist vierundneunzig Jahre alt.","numbers":[94]},
+    {"text":"Das Buch kostet achtundfünfzig Franken.","numbers":[58]},
+    {"text":"In der Firma arbeiten sechsunddreissig Personen.","numbers":[36]},
+    {"text":"Der Zug fährt in einundfünfzig Minuten.","numbers":[51]},
+    {"text":"Ich habe dreiundachtzig Franken bezahlt.","numbers":[83]},
+    {"text":"Das Hotel hat fünfundvierzig Zimmer.","numbers":[45]}
+  ],
+  [
+    {"text":"Ich verdiene fünfundneunzig Franken pro Tag und gebe einundsiebzig aus.","numbers":[95,71]},
+    {"text":"Das Hotel hat siebenundsechzig Zimmer, davon sind neununddreissig besetzt.","numbers":[67,39]},
+    {"text":"Der Mantel kostet neunundachtzig Franken, die Jacke dreiundsechzig.","numbers":[89,63]},
+    {"text":"Im Saal sitzen sechsundvierzig Erwachsene und zweiunddreissig Kinder.","numbers":[46,32]},
+    {"text":"Das Buch hat achtzig Seiten und ich habe schon vierundfünfzig gelesen.","numbers":[80,54]},
+    {"text":"Meine Tanten sind einundsechzig und sechsundsechzig Jahre alt.","numbers":[61,66]},
+    {"text":"Das Parkhaus hat neunzig Plätze, achtundvierzig sind besetzt.","numbers":[90,48]}
+  ],
+  [
+    {"text":"Das Parkhaus hat vierundsiebzig Plätze, siebenunddreissig sind besetzt.","numbers":[74,37]},
+    {"text":"Mein Vater ist einundsechzig, meine Mutter ist siebenundfünfzig.","numbers":[61,57]},
+    {"text":"Im Kurs sind zweiundvierzig Frauen und fünfunddreissig Männer.","numbers":[42,35]},
+    {"text":"In der Firma arbeiten dreiundneunzig Männer und fünfundsechzig Frauen.","numbers":[93,65]},
+    {"text":"Das Buch hat sechsundfünfzig Kapitel und kostet neunundvierzig Franken.","numbers":[56,49]},
+    {"text":"Wir sind vierundachtzig Personen und brauchen vierundachtzig Stühle.","numbers":[84,84]},
+    {"text":"Die Fahrt mit dem Zug dauert vierzig Minuten, mit dem Auto achtundsechzig.","numbers":[40,68]}
+  ]
+]

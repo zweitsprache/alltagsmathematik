@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Play, RefreshCw01, X } from "@untitledui/icons";
+import { Check, Play, X } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
+import { numberWords } from "@/content/number-words";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
+import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
 import { translate as t } from "@/i18n/translate";
 import { cx } from "@/utils/cx";
 
@@ -12,6 +14,8 @@ export interface NumberLineListenPairExerciseProps {
     min?: number;
     max?: number;
     labeledNumbers?: number[];
+    presentation?: "audio" | "word";
+    rangeSize?: number;
 }
 
 const taskCount = 10;
@@ -25,6 +29,16 @@ const createPairs = (min: number, max: number) =>
         return [first, second] as [number, number];
     });
 
+const createWindowedPairs = (min: number, max: number, rangeSize: number) => {
+    const windowCount = Math.floor((max - min) / rangeSize);
+    return Array.from({ length: taskCount }, () => {
+        const windowMin = min + Math.floor(Math.random() * windowCount) * rangeSize;
+        const windowMax = Math.min(windowMin + rangeSize, max);
+        const [pair] = createPairs(windowMin, windowMax);
+        return { pair, min: windowMin, max: windowMax };
+    });
+};
+
 const playNumber = (number: number) =>
     new Promise<void>((resolve, reject) => {
         const audio = new Audio(`/api/audio/numbers/${number}`);
@@ -33,27 +47,33 @@ const playNumber = (number: number) =>
         void audio.play().catch(reject);
     });
 
-export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max = 10, labeledNumbers = [0, 5, 10] }: NumberLineListenPairExerciseProps) => {
-    const numbers = Array.from({ length: max - min + 1 }, (_, index) => min + index);
-    const [pairs, setPairs] = useState<Array<[number, number]>>(() => numbers.slice(0, taskCount).map((number) => [number, number === max ? min : number + 1]));
+export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max = 10, labeledNumbers = [0, 5, 10], presentation = "audio", rangeSize }: NumberLineListenPairExerciseProps) => {
+    const initialMax = rangeSize ? Math.min(min + rangeSize, max) : max;
+    const initialNumbers = Array.from({ length: initialMax - min + 1 }, (_, index) => min + index);
+    const [tasks, setTasks] = useState(() => initialNumbers.slice(0, taskCount).map((number) => ({ pair: [number, number === initialMax ? min : number + 1] as [number, number], min, max: initialMax })));
     const [currentIndex, setCurrentIndex] = useState(0);
     const [selected, setSelected] = useState<number[]>([]);
-    const [result, setResult] = useState<"correct" | "wrong" | null>(null);
+    const [result, setResult] = useState<"correct" | "wrong" | "solution" | null>(null);
     const [wrongAttempts, setWrongAttempts] = useState(0);
     const [revealed, setRevealed] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
 
     useEffect(() => {
-        setPairs(createPairs(min, max));
+        setTasks(rangeSize ? createWindowedPairs(min, max, rangeSize) : createPairs(min, max).map((pair) => ({ pair, min, max })));
         setCurrentIndex(0);
         setSelected([]);
         setResult(null);
         setWrongAttempts(0);
         setRevealed(false);
-    }, [min, max]);
+    }, [min, max, rangeSize]);
 
     const isFinished = currentIndex >= taskCount;
-    const targets = isFinished ? null : pairs[currentIndex];
+    const task = isFinished ? null : tasks[currentIndex];
+    const targets = task?.pair ?? null;
+    const numbers = task ? Array.from({ length: task.max - task.min + 1 }, (_, index) => task.min + index) : [];
+    const visibleLabels = task && rangeSize
+        ? labeledNumbers.length >= 4 ? numbers : labeledNumbers.length === 3 ? [task.min, task.min + Math.floor((task.max - task.min) / 2), task.max] : [task.min, task.max]
+        : labeledNumbers;
 
     useEffect(() => {
         if (result !== "correct") return;
@@ -66,6 +86,31 @@ export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max 
         }, 800);
         return () => clearTimeout(timeout);
     }, [result]);
+
+    useEffect(() => {
+        if (result !== "wrong" && result !== "solution") return;
+
+        const timeout = setTimeout(() => {
+            if (result === "wrong" && wrongAttempts >= 3) {
+                setSelected([]);
+                setRevealed(true);
+                setResult("solution");
+                return;
+            }
+            if (result === "solution") {
+                setCurrentIndex((index) => index + 1);
+                setSelected([]);
+                setResult(null);
+                setWrongAttempts(0);
+                setRevealed(false);
+                return;
+            }
+            setSelected([]);
+            setResult(null);
+        }, result === "solution" ? 1200 : 700);
+
+        return () => clearTimeout(timeout);
+    }, [result, wrongAttempts]);
 
     const playTargets = async () => {
         if (!targets || isPlaying) return;
@@ -95,7 +140,7 @@ export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max 
     }, [selected, targets]);
 
     const selectNumber = (number: number) => {
-        if (!targets || result === "correct" || revealed) return;
+        if (!targets || result !== null || revealed) return;
         setResult(null);
         setSelected((current) => {
             if (current.includes(number)) return current.filter((item) => item !== number);
@@ -105,7 +150,7 @@ export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max 
     };
 
     const restart = () => {
-        setPairs(createPairs(min, max));
+        setTasks(rangeSize ? createWindowedPairs(min, max, rangeSize) : createPairs(min, max).map((pair) => ({ pair, min, max })));
         setCurrentIndex(0);
         setSelected([]);
         setResult(null);
@@ -114,25 +159,25 @@ export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max 
     };
 
     return (
-        <div className="flex max-w-2xl flex-col gap-8 rounded-xl bg-primary p-6 ring-2 ring-border-primary ring-inset">
+        <div className="flex max-w-3xl flex-col gap-8 rounded-xl bg-primary p-6 ring-2 ring-border-primary ring-inset">
             {isFinished ? (
-                <div className="flex flex-col items-start gap-4">
-                    <p className="text-lg font-semibold text-primary">Alle Zahlen bearbeitet.</p>
-                    <Button size="sm" color="primary" iconLeading={RefreshCw01} onClick={restart}>
-                        Nochmal starten
-                    </Button>
-                </div>
+                <ExerciseCompletionHeader
+                    exerciseNumber={exerciseNumber}
+                    instruction={t(presentation === "audio" ? "instructions.number-line-listen-pair.prompt" : "instructions.number-line-word.prompt-pair")}
+                    onRestart={restart}
+                />
             ) : (
                 <>
                     <div className="border-b border-secondary pb-4">
                         <p className="flex items-baseline gap-2 text-md font-medium text-secondary">
                             <span className="font-black">{pad(exerciseNumber)}</span>
-                            {t("instructions.number-line-listen-pair.prompt")}
+                            {t(presentation === "audio" ? "instructions.number-line-listen-pair.prompt" : "instructions.number-line-word.prompt-pair")}
                         </p>
                     </div>
 
-                    <div className="flex justify-center">
-                        <button
+                    {presentation === "audio" ? (
+                        <div className="flex justify-center">
+                            <button
                             type="button"
                             onClick={playTargets}
                             disabled={isPlaying}
@@ -140,8 +185,11 @@ export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max 
                             className="flex size-14 items-center justify-center rounded-lg bg-brand-solid text-white shadow-xs-skeuomorphic outline-focus-ring transition hover:bg-brand-solid_hover focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60"
                         >
                             <Play className="size-7" />
-                        </button>
-                    </div>
+                            </button>
+                        </div>
+                    ) : (
+                        <p className="text-center text-display-md font-black text-primary">{targets?.map((target) => numberWords[target]).join(" · ")}</p>
+                    )}
 
                     <div className="py-2">
                         <div className="relative flex items-start justify-between">
@@ -185,7 +233,7 @@ export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max 
                                                 isRevealedSolution && "text-sky-primary",
                                             )}
                                         >
-                                            {labeledNumbers.includes(number) ? number : "\u00A0"}
+                                            {visibleLabels.includes(number) ? number : "\u00A0"}
                                         </span>
                                     </button>
                                 );

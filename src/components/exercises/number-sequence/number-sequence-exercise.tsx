@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Check, RefreshCw01 } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
+import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
 import { translate as t } from "@/i18n/translate";
 import { cx } from "@/utils/cx";
 
@@ -11,6 +12,7 @@ export interface NumberSequenceExerciseProps {
     exerciseNumber?: number;
     min?: number;
     max?: number;
+    itemCount?: number;
 }
 
 type DraggedNumber = { number: number; slotIndex: number | null };
@@ -26,26 +28,29 @@ const shuffle = (items: number[]) => {
     return result;
 };
 
-const createTask = (min: number, max: number) => {
+const createTask = (min: number, max: number, itemCount: number) => {
     const start = min + Math.floor(Math.random() * (max - min - 3));
     const sequence = Array.from({ length: 5 }, (_, index) => start + index);
     const slots: Array<number | null> = [sequence[0], sequence[1], null, null, null];
-    const bank = shuffle(Array.from({ length: max - min + 1 }, (_, index) => min + index).filter((number) => !slots.includes(number)));
+    const missing = sequence.slice(2);
+    const distractors = shuffle(Array.from({ length: max - min + 1 }, (_, index) => min + index).filter((number) => !sequence.includes(number))).slice(0, Math.max(0, itemCount - 5));
+    const bank = shuffle([...missing, ...distractors]);
     return { sequence, slots, bank };
 };
 
-export const NumberSequenceExercise = ({ exerciseNumber = 1, min = 0, max = 10 }: NumberSequenceExerciseProps) => {
-    const initialTask = createTask(min, max);
-    const [sequence, setSequence] = useState(initialTask.sequence);
-    const [slots, setSlots] = useState<Array<number | null>>(initialTask.slots);
-    const [bank, setBank] = useState(initialTask.bank);
+export const NumberSequenceExercise = ({ exerciseNumber = 1, min = 0, max = 10, itemCount = max - min + 1 }: NumberSequenceExerciseProps) => {
+    const numbers = Array.from({ length: itemCount }, (_, index) => min + index);
+    const initialSequence = numbers.slice(0, 5);
+    const [sequence, setSequence] = useState(initialSequence);
+    const [slots, setSlots] = useState<Array<number | null>>([initialSequence[0], initialSequence[1], null, null, null]);
+    const [bank, setBank] = useState(numbers.slice(2));
     const [dragged, setDragged] = useState<DraggedNumber | null>(null);
     const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
     const [checked, setChecked] = useState(false);
     const [currentTask, setCurrentTask] = useState(0);
 
     const loadTask = () => {
-        const task = createTask(min, max);
+        const task = createTask(min, max, itemCount);
         setSequence(task.sequence);
         setSlots(task.slots);
         setBank(task.bank);
@@ -57,7 +62,7 @@ export const NumberSequenceExercise = ({ exerciseNumber = 1, min = 0, max = 10 }
     useEffect(() => {
         loadTask();
         setCurrentTask(0);
-    }, [min, max]);
+    }, [min, max, itemCount]);
 
     const isCorrect = slots.every((number, index) => number === sequence[index]);
 
@@ -98,14 +103,9 @@ export const NumberSequenceExercise = ({ exerciseNumber = 1, min = 0, max = 10 }
     const isFinished = currentTask >= taskCount;
 
     return (
-        <div className="flex max-w-2xl flex-col gap-8 rounded-xl bg-primary p-6 ring-2 ring-border-primary ring-inset">
+        <div className="flex max-w-3xl flex-col gap-8 rounded-xl bg-primary p-6 ring-2 ring-border-primary ring-inset">
             {isFinished ? (
-                <div className="flex flex-col items-start gap-4">
-                    <p className="text-lg font-semibold text-primary">Alle Aufgaben bearbeitet.</p>
-                    <Button size="sm" color="primary" iconLeading={RefreshCw01} onClick={restart}>
-                        Nochmal starten
-                    </Button>
-                </div>
+                <ExerciseCompletionHeader exerciseNumber={exerciseNumber} instruction={t("instructions.number-sequence.prompt")} onRestart={restart} />
             ) : (
                 <>
                     <div className="border-b border-secondary pb-4">
@@ -115,7 +115,8 @@ export const NumberSequenceExercise = ({ exerciseNumber = 1, min = 0, max = 10 }
                     </div>
 
                     <div
-                        className="grid w-full grid-cols-[repeat(11,minmax(0,3rem))] justify-between"
+                        className="grid w-full justify-between"
+                        style={{ gridTemplateColumns: `repeat(${numbers.length}, minmax(0, 3rem))` }}
                         role="list"
                         aria-label={t("instructions.number-sequence.sequence-aria")}
                     >
@@ -161,13 +162,14 @@ export const NumberSequenceExercise = ({ exerciseNumber = 1, min = 0, max = 10 }
                                 </div>
                             );
                         })}
-                        {Array.from({ length: 6 }, (_, index) => (
+                        {Array.from({ length: Math.max(0, numbers.length - slots.length) }, (_, index) => (
                             <span key={`empty-sequence-column-${index}`} aria-hidden="true" className="aspect-square w-full min-w-0" />
                         ))}
                     </div>
 
                     <div
-                        className="grid w-full grid-cols-[repeat(11,minmax(0,3rem))] justify-between"
+                        className="grid w-full justify-between"
+                        style={{ gridTemplateColumns: `repeat(${numbers.length}, minmax(0, 3rem))` }}
                         role="list"
                         aria-label={t("instructions.number-sequence.bank-aria")}
                     >
@@ -188,7 +190,7 @@ export const NumberSequenceExercise = ({ exerciseNumber = 1, min = 0, max = 10 }
                                 {number}
                             </button>
                         ))}
-                        {Array.from({ length: 2 }, (_, index) => (
+                        {Array.from({ length: Math.max(0, numbers.length - bank.length) }, (_, index) => (
                             <span key={`empty-bank-column-${index}`} aria-hidden="true" className="aspect-square w-full min-w-0" />
                         ))}
                     </div>
