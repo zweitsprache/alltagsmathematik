@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
 import { translate as t } from "@/i18n/translate";
-import { useActivityProgress } from "@/hooks/use-activity-progress";
+import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 import { cx } from "@/utils/cx";
 
 type Task = { target: number; values: number[] };
@@ -28,9 +28,9 @@ const pad = (value: number) => value.toString().padStart(2, "0");
 
 const numberFonts = ["Lavishly Yours", "Ultra", "Press Start 2P", "Encode Sans Semi Condensed", "Edu Australia VIC WA NT Hand Dots", "Finger Paint", "Permanent Marker"];
 
-export const NumberMatchExercise = ({ activityId, exerciseNumber = 1, min = 0, max = 10, matchCount = 3, variedFonts = false }: { activityId?: string; exerciseNumber?: number; min?: number; max?: number; matchCount?: 2 | 3; variedFonts?: boolean }) => {
+export const NumberMatchExercise = ({ exerciseNumber = 1, min = 0, max = 10, matchCount = 3, variedFonts = false }: { exerciseNumber?: number; min?: number; max?: number; matchCount?: 2 | 3; variedFonts?: boolean }) => {
     const taskCount = 10;
-    const { recordAttempt, resetSession } = useActivityProgress({ activityId, taskCount });
+    const tracking = useExerciseTracking();
     const [task, setTask] = useState<Task>({ target: min, values: [min, min, min, min + 1, min + 2, min + 3] });
     const [selected, setSelected] = useState<number[]>([]);
     const [currentTask, setCurrentTask] = useState(0);
@@ -50,7 +50,7 @@ export const NumberMatchExercise = ({ activityId, exerciseNumber = 1, min = 0, m
 
     useEffect(() => {
         if (!correct) return;
-        void recordAttempt({ taskIndex: currentTask, attemptNumber: wrongAttempts + 1, outcome: "correct", taskSnapshot: task });
+        tracking.correct({ taskIndex: currentTask, snapshot: task });
         const timeout = setTimeout(() => {
             setCurrentTask((current) => current + 1);
             setTask(createTask(min, max, matchCount));
@@ -58,23 +58,23 @@ export const NumberMatchExercise = ({ activityId, exerciseNumber = 1, min = 0, m
             setWrongAttempts(0);
         }, 700);
         return () => clearTimeout(timeout);
-    }, [correct, currentTask, min, max, matchCount, recordAttempt, task, wrongAttempts]);
+    }, [correct, currentTask, min, max, matchCount, task, tracking]);
 
     useEffect(() => {
         if (!complete || correct || feedback) return;
 
         const attempts = wrongAttempts + 1;
-        void recordAttempt({ taskIndex: currentTask, attemptNumber: attempts, outcome: "incorrect", taskSnapshot: task });
+        tracking.incorrect({ taskIndex: currentTask, snapshot: task });
         setWrongAttempts(attempts);
         setFeedback("wrong");
-    }, [complete, correct, currentTask, feedback, recordAttempt, task, wrongAttempts]);
+    }, [complete, correct, currentTask, feedback, task, tracking, wrongAttempts]);
 
     useEffect(() => {
         if (!feedback) return;
 
         const timeout = setTimeout(() => {
             if (feedback === "wrong" && wrongAttempts >= 3) {
-                void recordAttempt({ taskIndex: currentTask, attemptNumber: wrongAttempts + 1, outcome: "solution", taskSnapshot: task });
+                tracking.solution({ taskIndex: currentTask, snapshot: task });
                 setSelected([]);
                 setFeedback("solution");
                 return;
@@ -90,7 +90,7 @@ export const NumberMatchExercise = ({ activityId, exerciseNumber = 1, min = 0, m
         }, feedback === "solution" ? 1200 : 700);
 
         return () => clearTimeout(timeout);
-    }, [currentTask, feedback, matchCount, max, min, recordAttempt, task, wrongAttempts]);
+    }, [currentTask, feedback, matchCount, max, min, task, tracking, wrongAttempts]);
 
     const toggle = (index: number) => {
         if (correct) return;
@@ -98,7 +98,7 @@ export const NumberMatchExercise = ({ activityId, exerciseNumber = 1, min = 0, m
     };
 
     const restart = () => {
-        resetSession();
+        tracking.restart();
         setTask(createTask(min, max, matchCount));
         setSelected([]);
         setCurrentTask(0);

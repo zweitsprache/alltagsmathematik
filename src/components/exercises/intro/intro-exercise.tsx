@@ -3,10 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Play } from "@untitledui/icons";
 import { numberWords } from "@/content/number-words";
+import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 
 const playNumber = (value: number) => void new Audio(`/api/audio/numbers/${value}`).play().catch(() => undefined);
 
 export const IntroExercise = ({ min = 0, max = 10, values: configuredValues, title }: { min?: number; max?: number; values?: number[]; title?: string }) => {
+    const tracking = useExerciseTracking();
     const values = useMemo(() => configuredValues ?? Array.from({ length: max - min + 1 }, (_, index) => min + index), [configuredValues, min, max]);
     const slides = useMemo(() => [{ type: "title" as const }, ...values.map((value) => ({ type: "number" as const, value }))], [values]);
     const titleParts = (title ?? `Die Zahlen von ${min} bis ${max}`).split(" von ");
@@ -46,6 +48,7 @@ export const IntroExercise = ({ min = 0, max = 10, values: configuredValues, tit
                 setSoundEnabled(false);
                 setRevealedWord(null);
                 setPresentationProgress(0);
+                tracking.complete({ values });
             }, 800);
         };
 
@@ -73,7 +76,7 @@ export const IntroExercise = ({ min = 0, max = 10, values: configuredValues, tit
             if (wordTimeout) clearTimeout(wordTimeout);
             if (advanceTimeout) clearTimeout(advanceTimeout);
         };
-    }, [activeSlide, slide, slides.length, soundEnabled, values.length]);
+    }, [activeSlide, slide, slides.length, soundEnabled, tracking, values]);
 
     return (
         <div className="flex w-full max-w-3xl flex-col gap-6">
@@ -93,6 +96,7 @@ export const IntroExercise = ({ min = 0, max = 10, values: configuredValues, tit
                                 <button
                                     type="button"
                                     onClick={() => {
+                                        tracking.restart();
                                         setSoundEnabled(true);
                                         setActiveSlide(1);
                                     }}

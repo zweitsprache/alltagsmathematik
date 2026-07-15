@@ -63,7 +63,13 @@ export async function POST(request: Request) {
     const wasInserted = Array.isArray(inserted) && inserted.length > 0;
     if (wasInserted) {
         const completesTask = outcome === "correct" || outcome === "solution";
-        const completedAt = completesTask && validTaskIndex + 1 >= validTaskCount ? new Date().toISOString() : null;
+        const completionRows = await sql`
+            SELECT COUNT(DISTINCT task_index)::int AS completed_tasks
+            FROM task_attempts
+            WHERE session_id = ${sessionId}::uuid AND outcome IN ('correct', 'solution')
+        `;
+        const completedInSession = Number(Array.isArray(completionRows) ? (completionRows[0] as Record<string, unknown>)?.completed_tasks ?? 0 : 0);
+        const completedAt = completedInSession >= validTaskCount ? new Date().toISOString() : null;
         await sql`
             INSERT INTO student_activity_progress (
                 student_id, activity_id, status, tasks_completed, task_count, correct_first_try,
@@ -75,7 +81,7 @@ export async function POST(request: Request) {
             )
             ON CONFLICT (student_id, activity_id) DO UPDATE SET
                 status = CASE WHEN EXCLUDED.status = 'completed' THEN 'completed' ELSE student_activity_progress.status END,
-                tasks_completed = GREATEST(student_activity_progress.tasks_completed, ${completesTask ? validTaskIndex + 1 : validTaskIndex}),
+                tasks_completed = GREATEST(student_activity_progress.tasks_completed, ${completedInSession}),
                 task_count = EXCLUDED.task_count,
                 correct_first_try = student_activity_progress.correct_first_try + ${outcome === "correct" && validAttemptNumber === 1 ? 1 : 0},
                 solutions_revealed = student_activity_progress.solutions_revealed + ${outcome === "solution" ? 1 : 0},

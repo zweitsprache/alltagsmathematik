@@ -5,6 +5,7 @@ import { Check, RefreshCw01 } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
+import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 import { translate as t } from "@/i18n/translate";
 import { cx } from "@/utils/cx";
 
@@ -31,6 +32,7 @@ const shuffledWithFirstNumberFixed = (numbers: number[]) => [numbers[0], ...shuf
 const taskCount = 10;
 
 export const NumberSortExercise = ({ exerciseNumber = 1, min = 0, max = 10, sortOrder = "ascending", itemCount = max - min + 1 }: NumberSortExerciseProps) => {
+    const tracking = useExerciseTracking();
     const ascendingNumbers = Array.from({ length: max - min + 1 }, (_, index) => min + index);
     const initialItems = ascendingNumbers.slice(0, itemCount);
     const [sortedNumbers, setSortedNumbers] = useState(sortOrder === "ascending" ? initialItems : [...initialItems].reverse());
@@ -77,10 +79,14 @@ export const NumberSortExercise = ({ exerciseNumber = 1, min = 0, max = 10, sort
     };
 
     const checkAnswer = () => {
-        setResult(numbers.every((number, index) => number === sortedNumbers[index]) ? "correct" : "incorrect");
+        const correct = numbers.every((number, index) => number === sortedNumbers[index]);
+        if (correct) tracking.correct({ taskIndex: currentTask, snapshot: { numbers, sortedNumbers } });
+        else tracking.incorrect({ taskIndex: currentTask, snapshot: { numbers, sortedNumbers } });
+        setResult(correct ? "correct" : "incorrect");
     };
 
     const restart = () => {
+        tracking.restart();
         loadTask();
         setCurrentTask(0);
     };

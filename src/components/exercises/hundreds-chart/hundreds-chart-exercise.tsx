@@ -5,6 +5,7 @@ import { RefreshCw01 } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
+import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 import { translate as t } from "@/i18n/translate";
 import { cx } from "@/utils/cx";
 
@@ -53,6 +54,8 @@ const initialTask: Task = { start: 30, hints: [2, 17, 42], inputs: [4, 11, 23, 2
 const valueAt = (task: Task, index: number) => task.start + Math.floor(index / columns) * 10 + (index % columns);
 
 export const HundredsChartExercise = ({ exerciseNumber = 1, hintCount = 3, inputCount = 5, guidedRows = false }: { exerciseNumber?: number; hintCount?: number; inputCount?: number; guidedRows?: boolean }) => {
+    const tracking = useExerciseTracking();
+    const usedSolution = useRef(false);
     const [task, setTask] = useState<Task>(initialTask);
     const [currentTask, setCurrentTask] = useState(0);
     const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -73,6 +76,7 @@ export const HundredsChartExercise = ({ exerciseNumber = 1, hintCount = 3, input
         setFeedback(null);
         correctionTimers.current.forEach(clearTimeout);
         correctionTimers.current = [];
+        usedSolution.current = false;
     }, [guidedRows, hintCount, inputCount]);
 
     useEffect(() => loadTask(), [loadTask]);
@@ -96,10 +100,15 @@ export const HundredsChartExercise = ({ exerciseNumber = 1, hintCount = 3, input
                 Number(answers[index]) === valueAt(task, index) &&
                 (validatedCorrect.includes(index) || autoCorrected.includes(index)),
         );
-        if (completeAndCorrect) setFeedback("correct");
-    }, [answers, autoCorrected, feedback, task, validatedCorrect]);
+        if (completeAndCorrect) {
+            if (usedSolution.current) tracking.solution({ taskIndex: currentTask, snapshot: task });
+            else tracking.correct({ taskIndex: currentTask, snapshot: task });
+            setFeedback("correct");
+        }
+    }, [answers, autoCorrected, currentTask, feedback, task, tracking, validatedCorrect]);
 
     const restart = () => {
+        tracking.restart();
         setCurrentTask(0);
         loadTask();
     };
@@ -162,9 +171,11 @@ export const HundredsChartExercise = ({ exerciseNumber = 1, hintCount = 3, input
                                                     return;
                                                 }
                                                 const attempt = (wrongAttempts[index] ?? 0) + 1;
+                                                tracking.incorrect({ taskIndex: currentTask, snapshot: { task, index, expected } });
                                                 setWrongAttempts((current) => ({ ...current, [index]: attempt }));
                                                 setIncorrect((current) => current.includes(index) ? current : [...current, index]);
                                                 if (attempt >= 3) {
+                                                    usedSolution.current = true;
                                                     const timer = setTimeout(() => {
                                                         setAnswers((current) => ({ ...current, [index]: String(expected) }));
                                                         setIncorrect((current) => current.filter((item) => item !== index));

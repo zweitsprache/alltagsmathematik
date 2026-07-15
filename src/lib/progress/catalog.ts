@@ -14,7 +14,7 @@ const flattenActivities = (nodes: CurriculumNode[], path: string[] = [], trail: 
     const nextPath = [...path, node.slug];
     const nextTrail = [...trail, node.title];
     const own = (node.exercises ?? []).map((exercise, index) => ({
-        id: exercise.id ?? `${nextPath.join("/")}#${index + 1}`,
+        id: exercise.id,
         href: `/kompetenzbereiche/${nextPath.join("/")}`,
         index: index + 1,
         title: node.title,

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
+import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 import { translate as t } from "@/i18n/translate";
 import { cx } from "@/utils/cx";
 
@@ -66,6 +67,7 @@ const createTask = (use24Hour: boolean, hourOverride: number | undefined, fullDa
 };
 
 export const AnalogClockChoiceExercise = ({ exerciseNumber = 1, minutes = 0, minuteOptions, randomQuarter = false, informal = false, use24Hour = false, sequential = false, fullDay = false, pairedTimes = false }: { exerciseNumber?: number; minutes?: number; minuteOptions?: number[]; randomQuarter?: boolean; informal?: boolean; use24Hour?: boolean; sequential?: boolean; fullDay?: boolean; pairedTimes?: boolean }) => {
+    const tracking = useExerciseTracking();
     const clockRef = useRef<HTMLObjectElement>(null);
     const [task, setTask] = useState({ hour: 12, minutes, correctHour: use24Hour ? 0 : 12, correctHours: [use24Hour ? 0 : 12], options: use24Hour ? [0, 23, 14] : [12, 11, 2] });
     const [currentTask, setCurrentTask] = useState(0);
@@ -126,15 +128,19 @@ export const AnalogClockChoiceExercise = ({ exerciseNumber = 1, minutes = 0, min
         setSelected(nextSelected);
         if (nextSelected.length < (selectPairedTimes ? 2 : 1)) return;
         if (nextSelected.every((value) => task.correctHours.includes(value))) {
+            tracking.correct({ taskIndex: currentTask, snapshot: task });
             setFeedback("correct");
             return;
         }
         const attempts = wrongAttempts + 1;
+        tracking.incorrect({ taskIndex: currentTask, snapshot: task });
         setWrongAttempts(attempts);
+        if (attempts >= 3) tracking.solution({ taskIndex: currentTask, snapshot: task });
         setFeedback(attempts >= 3 ? "solution" : "wrong");
     };
 
     const restart = () => {
+        tracking.restart();
         setCurrentTask(0);
         setTask(createTask(use24Hour, sequential ? 1 : undefined, fullDay, selectPairedTimes, minutes, randomQuarter, minuteOptions));
         setSelected([]);

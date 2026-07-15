@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Play } from "@untitledui/icons";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
+import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 import sets0To10 from "@/content/context-number-audio.json";
 import sets11To24 from "@/content/context-number-audio-11-24.json";
 import readSets11To24 from "@/content/context-number-read-11-24.json";
@@ -25,6 +26,7 @@ const shuffle = <T,>(items: T[]) => {
 };
 
 export const ContextNumberListenExercise = ({ exerciseNumber, setNumber, contextId = "a_01_01_11", presentation = "audio" }: { exerciseNumber: number; setNumber: number; contextId?: string; presentation?: "audio" | "text" }) => {
+    const tracking = useExerciseTracking();
     const sets = contextId === "a_01_04_12" ? readSets30To100 : contextId === "a_01_04_11" ? sets30To100 : contextId === "a_01_03_12" ? readSets25To31 : contextId === "a_01_03_11" ? sets25To31 : contextId === "a_01_02_12" ? readSets11To24 : contextId === "a_01_01_12" ? readSets0To10 : contextId === "a_01_02_11" ? sets11To24 : sets0To10;
     const numberPool = contextId === "a_01_04_11" || contextId === "a_01_04_12" ? Array.from({ length: 71 }, (_, index) => index + 30) : contextId === "a_01_01_11" || contextId === "a_01_01_12" ? [2,3,4,5,6,7,8,9,10] : contextId === "a_01_03_11" || contextId === "a_01_03_12" ? [25,26,27,28,29,30,31] : [11,12,13,14,15,16,17,18,19,20,21,22,23,24];
     const source = sets[setNumber - 1];
@@ -67,13 +69,19 @@ export const ContextNumberListenExercise = ({ exerciseNumber, setNumber, context
         if (next.length < targets.length) return;
         const selectedNumbers = next.map((index) => options[index]).sort((a, b) => a - b);
         const correctNumbers = [...targets].sort((a, b) => a - b);
-        if (selectedNumbers.every((value, index) => value === correctNumbers[index])) return setFeedback("correct");
+        if (selectedNumbers.every((value, index) => value === correctNumbers[index])) {
+            tracking.correct({ taskIndex: current, snapshot: item });
+            return setFeedback("correct");
+        }
         const attempts = wrongAttempts + 1;
+        tracking.incorrect({ taskIndex: current, snapshot: item });
         setWrongAttempts(attempts);
+        if (attempts >= 3) tracking.solution({ taskIndex: current, snapshot: item });
         setFeedback(attempts >= 3 ? "solution" : "wrong");
     };
 
     const restart = () => {
+        tracking.restart();
         setOrder(shuffle(source.map((_, index) => index)));
         setCurrent(0); setSelected([]); setFeedback(null); setWrongAttempts(0);
     };

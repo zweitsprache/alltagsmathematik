@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import type { ExerciseConfig } from "@/content/curriculum";
+import { ExerciseRenderer } from "@/components/exercises/registry";
 import { cx } from "@/utils/cx";
-import { IntroExercise } from "./intro-exercise";
-import { NumberSpeechExplainer } from "./number-speech-explainer";
 
 const labelFor = (exercise: ExerciseConfig) => {
     if (exercise.type === "number-speech-explainer") return "Regel";
@@ -39,11 +38,7 @@ export const IntroExerciseTabs = ({ exercises }: { exercises: ExerciseConfig[] }
             </div>
 
             <div role="tabpanel" data-marketing-capture={`activity-${selectedIndex + 1}`}>
-                {selected.type === "number-speech-explainer" ? (
-                    <NumberSpeechExplainer />
-                ) : (
-                    <IntroExercise min={selected.min} max={selected.max} values={selected.values} title={selected.introTitle} />
-                )}
+                <ExerciseRenderer exercise={selected} exerciseNumber={selectedIndex + 1} activityId={selected.id} />
             </div>
         </div>
     );

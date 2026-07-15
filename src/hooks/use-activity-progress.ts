@@ -4,7 +4,7 @@ import { useCallback, useRef } from "react";
 
 export type ActivityOutcome = "correct" | "incorrect" | "solution";
 
-export const useActivityProgress = ({ activityId, taskCount }: { activityId?: string; taskCount: number }) => {
+export const useActivityProgress = ({ activityId, taskCount }: { activityId: string; taskCount: number }) => {
     const sessionId = useRef<string | null>(null);
     const randomSeed = useRef<string | null>(null);
 
@@ -19,7 +19,6 @@ export const useActivityProgress = ({ activityId, taskCount }: { activityId?: st
         outcome: ActivityOutcome;
         taskSnapshot?: unknown;
     }) => {
-        if (!activityId) return;
         if (!sessionId.current) resetSession();
 
         try {

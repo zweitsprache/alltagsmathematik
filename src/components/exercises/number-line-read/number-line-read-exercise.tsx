@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { InputBase } from "@/components/base/input/input";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
+import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 import { translate as t } from "@/i18n/translate";
 import { cx } from "@/utils/cx";
 
@@ -44,7 +45,8 @@ const createTasks = (min: number, max: number, taskCount?: number, rangeSize?: n
     });
 };
 
-export const NumberLineReadExercise = ({ exerciseNumber = 1, min = 0, max = 10, labeledNumbers = [0, 5, 10], taskCount, rangeSize }: NumberLineReadExerciseProps) => {
+export const NumberLineReadExercise = ({ exerciseNumber = 1, min = 0, max = 10, labeledNumbers = [0, 5, 10], taskCount = 10, rangeSize }: NumberLineReadExerciseProps) => {
+    const tracking = useExerciseTracking();
     const initialMax = rangeSize ? Math.min(min + rangeSize, max) : max;
     const initialNumbers = Array.from({ length: initialMax - min + 1 }, (_, index) => min + index);
     const [sequence, setSequence] = useState<NumberLineTask[]>(initialNumbers.slice(0, taskCount).map((target) => ({ target, min, max: initialMax })));
@@ -73,17 +75,16 @@ export const NumberLineReadExercise = ({ exerciseNumber = 1, min = 0, max = 10, 
     const isCorrect = parsed !== null && parsed === target;
     const isWrong = parsed !== null && parsed !== target;
 
-    // Track wrong attempts and auto-reveal after 3 wrong attempts
-    useEffect(() => {
-        if (!isWrong) return;
-        setWrongAttempts((prev) => {
-            const newCount = prev + 1;
-            if (newCount >= 3) {
-                setRevealed(true);
-            }
-            return newCount;
-        });
-    }, [isWrong]);
+    const validateInput = () => {
+        if (!isWrong || revealed) return;
+        const nextAttempts = wrongAttempts + 1;
+        tracking.incorrect({ taskIndex: currentIndex, snapshot: task });
+        setWrongAttempts(nextAttempts);
+        if (nextAttempts >= 3) {
+            setRevealed(true);
+            tracking.solution({ taskIndex: currentIndex, snapshot: task });
+        }
+    };
 
     const goToNext = () => {
         setCurrentIndex((prev) => prev + 1);
@@ -95,12 +96,14 @@ export const NumberLineReadExercise = ({ exerciseNumber = 1, min = 0, max = 10, 
     // Auto-advance to the next number shortly after a correct answer.
     useEffect(() => {
         if (!isCorrect) return;
+        tracking.correct({ taskIndex: currentIndex, snapshot: task });
 
         const timeout = setTimeout(goToNext, 800);
         return () => clearTimeout(timeout);
-    }, [isCorrect]);
+    }, [currentIndex, isCorrect, task, tracking]);
 
     const restart = () => {
+        tracking.restart();
         setSequence(createTasks(min, max, taskCount, rangeSize));
         setCurrentIndex(0);
         setInputValue("");
@@ -126,6 +129,8 @@ export const NumberLineReadExercise = ({ exerciseNumber = 1, min = 0, max = 10, 
                                 inputMode="numeric"
                                 value={revealed && !isCorrect ? (target ?? "") : inputValue}
                                 onChange={(event) => !revealed && setInputValue(event.target.value)}
+                                onBlur={validateInput}
+                                onKeyDown={(event) => { if (event.key === "Enter") validateInput(); }}
                                 disabled={revealed && !isCorrect}
                                 wrapperClassName={cx(
                                     isCorrect && "bg-success-secondary ring-2 ring-[var(--color-bg-success-solid)]",

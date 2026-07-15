@@ -134,4 +134,16 @@ await sql`
 await sql`CREATE INDEX IF NOT EXISTS activity_sessions_student_activity_idx ON activity_sessions (student_id, activity_id, started_at DESC)`;
 await sql`CREATE INDEX IF NOT EXISTS task_attempts_student_activity_idx ON task_attempts (student_id, created_at DESC)`;
 
+const legacyActivityIds = [
+    ["zahlen-und-variablen/zahlen-benennen-und-schreiben/zahlen-von-0-bis-10/zahlen-vergleichen#1", "exercise-0008"],
+    ["zahlen-und-variablen/zahlen-benennen-und-schreiben/zahlen-von-0-bis-10/zahlen-vergleichen#2", "exercise-0009"],
+    ["zahlen-und-variablen/zahlen-benennen-und-schreiben/zahlen-von-0-bis-10/zahlen-vergleichen#3", "exercise-0010"],
+    ["zahlen-und-variablen/zahlen-benennen-und-schreiben/zahlen-von-0-bis-10/zahlen-vergleichen#4", "exercise-0011"],
+];
+
+for (const [legacyId, permanentId] of legacyActivityIds) {
+    await sql`UPDATE activity_sessions SET activity_id = ${permanentId} WHERE activity_id = ${legacyId}`;
+    await sql`UPDATE student_activity_progress SET activity_id = ${permanentId} WHERE activity_id = ${legacyId}`;
+}
+
 console.log("Database migration complete: audio, users, roles, and activity progress are ready.");

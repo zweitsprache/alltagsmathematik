@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
+import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 import { numberWords } from "@/content/number-words";
 import { translate as t } from "@/i18n/translate";
 import { cx } from "@/utils/cx";
@@ -68,6 +69,7 @@ const createRoundNumberTasks = (min: number, max: number): Task[] => {
 };
 
 export const NumberSpellingChoiceExercise = ({ exerciseNumber = 1, min = 31, max = 99, variant }: { exerciseNumber?: number; min?: number; max?: number; variant?: Variant }) => {
+    const tracking = useExerciseTracking();
     const initialTasks = variant
         ? Array.from({ length: 10 }, (_, index) => {
             const number = 31 + index + Math.floor(index / 9);
@@ -89,6 +91,7 @@ export const NumberSpellingChoiceExercise = ({ exerciseNumber = 1, min = 31, max
         if (!feedback) return;
         const timeout = setTimeout(() => {
             if (feedback === "wrong" && wrongAttempts >= 3) {
+                tracking.solution({ taskIndex: current, snapshot: task });
                 setSelected(null);
                 setFeedback("solution");
                 return;
@@ -99,18 +102,23 @@ export const NumberSpellingChoiceExercise = ({ exerciseNumber = 1, min = 31, max
             if (feedback !== "wrong") setWrongAttempts(0);
         }, feedback === "solution" ? 1200 : 700);
         return () => clearTimeout(timeout);
-    }, [feedback, wrongAttempts]);
+    }, [current, feedback, task, tracking, wrongAttempts]);
 
     const choose = (option: string) => {
         if (feedback) return;
         setSelected(option);
-        if (option === task.correct) return setFeedback("correct");
+        if (option === task.correct) {
+            tracking.correct({ taskIndex: current, snapshot: task });
+            return setFeedback("correct");
+        }
         const attempts = wrongAttempts + 1;
+        tracking.incorrect({ taskIndex: current, snapshot: task });
         setWrongAttempts(attempts);
         setFeedback("wrong");
     };
 
     const restart = () => {
+        tracking.restart();
         setTasks(variant ? createVariantTasks(variant, min, max) : createRoundNumberTasks(min, max));
         setCurrent(0);
         setSelected(null);

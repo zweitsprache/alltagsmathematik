@@ -6,6 +6,7 @@ import { Button } from "@/components/base/buttons/button";
 import { numberWords } from "@/content/number-words";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
+import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 import { translate as t } from "@/i18n/translate";
 import { cx } from "@/utils/cx";
 
@@ -48,6 +49,7 @@ const playNumber = (number: number) =>
     });
 
 export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max = 10, labeledNumbers = [0, 5, 10], presentation = "audio", rangeSize }: NumberLineListenPairExerciseProps) => {
+    const tracking = useExerciseTracking();
     const initialMax = rangeSize ? Math.min(min + rangeSize, max) : max;
     const initialNumbers = Array.from({ length: initialMax - min + 1 }, (_, index) => min + index);
     const [tasks, setTasks] = useState(() => initialNumbers.slice(0, taskCount).map((number) => ({ pair: [number, number === initialMax ? min : number + 1] as [number, number], min, max: initialMax })));
@@ -127,17 +129,22 @@ export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max 
     useEffect(() => {
         if (!targets || selected.length !== 2) return;
         if (targets.every((target) => selected.includes(target))) {
+            tracking.correct({ taskIndex: currentIndex, snapshot: task });
             setResult("correct");
             return;
         }
 
         setResult("wrong");
+        tracking.incorrect({ taskIndex: currentIndex, snapshot: task });
         setWrongAttempts((attempts) => {
             const nextAttempts = attempts + 1;
-            if (nextAttempts >= 3) setRevealed(true);
+            if (nextAttempts >= 3) {
+                setRevealed(true);
+                tracking.solution({ taskIndex: currentIndex, snapshot: task });
+            }
             return nextAttempts;
         });
-    }, [selected, targets]);
+    }, [currentIndex, selected, targets, task, tracking]);
 
     const selectNumber = (number: number) => {
         if (!targets || result !== null || revealed) return;
@@ -150,6 +157,7 @@ export const NumberLineListenPairExercise = ({ exerciseNumber = 1, min = 0, max 
     };
 
     const restart = () => {
+        tracking.restart();
         setTasks(rangeSize ? createWindowedPairs(min, max, rangeSize) : createPairs(min, max).map((pair) => ({ pair, min, max })));
         setCurrentIndex(0);
         setSelected([]);

@@ -26,7 +26,10 @@ export const StudentDashboard = ({ name, progress }: { name?: string | null; pro
     const pageActivities = latest ? activityCatalog.filter((activity) => activity.path.join("/") === latest.path.join("/")) : [];
 
     const recommendations = progress
-        .filter((item) => item.solutionsRevealed > 0 || (item.totalAttempts >= 3 && item.correctFirstTry / item.totalAttempts < 0.6))
+        .filter((item) => item.latestSessionTaskCount > 0 && (
+            item.latestSessionSolutionsRevealed > 0
+            || item.latestSessionCorrectFirstTry / item.latestSessionTaskCount < 0.8
+        ))
         .map((item) => ({ progress: item, activity: activityCatalog.find((activity) => activity.id === item.activityId) }))
         .filter((item): item is { progress: ActivityProgress; activity: ActivityMeta } => Boolean(item.activity))
         .slice(0, 3);
@@ -129,7 +132,11 @@ export const StudentDashboard = ({ name, progress }: { name?: string | null; pro
                                 <div className="flex-1">
                                     <p className="text-xs font-semibold text-tertiary">{getHierarchicalNumber(activity.path)}</p>
                                     <h3 className="mt-1 text-md font-semibold text-primary">{activity.title}</h3>
-                                    <p className="mt-1 text-sm text-tertiary">{itemProgress.solutionsRevealed} Lösungen angezeigt</p>
+                                    <p className="mt-1 text-sm text-tertiary">
+                                        {itemProgress.latestSessionSolutionsRevealed > 0
+                                            ? `${itemProgress.latestSessionSolutionsRevealed} Lösungen zuletzt angezeigt`
+                                            : `${Math.round((itemProgress.latestSessionCorrectFirstTry / itemProgress.latestSessionTaskCount) * 100)}% beim ersten Versuch`}
+                                    </p>
                                 </div>
                                 <Button href={activity.href} color="secondary" size="sm">Erneut üben</Button>
                             </div>

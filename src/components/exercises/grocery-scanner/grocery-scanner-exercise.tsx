@@ -5,6 +5,7 @@ import { TableCard } from "@/components/application/table/table";
 import { Badge } from "@/components/base/badges/badges";
 import { InputBase } from "@/components/base/input/input";
 import { translate as t } from "@/i18n/translate";
+import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 import { cx } from "@/utils/cx";
 
 const pad = (value: number) => value.toString().padStart(2, "0");
@@ -25,6 +26,7 @@ const shuffle = <T,>(items: T[]) => {
 };
 
 export const GroceryScannerExercise = ({ exerciseNumber = 1 }: { exerciseNumber?: number }) => {
+    const tracking = useExerciseTracking();
     const [orderedGroceries, setOrderedGroceries] = useState(groceries);
     const [scannedGrocery, setScannedGrocery] = useState<(typeof groceries)[number] | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
@@ -47,18 +49,22 @@ export const GroceryScannerExercise = ({ exerciseNumber = 1 }: { exerciseNumber?
     };
 
     const validatePrice = (grocery: (typeof groceries)[number]) => {
+        const taskIndex = groceries.findIndex((item) => item.name === grocery.name);
         const answer = answers[grocery.name]?.replace(",", ".");
         if (!answer) return;
         if (Number(answer) === Number(grocery.price)) {
+            tracking.correct({ taskIndex, snapshot: grocery });
             setAnswers((current) => ({ ...current, [grocery.name]: grocery.price }));
             setStatuses((current) => ({ ...current, [grocery.name]: "correct" }));
             return;
         }
 
         const attempt = (attempts[grocery.name] ?? 0) + 1;
+        tracking.incorrect({ taskIndex, snapshot: grocery });
         setAttempts((current) => ({ ...current, [grocery.name]: attempt }));
         setStatuses((current) => ({ ...current, [grocery.name]: "incorrect" }));
         if (attempt >= 3) {
+            tracking.solution({ taskIndex, snapshot: grocery });
             const timer = setTimeout(() => {
                 setAnswers((current) => ({ ...current, [grocery.name]: grocery.price }));
                 setStatuses((current) => ({ ...current, [grocery.name]: "solution" }));

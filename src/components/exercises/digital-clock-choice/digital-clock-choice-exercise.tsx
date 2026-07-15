@@ -1,9 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Play } from "@untitledui/icons";
+import { toCardinal } from "n2words/de-DE";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
+import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 import { translate as t } from "@/i18n/translate";
+import { playStreamedTts, prepareStreamedTts, type PreparedStreamedTts } from "@/lib/audio/play-streamed-tts";
 import { cx } from "@/utils/cx";
 
 const randomTaskCount = 10;
@@ -11,6 +15,11 @@ const pad = (value: number) => value.toString().padStart(2, "0");
 const normalizeHour = (hour: number) => ((hour - 1 + 12) % 12) + 1;
 const toOfficialHour = (hour: number) => (hour === 12 ? 0 : hour + 12);
 const hourWords = ["zwölf", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn", "elf"];
+
+const formatOfficialTimeSpeech = (hour: number, minutes: number) => {
+    const spokenHour = hour === 1 ? "ein" : toCardinal(hour);
+    return minutes === 0 ? `${spokenHour} Uhr` : `${spokenHour} Uhr ${toCardinal(minutes)}`;
+};
 
 const formatInformalTime = (hour: number, minutes: number) => {
     const currentHour = hourWords[hour % 12];
@@ -117,7 +126,8 @@ const ClockFace = ({ hour, minutes }: { hour: number; minutes: number }) => {
     );
 };
 
-export const DigitalClockChoiceExercise = ({ exerciseNumber = 1, minutes = 0, minuteOptions, randomQuarter = false, informal = false, use24Hour = false, sequential = false, fullDay = false, pairedTimes = false }: { exerciseNumber?: number; minutes?: number; minuteOptions?: number[]; randomQuarter?: boolean; informal?: boolean; use24Hour?: boolean; sequential?: boolean; fullDay?: boolean; pairedTimes?: boolean }) => {
+export const DigitalClockChoiceExercise = ({ exerciseNumber = 1, minutes = 0, minuteOptions, randomQuarter = false, informal = false, use24Hour = false, sequential = false, fullDay = false, pairedTimes = false, audioPrompt = false, streamAudio = false }: { exerciseNumber?: number; minutes?: number; minuteOptions?: number[]; randomQuarter?: boolean; informal?: boolean; use24Hour?: boolean; sequential?: boolean; fullDay?: boolean; pairedTimes?: boolean; audioPrompt?: boolean; streamAudio?: boolean }) => {
+    const tracking = useExerciseTracking();
     const initialMinutes = minuteOptions?.[0] ?? (randomQuarter ? 15 : minutes);
     const taskCount = sequential ? 12 : randomTaskCount;
     const [task, setTask] = useState<Task>(() => createInitialTask(use24Hour, sequential, fullDay, initialMinutes));
@@ -125,6 +135,11 @@ export const DigitalClockChoiceExercise = ({ exerciseNumber = 1, minutes = 0, mi
     const [selected, setSelected] = useState<number | null>(null);
     const [wrongAttempts, setWrongAttempts] = useState(0);
     const [feedback, setFeedback] = useState<"correct" | "wrong" | "solution" | null>(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [playbackError, setPlaybackError] = useState("");
+    const playbackAbort = useRef<AbortController | null>(null);
+    const preparationAbort = useRef<AbortController | null>(null);
+    const preparedAudio = useRef<{ text: string; audio: Promise<PreparedStreamedTts> } | null>(null);
 
     const makeTask = useCallback((index: number) => {
         const availableMinutes = minuteOptions?.length ? minuteOptions : randomQuarter ? [15, 45] : [minutes];
@@ -147,6 +162,29 @@ export const DigitalClockChoiceExercise = ({ exerciseNumber = 1, minutes = 0, mi
     }, [makeTask]);
 
     useEffect(() => {
+        if (!audioPrompt || !streamAudio) return;
+        preparationAbort.current?.abort();
+        const previous = preparedAudio.current;
+        if (previous) void previous.audio.then((audio) => audio.dispose()).catch(() => undefined);
+        const abortController = new AbortController();
+        preparationAbort.current = abortController;
+        const text = formatOfficialTimeSpeech(task.displayHour, task.minutes);
+        const audio = prepareStreamedTts(text, abortController.signal);
+        preparedAudio.current = { text, audio };
+        void audio.catch(() => {
+            if (preparedAudio.current?.audio === audio) preparedAudio.current = null;
+        });
+        return () => abortController.abort();
+    }, [audioPrompt, streamAudio, task.displayHour, task.minutes]);
+
+    useEffect(() => () => {
+        playbackAbort.current?.abort();
+        preparationAbort.current?.abort();
+        const prepared = preparedAudio.current;
+        if (prepared) void prepared.audio.then((audio) => audio.dispose()).catch(() => undefined);
+    }, []);
+
+    useEffect(() => {
         if (!feedback) return;
         const timeout = setTimeout(() => {
             if (feedback === "correct" || feedback === "solution") {
@@ -165,15 +203,20 @@ export const DigitalClockChoiceExercise = ({ exerciseNumber = 1, minutes = 0, mi
         if (feedback) return;
         setSelected(hour);
         if (hour === task.analogHour) {
+            tracking.correct({ taskIndex: currentTask, snapshot: task });
             setFeedback("correct");
             return;
         }
         const attempts = wrongAttempts + 1;
+        tracking.incorrect({ taskIndex: currentTask, snapshot: task });
         setWrongAttempts(attempts);
+        if (attempts >= 3) tracking.solution({ taskIndex: currentTask, snapshot: task });
         setFeedback(attempts >= 3 ? "solution" : "wrong");
     };
 
     const restart = () => {
+        playbackAbort.current?.abort();
+        tracking.restart();
         setCurrentTask(0);
         setTask(makeTask(0));
         setSelected(null);
@@ -182,23 +225,52 @@ export const DigitalClockChoiceExercise = ({ exerciseNumber = 1, minutes = 0, mi
     };
 
     const finished = currentTask >= taskCount;
+    const instruction = audioPrompt ? "instructions.digital-clock-choice.prompt-audio" : "instructions.digital-clock-choice.prompt";
+
+    const playTime = async () => {
+        if (isPlaying) return;
+        const abortController = new AbortController();
+        playbackAbort.current = abortController;
+        const text = formatOfficialTimeSpeech(task.displayHour, task.minutes);
+        setPlaybackError("");
+        setIsPlaying(true);
+        try {
+            const prepared = preparedAudio.current;
+            if (prepared?.text === text) await (await prepared.audio).play(abortController.signal);
+            else await playStreamedTts(text, abortController.signal);
+        } catch (error) {
+            if (!abortController.signal.aborted) setPlaybackError(error instanceof Error ? error.message : "Audio konnte nicht abgespielt werden.");
+        } finally {
+            if (playbackAbort.current === abortController) playbackAbort.current = null;
+            setIsPlaying(false);
+        }
+    };
 
     return (
         <div className="flex max-w-3xl flex-col gap-8 rounded-lg bg-primary p-6 ring-2 ring-border-primary ring-inset">
             {finished ? (
-                <ExerciseCompletionHeader exerciseNumber={exerciseNumber} instruction={t("instructions.digital-clock-choice.prompt")} onRestart={restart} />
+                <ExerciseCompletionHeader exerciseNumber={exerciseNumber} instruction={t(instruction)} onRestart={restart} />
             ) : (
                 <>
                     <div className="border-b border-secondary pb-4">
                         <p className="text-md font-medium text-secondary">
                             <span className="mr-2 font-black">{pad(exerciseNumber)}</span>
-                            {t("instructions.digital-clock-choice.prompt")}
+                            {t(instruction)}
                         </p>
                     </div>
 
-                    <p className={cx("text-center font-black text-primary", informal ? "text-display-sm" : "text-display-lg tabular-nums")}>
-                        {informal ? formatInformalTime(task.displayHour, task.minutes) : `${pad(task.displayHour)}:${pad(task.minutes)}`}
-                    </p>
+                    {audioPrompt ? (
+                        <div className="flex flex-col items-center gap-3">
+                            <button type="button" onClick={() => void playTime()} disabled={isPlaying} aria-label={t("instructions.digital-clock-choice.play-aria")} className="flex size-14 items-center justify-center rounded-lg bg-brand-solid text-white shadow-xs-skeuomorphic outline-focus-ring transition hover:bg-brand-solid_hover focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60">
+                                <Play className="size-7" />
+                            </button>
+                            {playbackError && <p className="text-sm text-error-primary" role="alert">{playbackError}</p>}
+                        </div>
+                    ) : (
+                        <p className={cx("text-center font-black text-primary", informal ? "text-display-sm" : "text-display-lg tabular-nums")}>
+                            {informal ? formatInformalTime(task.displayHour, task.minutes) : `${pad(task.displayHour)}:${pad(task.minutes)}`}
+                        </p>
+                    )}
 
                     <div className="grid grid-cols-3 gap-4">
                         {task.options.map((hour, index) => {
@@ -210,7 +282,7 @@ export const DigitalClockChoiceExercise = ({ exerciseNumber = 1, minutes = 0, mi
                                 <button
                                     key={hour}
                                     type="button"
-                                    disabled={feedback !== null}
+                                    disabled={feedback !== null || isPlaying}
                                     onClick={() => choose(hour)}
                                     aria-label={t("instructions.digital-clock-choice.option-aria", { number: index + 1 })}
                                     className={cx(

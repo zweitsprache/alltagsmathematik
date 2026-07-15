@@ -5,6 +5,7 @@ import { Check, RefreshCw01 } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
+import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 import { translate as t } from "@/i18n/translate";
 import { cx } from "@/utils/cx";
 
@@ -39,6 +40,7 @@ const createTask = (min: number, max: number, itemCount: number) => {
 };
 
 export const NumberSequenceExercise = ({ exerciseNumber = 1, min = 0, max = 10, itemCount = max - min + 1 }: NumberSequenceExerciseProps) => {
+    const tracking = useExerciseTracking();
     const numbers = Array.from({ length: itemCount }, (_, index) => min + index);
     const initialSequence = numbers.slice(0, 5);
     const [sequence, setSequence] = useState(initialSequence);
@@ -68,12 +70,18 @@ export const NumberSequenceExercise = ({ exerciseNumber = 1, min = 0, max = 10, 
 
     useEffect(() => {
         if (!checked || !isCorrect) return;
+        tracking.correct({ taskIndex: currentTask, snapshot: { sequence, slots } });
         const timeout = setTimeout(() => {
             setCurrentTask((task) => task + 1);
             loadTask();
         }, 800);
         return () => clearTimeout(timeout);
-    }, [checked, isCorrect]);
+    }, [checked, currentTask, isCorrect, sequence, slots, tracking]);
+
+    useEffect(() => {
+        if (!checked || isCorrect) return;
+        tracking.incorrect({ taskIndex: currentTask, snapshot: { sequence, slots } });
+    }, [checked, currentTask, isCorrect, sequence, slots, tracking]);
 
     const placeNumber = (slotIndex: number) => {
         if (!dragged || slotIndex < 2) return;
@@ -96,6 +104,7 @@ export const NumberSequenceExercise = ({ exerciseNumber = 1, min = 0, max = 10, 
     };
 
     const restart = () => {
+        tracking.restart();
         setCurrentTask(0);
         loadTask();
     };

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Play } from "@untitledui/icons";
+import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 
 const slides = [
     {
@@ -43,6 +44,7 @@ const slides = [
 ];
 
 export const NumberSpeechExplainer = () => {
+    const tracking = useExerciseTracking();
     const [activeSlide, setActiveSlide] = useState(0);
     const [playing, setPlaying] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -59,14 +61,14 @@ export const NumberSpeechExplainer = () => {
             setProgress((activeSlide + 1) / slides.length);
             window.setTimeout(() => {
                 if (activeSlide < slides.length - 1) setActiveSlide((current) => current + 1);
-                else { setActiveSlide(0); setPlaying(false); setProgress(0); }
+                else { tracking.complete({ slides: slides.length }); setActiveSlide(0); setPlaying(false); setProgress(0); }
             }, 900);
         };
         audio.addEventListener("timeupdate", updateProgress);
         audio.addEventListener("ended", finish, { once: true });
         void audio.play().catch(finish);
         return () => { audio.pause(); audio.removeEventListener("timeupdate", updateProgress); audio.removeEventListener("ended", finish); };
-    }, [activeSlide, playing]);
+    }, [activeSlide, playing, tracking]);
 
     return (
         <section className="relative aspect-video w-full max-w-3xl overflow-hidden rounded-lg bg-primary ring-2 ring-border-primary ring-inset">
@@ -75,7 +77,7 @@ export const NumberSpeechExplainer = () => {
             <div className="flex size-full flex-col items-center justify-center gap-9 px-12 pt-14 pb-12 text-center">
                 <h2 className="max-w-2xl text-display-sm font-black text-primary">{slide.title}</h2>
                 {slide.visual}
-                {!playing && activeSlide === 0 && <button type="button" onClick={() => setPlaying(true)} aria-label="Präsentation starten" className="flex h-10 w-32 items-center justify-center rounded-sm bg-brand-solid text-white"><Play className="size-5" /></button>}
+                {!playing && activeSlide === 0 && <button type="button" onClick={() => { tracking.restart(); setPlaying(true); }} aria-label="Präsentation starten" className="flex h-10 w-32 items-center justify-center rounded-sm bg-brand-solid text-white"><Play className="size-5" /></button>}
             </div>
             {playing && <div className="absolute right-10 bottom-6 left-10 h-1 bg-secondary" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress * 100)}><div className="h-full bg-brand-solid" style={{ width: `${progress * 100}%` }} /></div>}
         </section>

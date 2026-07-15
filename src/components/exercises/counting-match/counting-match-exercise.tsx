@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
+import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 import { translate as t } from "@/i18n/translate";
 import { cx } from "@/utils/cx";
 
@@ -119,6 +120,7 @@ const ShapeSymbol = ({ shape, position, compact = false }: { shape: Shape; posit
 );
 
 export const CountingMatchExercise = ({ exerciseNumber = 1, min = 1, max = 10, arrangement = "random", cardCount = 6, sameShape = false }: { exerciseNumber?: number; min?: number; max?: number; arrangement?: Arrangement; cardCount?: 4 | 6; sameShape?: boolean }) => {
+    const tracking = useExerciseTracking();
     const totalTasks = max - min + 1;
     const [task, setTask] = useState<Task>(() => initialTask(min, arrangement, cardCount, sameShape));
     const [selected, setSelected] = useState<string[]>([]);
@@ -143,24 +145,27 @@ export const CountingMatchExercise = ({ exerciseNumber = 1, min = 1, max = 10, a
 
     useEffect(() => {
         if (!correct) return;
+        tracking.correct({ taskIndex: currentTask, snapshot: task });
         const timeout = setTimeout(() => {
             const nextTask = currentTask + 1;
             setCurrentTask(nextTask);
             loadTask(nextTask);
         }, 700);
         return () => clearTimeout(timeout);
-    }, [correct, currentTask]);
+    }, [correct, currentTask, task, tracking]);
 
     useEffect(() => {
         if (!complete || correct || feedback) return;
+        tracking.incorrect({ taskIndex: currentTask, snapshot: task });
         setWrongAttempts((attempts) => attempts + 1);
         setFeedback("wrong");
-    }, [complete, correct, feedback]);
+    }, [complete, correct, currentTask, feedback, task, tracking]);
 
     useEffect(() => {
         if (!feedback) return;
         const timeout = setTimeout(() => {
             if (feedback === "wrong" && wrongAttempts >= 3) {
+                tracking.solution({ taskIndex: currentTask, snapshot: task });
                 setSelected([]);
                 setFeedback("solution");
                 return;
@@ -175,14 +180,14 @@ export const CountingMatchExercise = ({ exerciseNumber = 1, min = 1, max = 10, a
             setFeedback(null);
         }, feedback === "solution" ? 1200 : 700);
         return () => clearTimeout(timeout);
-    }, [currentTask, feedback, wrongAttempts]);
+    }, [currentTask, feedback, task, tracking, wrongAttempts]);
 
     const finished = currentTask >= totalTasks;
 
     return (
         <div className="flex max-w-3xl flex-col gap-8 rounded-lg bg-primary p-6 ring-2 ring-border-primary ring-inset">
             {finished ? (
-                <ExerciseCompletionHeader exerciseNumber={exerciseNumber} instruction={t("instructions.counting-match.prompt")} onRestart={() => { setCurrentTask(0); loadTask(0); }} />
+                <ExerciseCompletionHeader exerciseNumber={exerciseNumber} instruction={t("instructions.counting-match.prompt")} onRestart={() => { tracking.restart(); setCurrentTask(0); loadTask(0); }} />
             ) : (
                 <>
                     <div className="border-b border-secondary pb-4">

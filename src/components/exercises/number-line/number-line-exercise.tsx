@@ -6,6 +6,7 @@ import { Button } from "@/components/base/buttons/button";
 import { numberWords } from "@/content/number-words";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
+import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 import { translate as t } from "@/i18n/translate";
 import { cx } from "@/utils/cx";
 
@@ -50,7 +51,8 @@ const createTasks = (min: number, max: number, taskCount?: number, rangeSize?: n
     });
 };
 
-export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labeledNumbers = [0, 5, 10], presentation = "text", taskCount, rangeSize }: NumberLineExerciseProps) => {
+export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labeledNumbers = [0, 5, 10], presentation = "text", taskCount = 10, rangeSize }: NumberLineExerciseProps) => {
+    const tracking = useExerciseTracking();
     const initialMax = rangeSize ? Math.min(min + rangeSize, max) : max;
     const initialNumbers = Array.from({ length: initialMax - min + 1 }, (_, index) => min + index);
     const [sequence, setSequence] = useState<NumberLineTask[]>(initialNumbers.slice(0, taskCount).map((target) => ({ target, min, max: initialMax })));
@@ -86,10 +88,8 @@ export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labe
     // Track wrong attempts and auto-reveal after 3 wrong attempts
     useEffect(() => {
         if (!isWrong || feedback) return;
-        setWrongAttempts((prev) => {
-            const newCount = prev + 1;
-            return newCount;
-        });
+        tracking.incorrect({ taskIndex: currentIndex, snapshot: task });
+        setWrongAttempts((prev) => prev + 1);
         setFeedback("wrong");
     }, [feedback, isWrong]);
 
@@ -97,6 +97,7 @@ export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labe
         if (!feedback) return;
         const timeout = setTimeout(() => {
             if (feedback === "wrong" && wrongAttempts >= 3) {
+                tracking.solution({ taskIndex: currentIndex, snapshot: task });
                 setSelected(null);
                 setRevealed(true);
                 setFeedback("solution");
@@ -114,7 +115,7 @@ export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labe
             setFeedback(null);
         }, feedback === "solution" ? 1200 : 700);
         return () => clearTimeout(timeout);
-    }, [feedback, wrongAttempts]);
+    }, [currentIndex, feedback, task, tracking, wrongAttempts]);
 
     const nextExercise = () => {
         setCurrentIndex((prev) => prev + 1);
@@ -127,6 +128,7 @@ export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labe
     // Auto-advance to the next number shortly after a correct answer.
     useEffect(() => {
         if (!isCorrect) return;
+        tracking.correct({ taskIndex: currentIndex, snapshot: task });
 
         const timeout = setTimeout(() => {
             setCurrentIndex((prev) => prev + 1);
@@ -137,9 +139,10 @@ export const NumberLineExercise = ({ exerciseNumber = 1, min = 0, max = 10, labe
         }, 800);
 
         return () => clearTimeout(timeout);
-    }, [isCorrect]);
+    }, [currentIndex, isCorrect, task, tracking]);
 
     const restart = () => {
+        tracking.restart();
         setSequence(createTasks(min, max, taskCount, rangeSize));
         setCurrentIndex(0);
         setSelected(null);
