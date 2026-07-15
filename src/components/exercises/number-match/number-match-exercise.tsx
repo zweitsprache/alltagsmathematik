@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { ExerciseCompletionHeader } from "@/components/exercises/exercise-completion-header";
 import { translate as t } from "@/i18n/translate";
+import { useActivityProgress } from "@/hooks/use-activity-progress";
 import { cx } from "@/utils/cx";
 
 type Task = { target: number; values: number[] };
@@ -27,8 +28,9 @@ const pad = (value: number) => value.toString().padStart(2, "0");
 
 const numberFonts = ["Lavishly Yours", "Ultra", "Press Start 2P", "Encode Sans Semi Condensed", "Edu Australia VIC WA NT Hand Dots", "Finger Paint", "Permanent Marker"];
 
-export const NumberMatchExercise = ({ exerciseNumber = 1, min = 0, max = 10, matchCount = 3, variedFonts = false }: { exerciseNumber?: number; min?: number; max?: number; matchCount?: 2 | 3; variedFonts?: boolean }) => {
+export const NumberMatchExercise = ({ activityId, exerciseNumber = 1, min = 0, max = 10, matchCount = 3, variedFonts = false }: { activityId?: string; exerciseNumber?: number; min?: number; max?: number; matchCount?: 2 | 3; variedFonts?: boolean }) => {
     const taskCount = 10;
+    const { recordAttempt, resetSession } = useActivityProgress({ activityId, taskCount });
     const [task, setTask] = useState<Task>({ target: min, values: [min, min, min, min + 1, min + 2, min + 3] });
     const [selected, setSelected] = useState<number[]>([]);
     const [currentTask, setCurrentTask] = useState(0);
@@ -48,6 +50,7 @@ export const NumberMatchExercise = ({ exerciseNumber = 1, min = 0, max = 10, mat
 
     useEffect(() => {
         if (!correct) return;
+        void recordAttempt({ taskIndex: currentTask, attemptNumber: wrongAttempts + 1, outcome: "correct", taskSnapshot: task });
         const timeout = setTimeout(() => {
             setCurrentTask((current) => current + 1);
             setTask(createTask(min, max, matchCount));
@@ -55,21 +58,23 @@ export const NumberMatchExercise = ({ exerciseNumber = 1, min = 0, max = 10, mat
             setWrongAttempts(0);
         }, 700);
         return () => clearTimeout(timeout);
-    }, [correct, min, max, matchCount]);
+    }, [correct, currentTask, min, max, matchCount, recordAttempt, task, wrongAttempts]);
 
     useEffect(() => {
         if (!complete || correct || feedback) return;
 
         const attempts = wrongAttempts + 1;
+        void recordAttempt({ taskIndex: currentTask, attemptNumber: attempts, outcome: "incorrect", taskSnapshot: task });
         setWrongAttempts(attempts);
         setFeedback("wrong");
-    }, [complete, correct, feedback, wrongAttempts]);
+    }, [complete, correct, currentTask, feedback, recordAttempt, task, wrongAttempts]);
 
     useEffect(() => {
         if (!feedback) return;
 
         const timeout = setTimeout(() => {
             if (feedback === "wrong" && wrongAttempts >= 3) {
+                void recordAttempt({ taskIndex: currentTask, attemptNumber: wrongAttempts + 1, outcome: "solution", taskSnapshot: task });
                 setSelected([]);
                 setFeedback("solution");
                 return;
@@ -85,7 +90,7 @@ export const NumberMatchExercise = ({ exerciseNumber = 1, min = 0, max = 10, mat
         }, feedback === "solution" ? 1200 : 700);
 
         return () => clearTimeout(timeout);
-    }, [feedback, matchCount, max, min, wrongAttempts]);
+    }, [currentTask, feedback, matchCount, max, min, recordAttempt, task, wrongAttempts]);
 
     const toggle = (index: number) => {
         if (correct) return;
@@ -93,6 +98,7 @@ export const NumberMatchExercise = ({ exerciseNumber = 1, min = 0, max = 10, mat
     };
 
     const restart = () => {
+        resetSession();
         setTask(createTask(min, max, matchCount));
         setSelected([]);
         setCurrentTask(0);

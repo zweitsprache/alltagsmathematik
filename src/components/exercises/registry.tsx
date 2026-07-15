@@ -2,6 +2,9 @@ import type { ExerciseConfig } from "@/content/curriculum";
 import { AnalogClockChoiceExercise } from "./analog-clock-choice/analog-clock-choice-exercise";
 import { ContextNumberListenExercise } from "./context-number-listen/context-number-listen-exercise";
 import { CountingMatchExercise } from "./counting-match/counting-match-exercise";
+import { DigitalClockChoiceExercise } from "./digital-clock-choice/digital-clock-choice-exercise";
+import { GroceryScannerExercise } from "./grocery-scanner/grocery-scanner-exercise";
+import { HundredsChartExercise } from "./hundreds-chart/hundreds-chart-exercise";
 import { IntroExercise } from "./intro/intro-exercise";
 import { NumberSpeechExplainer } from "./intro/number-speech-explainer";
 import { NumberLineListenPairExercise } from "./number-line-listen-pair/number-line-listen-pair-exercise";
@@ -17,7 +20,7 @@ import { NumberSortExercise } from "./number-sort/number-sort-exercise";
  * Renders an exercise based on its `type`. Add new interactive exercise types
  * here — content only needs to reference the new `type` string and its config.
  */
-export const ExerciseRenderer = ({ exercise, exerciseNumber }: { exercise: ExerciseConfig; exerciseNumber: number }) => {
+export const ExerciseRenderer = ({ exercise, exerciseNumber, activityId }: { exercise: ExerciseConfig; exerciseNumber: number; activityId?: string }) => {
     switch (exercise.type) {
         case "analog-clock-choice":
             return <AnalogClockChoiceExercise exerciseNumber={exerciseNumber} minutes={exercise.minutes} minuteOptions={exercise.minuteOptions} randomQuarter={exercise.randomQuarter} informal={exercise.informal} />;
@@ -31,6 +34,12 @@ export const ExerciseRenderer = ({ exercise, exerciseNumber }: { exercise: Exerc
             return <AnalogClockChoiceExercise exerciseNumber={exerciseNumber} minutes={exercise.minutes} minuteOptions={exercise.minuteOptions} randomQuarter={exercise.randomQuarter} informal={exercise.informal} use24Hour fullDay />;
         case "analog-clock-choice-pair":
             return <AnalogClockChoiceExercise exerciseNumber={exerciseNumber} minutes={exercise.minutes} minuteOptions={exercise.minuteOptions} randomQuarter={exercise.randomQuarter} informal={exercise.informal} use24Hour pairedTimes />;
+        case "digital-clock-choice":
+            return <DigitalClockChoiceExercise exerciseNumber={exerciseNumber} minutes={exercise.minutes} minuteOptions={exercise.minuteOptions} randomQuarter={exercise.randomQuarter} informal={exercise.informal} use24Hour={exercise.use24Hour} sequential={exercise.sequential} fullDay={exercise.fullDay} pairedTimes={exercise.pairedTimes} />;
+        case "grocery-scanner":
+            return <GroceryScannerExercise exerciseNumber={exerciseNumber} />;
+        case "hundreds-chart":
+            return <HundredsChartExercise exerciseNumber={exerciseNumber} hintCount={exercise.hintCount} inputCount={exercise.inputCount} guidedRows={exercise.guidedRows} />;
         case "context-number-listen":
             return <ContextNumberListenExercise exerciseNumber={exerciseNumber} setNumber={exercise.setNumber ?? 1} contextId={exercise.contextId} />;
         case "context-number-read":
@@ -76,9 +85,9 @@ export const ExerciseRenderer = ({ exercise, exerciseNumber }: { exercise: Exerc
         case "number-sequence":
             return <NumberSequenceExercise exerciseNumber={exerciseNumber} min={exercise.min} max={exercise.max} itemCount={exercise.itemCount} />;
         case "number-match":
-            return <NumberMatchExercise exerciseNumber={exerciseNumber} min={exercise.min} max={exercise.max} matchCount={exercise.matchCount} />;
+            return <NumberMatchExercise activityId={activityId} exerciseNumber={exerciseNumber} min={exercise.min} max={exercise.max} matchCount={exercise.matchCount} />;
         case "number-match-fonts":
-            return <NumberMatchExercise exerciseNumber={exerciseNumber} min={exercise.min} max={exercise.max} matchCount={exercise.matchCount} variedFonts />;
+            return <NumberMatchExercise activityId={activityId} exerciseNumber={exerciseNumber} min={exercise.min} max={exercise.max} matchCount={exercise.matchCount} variedFonts />;
         default:
             return null;
     }

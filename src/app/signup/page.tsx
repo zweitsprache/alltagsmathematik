@@ -4,37 +4,42 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/base/buttons/button";
-import { Checkbox } from "@/components/base/checkbox/checkbox";
 import { Input } from "@/components/base/input/input";
 import { UntitledLogoMinimal } from "@/components/foundations/logo/untitledui-logo-minimal";
 import { authClient } from "@/lib/auth/client";
 
-export default function LoginPage() {
+export default function SignupPage() {
     const router = useRouter();
-    const [rememberMe, setRememberMe] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setError(null);
-        setIsLoading(true);
 
         const formData = new FormData(event.currentTarget);
+        const name = String(formData.get("name") ?? "").trim();
         const email = String(formData.get("email") ?? "").trim();
         const password = String(formData.get("password") ?? "");
-        try {
-            const result = await authClient.signIn.email({ email, password, rememberMe, callbackURL: "/" });
+        const passwordConfirmation = String(formData.get("passwordConfirmation") ?? "");
 
+        if (password !== passwordConfirmation) {
+            setError("Passwords do not match.");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const result = await authClient.signUp.email({ name, email, password, callbackURL: "/" });
             if (result.error) {
-                setError(result.error.message ?? "Sign in failed. Please check your details.");
+                setError(result.error.message ?? "Account creation failed.");
                 return;
             }
 
             router.replace("/");
             router.refresh();
-        } catch (signInError) {
-            setError(signInError instanceof Error ? signInError.message : "Sign in failed. Please check your details.");
+        } catch (signupError) {
+            setError(signupError instanceof Error ? signupError.message : "Account creation failed.");
         } finally {
             setIsLoading(false);
         }
@@ -48,36 +53,27 @@ export default function LoginPage() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                    <h1 className="text-display-sm font-semibold text-primary">Log in to your account</h1>
-                    <p className="text-md text-tertiary">Welcome back! Please enter your details.</p>
+                    <h1 className="text-display-sm font-semibold text-primary">Create an account</h1>
+                    <p className="text-md text-tertiary">Enter your details to get started.</p>
                 </div>
 
                 <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit}>
+                    <Input name="name" label="Name" autoComplete="name" placeholder="Enter your name" size="md" isRequired isDisabled={isLoading} />
                     <Input name="email" label="Email" type="email" autoComplete="email" placeholder="Enter your email" size="md" isRequired isDisabled={isLoading} />
-                    <Input name="password" label="Password" type="password" autoComplete="current-password" placeholder="Enter your password" size="md" isRequired isDisabled={isLoading} />
-
-                    <div className="flex items-center justify-between gap-4">
-                        <Checkbox label="Remember for 30 days" isSelected={rememberMe} onChange={setRememberMe} isDisabled={isLoading} />
-                        <Link href="#" className="text-sm font-semibold text-brand-secondary hover:text-brand-secondary_hover">
-                            Forgot password
-                        </Link>
-                    </div>
+                    <Input name="password" label="Password" type="password" autoComplete="new-password" placeholder="Create a password" size="md" isRequired isDisabled={isLoading} />
+                    <Input name="passwordConfirmation" label="Confirm password" type="password" autoComplete="new-password" placeholder="Repeat your password" size="md" isRequired isDisabled={isLoading} />
 
                     {error && <p role="alert" className="text-sm text-error-primary">{error}</p>}
 
                     <Button type="submit" color="primary" size="md" className="w-full rounded-md" isLoading={isLoading}>
-                        Sign in
+                        Create account
                     </Button>
-                    <button type="button" className="inline-flex items-center justify-center gap-3 rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold text-secondary shadow-xs-skeuomorphic ring-1 ring-primary ring-inset transition hover:bg-primary_hover">
-                        <span className="text-lg font-bold text-[#4285f4]">G</span>
-                        Sign in with Google
-                    </button>
                 </form>
 
                 <p className="mt-8 text-center text-sm text-tertiary">
-                    Don&apos;t have an account?{" "}
-                    <Link href="/signup" className="font-semibold text-brand-secondary hover:text-brand-secondary_hover">
-                        Sign up
+                    Already have an account?{" "}
+                    <Link href="/login" className="font-semibold text-brand-secondary hover:text-brand-secondary_hover">
+                        Sign in
                     </Link>
                 </p>
             </section>

@@ -4,6 +4,8 @@
             "title": "Raum und Zeit",
             "description": "Orientierung, Wege und Entfernungen im Raum.",
             "uhrzeiten": "Uhrzeiten",
+            "digital-offiziell": "Digital > offiziell",
+            "digital-inoffiziell": "Digital > inoffiziell",
             "analog-offiziell": "Analog > offiziell",
             "analog-inoffiziell": "Analog > inoffiziell",
             "xx-00": "XX:00 | XX:30 lesen",
@@ -23,7 +25,10 @@
         },
         "groessen-und-einheiten": {
             "title": "Grössen und Einheiten",
-            "description": "Messen, schätzen und umrechnen von Grössen."
+            "description": "Messen, schätzen und umrechnen von Grössen.",
+            "geld": "Geld",
+            "preise": "Preise",
+            "lebensmittel-scannen": "Lebensmittel scannen"
         },
         "zahlen-und-variablen": {
             "title": "Zahlen und Variablen",
@@ -43,6 +48,7 @@
             "zahlenstrahl-zahlwoerter": "Zahlenstrahl mit Zahlwörtern",
             "zahlwoerter-lesen": "Zahlwörter lesen",
             "zahlen-hoeren-und-auswaehlen": "Zahlen hören und auswählen",
+            "hundertertafeln": "Hundertertafeln",
             "zahlen-sortieren": "Zahlen sortieren",
             "zahlen-im-kontext-hoeren": "Zahlen im Kontext hören",
             "zahlen-lesen": "Zahlen lesen",
@@ -61,6 +67,19 @@
         }
     },
     "instructions": {
+        "grocery-scanner": {
+            "prompt": "Scannen Sie das Lebensmittel und notieren Sie die Preise.",
+            "aria": "Scannerrahmen mit bewegter roter Scanlinie"
+        },
+        "hundreds-chart": {
+            "prompt": "Ergänzen Sie die fehlenden Zahlen.",
+            "input-aria": "Zahl in Zeile {row}, Spalte {column}",
+            "check": "Korrigieren"
+        },
+        "digital-clock-choice": {
+            "prompt": "Wählen Sie das passende Zifferblatt.",
+            "option-aria": "Zifferblatt {number}"
+        },
         "number-spelling-choice": {
             "prompt": "Wählen Sie die richtige Schreibweise."
         },

@@ -3,10 +3,9 @@
 import type { ReactNode } from "react";
 import { SearchLg } from "@untitledui/icons";
 import { Input } from "@/components/base/input/input";
-import { UntitledLogo } from "@/components/foundations/logo/untitledui-logo";
 import { cx } from "@/utils/cx";
+import { AuthNavAccountCard } from "../base-components/auth-nav-account-card";
 import { MobileNavigationHeader } from "../base-components/mobile-header";
-import { NavAccountCard } from "../base-components/nav-account-card";
 import { NavItemBase } from "../base-components/nav-item";
 import { NavList } from "../base-components/nav-list";
 import type { NavItemType } from "../config";
@@ -55,7 +54,7 @@ export const SidebarNavigationSimple = ({
             )}
         >
             <div className="flex flex-col gap-5 px-4 lg:px-5">
-                <UntitledLogo className="h-6" />
+                <img src="/alltagsmathematik_logo.svg" alt="Alltagsmathematik" className="size-10" />
 
                 {/* Mobile search input */}
                 <Input size="md" aria-label="Search" placeholder="Search" icon={SearchLg} className="md:hidden" />
@@ -64,7 +63,7 @@ export const SidebarNavigationSimple = ({
                 <Input shortcut size="sm" aria-label="Search" placeholder="Search" icon={SearchLg} className="max-md:hidden" />
             </div>
 
-            <NavList activeUrl={activeUrl} items={items} />
+            <NavList activeUrl={activeUrl} items={items} cardLayout />
 
             <div className="mt-auto flex flex-col gap-3 px-4 py-4 lg:py-5">
                 {footerItems.length > 0 && (
@@ -81,7 +80,7 @@ export const SidebarNavigationSimple = ({
 
                 {featureCard}
 
-                {showAccountCard && <NavAccountCard />}
+                {showAccountCard && <AuthNavAccountCard />}
             </div>
         </aside>
     );

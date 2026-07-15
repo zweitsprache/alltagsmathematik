@@ -15,6 +15,7 @@
     },
     "dependencies": {
         "@fontsource/encode-sans-semi-condensed": "^5.2.8",
+        "@neondatabase/auth": "^0.4.2-beta",
         "@neondatabase/serverless": "^1.1.0",
         "@react-aria/utils": "^3.34.1",
         "@react-stately/utils": "^3.12.1",

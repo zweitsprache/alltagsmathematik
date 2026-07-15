@@ -6,6 +6,8 @@ import type { NavItemDividerType, NavItemType } from "../config";
 import { NavItemBase } from "./nav-item";
 
 interface NavListProps {
+    /** Display top-level links as bordered cards. */
+    cardLayout?: boolean;
     /** URL of the currently active item. */
     activeUrl?: string;
     /** Additional CSS classes to apply to the list. */
@@ -14,13 +16,13 @@ interface NavListProps {
     items: (NavItemType | NavItemDividerType)[];
 }
 
-export const NavList = ({ activeUrl, items, className }: NavListProps) => {
+export const NavList = ({ activeUrl, items, className, cardLayout = false }: NavListProps) => {
     const [open, setOpen] = useState(false);
-    const activeItem = items.find((item) => item.href === activeUrl || item.items?.some((subItem) => subItem.href === activeUrl));
+    const activeItem = items.find((item) => item.href === activeUrl || (item.href && activeUrl?.startsWith(`${item.href}/`)) || item.items?.some((subItem) => subItem.href === activeUrl));
     const [currentItem, setCurrentItem] = useState(activeItem);
 
     return (
-        <ul className={cx("flex flex-col px-4 pt-5", className)}>
+        <ul className={cx("flex flex-col px-4 pt-5", cardLayout && "gap-2", className)}>
             {items.map((item, index) => {
                 if (item.divider) {
                     return (
@@ -72,8 +74,9 @@ export const NavList = ({ activeUrl, items, className }: NavListProps) => {
                             badge={item.badge}
                             icon={item.icon}
                             href={item.href}
-                            current={currentItem?.href === item.href}
+                            current={(cardLayout ? activeItem : currentItem)?.href === item.href}
                             open={open && currentItem?.href === item.href}
+                            card={cardLayout}
                         >
                             {item.label}
                         </NavItemBase>

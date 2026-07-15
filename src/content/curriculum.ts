@@ -8,13 +8,21 @@ import type { IconKey } from "./icons";
  * as data and rendered from a server component.
  */
 export type ExerciseConfig = {
-    type: "intro" | "number-speech-explainer" | "number-spelling-choice" | "analog-clock-choice" | "analog-clock-choice-24" | "analog-clock-choice-sequential" | "analog-clock-choice-sequential-24" | "analog-clock-choice-full-day" | "analog-clock-choice-pair" | "context-number-listen" | "context-number-read" | "counting-match" | "number-line" | "number-line-listen" | "number-line-listen-pair" | "number-line-word" | "number-line-word-pair" | "number-line-read" | "number-word-choice" | "number-word-choice-audio" | "number-sort" | "number-sequence" | "number-match" | "number-match-fonts";
+    /** Permanent identifier for progress tracking. Keep unchanged when reordering content. */
+    id?: string;
+    type: "intro" | "number-speech-explainer" | "number-spelling-choice" | "analog-clock-choice" | "analog-clock-choice-24" | "analog-clock-choice-sequential" | "analog-clock-choice-sequential-24" | "analog-clock-choice-full-day" | "analog-clock-choice-pair" | "digital-clock-choice" | "grocery-scanner" | "hundreds-chart" | "context-number-listen" | "context-number-read" | "counting-match" | "number-line" | "number-line-listen" | "number-line-listen-pair" | "number-line-word" | "number-line-word-pair" | "number-line-read" | "number-word-choice" | "number-word-choice-audio" | "number-sort" | "number-sequence" | "number-match" | "number-match-fonts";
     /** Lowest number on the line. */
     min?: number;
     /** Highest number on the line. */
     max?: number;
     /** Number of randomized tasks in an exercise. */
     taskCount?: number;
+    /** Number of prefilled reference cells in a hundreds-chart exercise. */
+    hintCount?: number;
+    /** Number of cells to complete in a hundreds-chart exercise. */
+    inputCount?: number;
+    /** Keep input rows supported by adjacent hints in an introductory hundreds chart. */
+    guidedRows?: boolean;
     /** Width of a randomly selected number-line window for each task. */
     rangeSize?: number;
     /** Number of values displayed in sorting and sequence exercises. */
@@ -31,6 +39,14 @@ export type ExerciseConfig = {
     minuteOptions?: number[];
     /** Randomly alternate between quarter-past and quarter-to tasks. */
     randomQuarter?: boolean;
+    /** Use official 24-hour notation for a digital clock prompt. */
+    use24Hour?: boolean;
+    /** Present clock-hour tasks in increasing order. */
+    sequential?: boolean;
+    /** Draw digital prompts from the complete 24-hour day. */
+    fullDay?: boolean;
+    /** Alternate equivalent 12- and 24-hour digital prompts. */
+    pairedTimes?: boolean;
     /** Render answer choices as colloquial German time phrases. */
     informal?: boolean;
     /** Sentence set used by contextual listening exercises. */
@@ -70,6 +86,18 @@ export type CurriculumNode = {
 };
 
 const informalClockExercises = (exercises: ExerciseConfig[]): ExerciseConfig[] => exercises.map((exercise) => ({ ...exercise, informal: true }));
+
+const digitalClockExercises = (exercises: ExerciseConfig[]): ExerciseConfig[] => exercises.map((exercise) => ({
+    type: "digital-clock-choice",
+    minutes: exercise.minutes,
+    minuteOptions: exercise.minuteOptions,
+    randomQuarter: exercise.randomQuarter,
+    use24Hour: exercise.type === "analog-clock-choice-24" || exercise.type === "analog-clock-choice-sequential-24" || exercise.type === "analog-clock-choice-full-day",
+    sequential: exercise.type === "analog-clock-choice-sequential" || exercise.type === "analog-clock-choice-sequential-24",
+    fullDay: exercise.type === "analog-clock-choice-full-day",
+    pairedTimes: exercise.type === "analog-clock-choice-pair",
+    informal: exercise.informal,
+}));
 
 export const curriculum: CurriculumNode[] = [
     {
@@ -537,6 +565,15 @@ export const curriculum: CurriculumNode[] = [
                                 title: t("levels.zahlen-und-variablen.zahlen-lesen"),
                                 exercises: [1, 2, 3, 4, 5].map((setNumber) => ({ type: "context-number-read" as const, setNumber, contextId: "a_01_04_12" })),
                             },
+                            {
+                                slug: "hundertertafeln",
+                                title: t("levels.zahlen-und-variablen.hundertertafeln"),
+                                exercises: [
+                                    { type: "hundreds-chart", hintCount: 4, inputCount: 4, guidedRows: true },
+                                    { type: "hundreds-chart", hintCount: 3, inputCount: 5 },
+                                    { type: "hundreds-chart", hintCount: 2, inputCount: 7 },
+                                ],
+                            },
                         ],
                     },
                     {
@@ -663,6 +700,25 @@ export const curriculum: CurriculumNode[] = [
         title: t("levels.groessen-und-einheiten.title"),
         description: t("levels.groessen-und-einheiten.description"),
         icon: "ruler",
+        children: [
+            {
+                slug: "geld",
+                title: t("levels.groessen-und-einheiten.geld"),
+                children: [
+                    {
+                        slug: "preise",
+                        title: t("levels.groessen-und-einheiten.preise"),
+                        children: [
+                            {
+                                slug: "lebensmittel-scannen",
+                                title: t("levels.groessen-und-einheiten.lebensmittel-scannen"),
+                                exercises: [{ type: "grocery-scanner" }],
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
     },
     {
         slug: "raum-und-zeit",
@@ -674,6 +730,164 @@ export const curriculum: CurriculumNode[] = [
                 slug: "uhrzeiten",
                 title: t("levels.raum-und-zeit.uhrzeiten"),
                 children: [
+                    {
+                        slug: "digital-offiziell",
+                        title: t("levels.raum-und-zeit.digital-offiziell"),
+                        children: [
+                            {
+                                slug: "xx-00",
+                                title: t("levels.raum-und-zeit.xx-00"),
+                                exercises: [
+                                    { type: "digital-clock-choice", sequential: true },
+                                    { type: "digital-clock-choice" },
+                                    { type: "digital-clock-choice", use24Hour: true, sequential: true },
+                                    { type: "digital-clock-choice", use24Hour: true },
+                                    { type: "digital-clock-choice", use24Hour: true, fullDay: true },
+                                    { type: "digital-clock-choice", pairedTimes: true },
+                                    { type: "digital-clock-choice", minutes: 30, sequential: true },
+                                    { type: "digital-clock-choice", minutes: 30 },
+                                    { type: "digital-clock-choice", minutes: 30, use24Hour: true, sequential: true },
+                                    { type: "digital-clock-choice", minutes: 30, use24Hour: true },
+                                    { type: "digital-clock-choice", minutes: 30, use24Hour: true, fullDay: true },
+                                    { type: "digital-clock-choice", minutes: 30, pairedTimes: true },
+                                ],
+                            },
+                            {
+                                slug: "xx-15-xx-45",
+                                title: t("levels.raum-und-zeit.xx-15-xx-45"),
+                                exercises: digitalClockExercises([
+                                    { type: "analog-clock-choice", minutes: 15 },
+                                    { type: "analog-clock-choice-24", minutes: 15 },
+                                    { type: "analog-clock-choice-pair", minutes: 15 },
+                                    { type: "analog-clock-choice", minutes: 45 },
+                                    { type: "analog-clock-choice-24", minutes: 45 },
+                                    { type: "analog-clock-choice-pair", minutes: 45 },
+                                    { type: "analog-clock-choice", randomQuarter: true },
+                                    { type: "analog-clock-choice-24", randomQuarter: true },
+                                    { type: "analog-clock-choice-pair", randomQuarter: true },
+                                ]),
+                            },
+                            {
+                                slug: "xx-05-xx-55",
+                                title: t("levels.raum-und-zeit.xx-05-xx-55"),
+                                exercises: digitalClockExercises([
+                                    { type: "analog-clock-choice", minutes: 5 },
+                                    { type: "analog-clock-choice-24", minutes: 5 },
+                                    { type: "analog-clock-choice-pair", minutes: 5 },
+                                    { type: "analog-clock-choice", minutes: 55 },
+                                    { type: "analog-clock-choice-24", minutes: 55 },
+                                    { type: "analog-clock-choice-pair", minutes: 55 },
+                                    { type: "analog-clock-choice", minuteOptions: [5, 55] },
+                                    { type: "analog-clock-choice-24", minuteOptions: [5, 55] },
+                                    { type: "analog-clock-choice-pair", minuteOptions: [5, 55] },
+                                ]),
+                            },
+                            {
+                                slug: "xx-10-xx-50",
+                                title: t("levels.raum-und-zeit.xx-10-xx-50"),
+                                exercises: digitalClockExercises([
+                                    { type: "analog-clock-choice", minutes: 10 },
+                                    { type: "analog-clock-choice-24", minutes: 10 },
+                                    { type: "analog-clock-choice-pair", minutes: 10 },
+                                    { type: "analog-clock-choice", minutes: 50 },
+                                    { type: "analog-clock-choice-24", minutes: 50 },
+                                    { type: "analog-clock-choice-pair", minutes: 50 },
+                                    { type: "analog-clock-choice", minuteOptions: [10, 50] },
+                                    { type: "analog-clock-choice-24", minuteOptions: [10, 50] },
+                                    { type: "analog-clock-choice-pair", minuteOptions: [10, 50] },
+                                ]),
+                            },
+                            {
+                                slug: "xx-20-xx-40",
+                                title: t("levels.raum-und-zeit.xx-20-xx-40"),
+                                exercises: digitalClockExercises([
+                                    { type: "analog-clock-choice", minutes: 20 },
+                                    { type: "analog-clock-choice-24", minutes: 20 },
+                                    { type: "analog-clock-choice-pair", minutes: 20 },
+                                    { type: "analog-clock-choice", minutes: 40 },
+                                    { type: "analog-clock-choice-24", minutes: 40 },
+                                    { type: "analog-clock-choice-pair", minutes: 40 },
+                                    { type: "analog-clock-choice", minuteOptions: [20, 40] },
+                                    { type: "analog-clock-choice-24", minuteOptions: [20, 40] },
+                                    { type: "analog-clock-choice-pair", minuteOptions: [20, 40] },
+                                ]),
+                            },
+                            {
+                                slug: "xx-25-xx-35",
+                                title: t("levels.raum-und-zeit.xx-25-xx-35"),
+                                exercises: digitalClockExercises([
+                                    { type: "analog-clock-choice", minutes: 25 },
+                                    { type: "analog-clock-choice-24", minutes: 25 },
+                                    { type: "analog-clock-choice-pair", minutes: 25 },
+                                    { type: "analog-clock-choice", minutes: 35 },
+                                    { type: "analog-clock-choice-24", minutes: 35 },
+                                    { type: "analog-clock-choice-pair", minutes: 35 },
+                                    { type: "analog-clock-choice", minuteOptions: [25, 35] },
+                                    { type: "analog-clock-choice-24", minuteOptions: [25, 35] },
+                                    { type: "analog-clock-choice-pair", minuteOptions: [25, 35] },
+                                ]),
+                            },
+                        ],
+                    },
+                    {
+                        slug: "digital-inoffiziell",
+                        title: t("levels.raum-und-zeit.digital-inoffiziell"),
+                        children: [
+                            {
+                                slug: "xx-00",
+                                title: t("levels.raum-und-zeit.xx-00"),
+                                exercises: digitalClockExercises(informalClockExercises([
+                                    { type: "analog-clock-choice-sequential" }, { type: "analog-clock-choice" }, { type: "analog-clock-choice-sequential-24" }, { type: "analog-clock-choice-24" }, { type: "analog-clock-choice-full-day" }, { type: "analog-clock-choice-pair" },
+                                    { type: "analog-clock-choice-sequential", minutes: 30 }, { type: "analog-clock-choice", minutes: 30 }, { type: "analog-clock-choice-sequential-24", minutes: 30 }, { type: "analog-clock-choice-24", minutes: 30 }, { type: "analog-clock-choice-full-day", minutes: 30 }, { type: "analog-clock-choice-pair", minutes: 30 },
+                                ])),
+                            },
+                            {
+                                slug: "xx-15-xx-45",
+                                title: t("levels.raum-und-zeit.xx-15-xx-45"),
+                                exercises: digitalClockExercises(informalClockExercises([
+                                    { type: "analog-clock-choice", minutes: 15 }, { type: "analog-clock-choice-24", minutes: 15 }, { type: "analog-clock-choice-pair", minutes: 15 },
+                                    { type: "analog-clock-choice", minutes: 45 }, { type: "analog-clock-choice-24", minutes: 45 }, { type: "analog-clock-choice-pair", minutes: 45 },
+                                    { type: "analog-clock-choice", randomQuarter: true }, { type: "analog-clock-choice-24", randomQuarter: true }, { type: "analog-clock-choice-pair", randomQuarter: true },
+                                ])),
+                            },
+                            {
+                                slug: "xx-05-xx-55",
+                                title: t("levels.raum-und-zeit.xx-05-xx-55"),
+                                exercises: digitalClockExercises(informalClockExercises([
+                                    { type: "analog-clock-choice", minutes: 5 }, { type: "analog-clock-choice-24", minutes: 5 }, { type: "analog-clock-choice-pair", minutes: 5 },
+                                    { type: "analog-clock-choice", minutes: 55 }, { type: "analog-clock-choice-24", minutes: 55 }, { type: "analog-clock-choice-pair", minutes: 55 },
+                                    { type: "analog-clock-choice", minuteOptions: [5, 55] }, { type: "analog-clock-choice-24", minuteOptions: [5, 55] }, { type: "analog-clock-choice-pair", minuteOptions: [5, 55] },
+                                ])),
+                            },
+                            {
+                                slug: "xx-10-xx-50",
+                                title: t("levels.raum-und-zeit.xx-10-xx-50"),
+                                exercises: digitalClockExercises(informalClockExercises([
+                                    { type: "analog-clock-choice", minutes: 10 }, { type: "analog-clock-choice-24", minutes: 10 }, { type: "analog-clock-choice-pair", minutes: 10 },
+                                    { type: "analog-clock-choice", minutes: 50 }, { type: "analog-clock-choice-24", minutes: 50 }, { type: "analog-clock-choice-pair", minutes: 50 },
+                                    { type: "analog-clock-choice", minuteOptions: [10, 50] }, { type: "analog-clock-choice-24", minuteOptions: [10, 50] }, { type: "analog-clock-choice-pair", minuteOptions: [10, 50] },
+                                ])),
+                            },
+                            {
+                                slug: "xx-20-xx-40",
+                                title: t("levels.raum-und-zeit.xx-20-xx-40"),
+                                exercises: digitalClockExercises(informalClockExercises([
+                                    { type: "analog-clock-choice", minutes: 20 }, { type: "analog-clock-choice-24", minutes: 20 }, { type: "analog-clock-choice-pair", minutes: 20 },
+                                    { type: "analog-clock-choice", minutes: 40 }, { type: "analog-clock-choice-24", minutes: 40 }, { type: "analog-clock-choice-pair", minutes: 40 },
+                                    { type: "analog-clock-choice", minuteOptions: [20, 40] }, { type: "analog-clock-choice-24", minuteOptions: [20, 40] }, { type: "analog-clock-choice-pair", minuteOptions: [20, 40] },
+                                ])),
+                            },
+                            {
+                                slug: "xx-25-xx-35",
+                                title: t("levels.raum-und-zeit.xx-25-xx-35"),
+                                exercises: digitalClockExercises(informalClockExercises([
+                                    { type: "analog-clock-choice", minutes: 25 }, { type: "analog-clock-choice-24", minutes: 25 }, { type: "analog-clock-choice-pair", minutes: 25 },
+                                    { type: "analog-clock-choice", minutes: 35 }, { type: "analog-clock-choice-24", minutes: 35 }, { type: "analog-clock-choice-pair", minutes: 35 },
+                                    { type: "analog-clock-choice", minuteOptions: [25, 35] }, { type: "analog-clock-choice-24", minuteOptions: [25, 35] }, { type: "analog-clock-choice-pair", minuteOptions: [25, 35] },
+                                ])),
+                            },
+                        ],
+                    },
                     {
                         slug: "analog-offiziell",
                         title: t("levels.raum-und-zeit.analog-offiziell"),

@@ -76,7 +76,7 @@ export async function CurriculumContent({ params }: { params: Promise<{ slug?: s
             </div>
 
             {children.length > 0 ? (
-                <NodeGrid nodes={children} basePath={slug} variant="list" />
+                <NodeGrid nodes={children} basePath={slug} variant={slug.length === 1 ? "first-level" : "list"} />
             ) : exercises.length > 0 ? (
                 exercises.length > 1 && exercises.every((exercise) => exercise.type === "intro" || exercise.type === "number-speech-explainer") ? (
                     <IntroExerciseTabs exercises={exercises} />
@@ -84,7 +84,7 @@ export async function CurriculumContent({ params }: { params: Promise<{ slug?: s
                     <div className="flex flex-col items-center gap-6 [&>*]:w-full">
                         {exercises.map((exercise, index) => (
                             <div key={index} className="flex w-full justify-center [&>*]:w-full" data-marketing-capture={`activity-${index + 1}`}>
-                                <ExerciseRenderer exercise={exercise} exerciseNumber={index + 1} />
+                                <ExerciseRenderer exercise={exercise} exerciseNumber={index + 1} activityId={exercise.id ?? `${slug.join("/")}#${index + 1}`} />
                             </div>
                         ))}
                     </div>

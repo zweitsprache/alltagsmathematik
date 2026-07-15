@@ -12,6 +12,8 @@ const styles = sortCx({
 });
 
 interface NavItemBaseProps {
+    /** Display the item as a bordered navigation card. */
+    card?: boolean;
     /** Whether the nav item shows only an icon. */
     iconOnly?: boolean;
     /** Whether the collapsible nav item is open. */
@@ -34,16 +36,11 @@ interface NavItemBaseProps {
     children?: ReactNode;
 }
 
-export const NavItemBase = ({ current, type, badge, href, icon: Icon, children, truncate = true, onClick }: NavItemBaseProps) => {
-    const iconElement = Icon && (
-        <Icon
-            aria-hidden="true"
-            className={cx(
-                "mr-2 size-5 shrink-0 text-fg-quaternary transition-inherit-all group-hover/item:text-fg-quaternary_hover",
-                current && "text-fg-quaternary_hover",
-            )}
-        />
+export const NavItemBase = ({ current, type, badge, href, icon: Icon, children, truncate = true, onClick, card = false }: NavItemBaseProps) => {
+    const icon = Icon && (
+        <Icon aria-hidden="true" className={cx("size-5 shrink-0 text-fg-quaternary transition-inherit-all group-hover/item:text-fg-quaternary_hover", card && "text-primary group-hover/item:text-primary", current && "text-fg-quaternary_hover", card && current && "text-primary")} />
     );
+    const iconElement = card && icon ? <span className="mr-3 flex h-full shrink-0 items-center border-r border-secondary pr-3">{icon}</span> : icon ? <span className="mr-2">{icon}</span> : null;
 
     const badgeElement =
         badge && (typeof badge === "string" || typeof badge === "number") ? (
@@ -58,7 +55,8 @@ export const NavItemBase = ({ current, type, badge, href, icon: Icon, children, 
         <span
             className={cx(
                 "flex-1 text-sm font-semibold text-secondary transition-inherit-all group-hover/item:text-secondary_hover",
-                truncate && "truncate",
+                card && "min-w-0 flex items-center self-stretch whitespace-normal text-md leading-[1.15] font-bold break-words text-primary",
+                truncate && !card && "truncate",
                 current && "text-secondary_hover",
             )}
         >
@@ -105,7 +103,14 @@ export const NavItemBase = ({ current, type, badge, href, icon: Icon, children, 
             href={href!}
             target={isExternal ? "_blank" : "_self"}
             rel="noopener noreferrer"
-            className={cx("group/item p-2", styles.root, current && styles.rootSelected)}
+            className={cx(
+                "group/item",
+                card
+                    ? "flex h-16 max-h-none items-center rounded-md border border-secondary bg-primary px-3 py-2 transition hover:border-brand"
+                    : "p-2",
+                !card && styles.root,
+                current && (card ? "border-brand bg-brand-primary text-brand-secondary" : styles.rootSelected),
+            )}
             onClick={onClick}
             aria-current={current ? "page" : undefined}
         >
