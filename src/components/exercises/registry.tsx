@@ -16,6 +16,9 @@ import { NumberWordChoiceExercise } from "./number-word-choice/number-word-choic
 import { NumberSequenceExercise } from "./number-sequence/number-sequence-exercise";
 import { NumberSpellingChoiceExercise } from "./number-spelling-choice/number-spelling-choice-exercise";
 import { NumberSortExercise } from "./number-sort/number-sort-exercise";
+import { OfficialTimeIntro } from "./official-time-intro/official-time-intro";
+import { OfficialClockIntro } from "./official-clock-intro/official-clock-intro";
+import { OfficialMinuteIntro } from "./official-minute-intro/official-minute-intro";
 
 /**
  * Renders an exercise based on its `type`. Add new interactive exercise types
@@ -25,6 +28,9 @@ type ExerciseType = ExerciseConfig["type"];
 
 const trackingModes = {
     "intro": "completion-only",
+    "official-time-intro": "completion-only",
+    "official-clock-intro": "completion-only",
+    "official-minute-intro": "completion-only",
     "number-speech-explainer": "completion-only",
     "number-spelling-choice": "task-based",
     "analog-clock-choice": "task-based",
@@ -93,6 +99,12 @@ const ExerciseContent = ({ exercise, exerciseNumber }: { exercise: ExerciseConfi
             return <CountingMatchExercise exerciseNumber={exerciseNumber} min={exercise.min} max={exercise.max} arrangement={exercise.arrangement} cardCount={exercise.cardCount} sameShape={exercise.sameShape} />;
         case "intro":
             return <IntroExercise min={exercise.min} max={exercise.max} values={exercise.values} title={exercise.introTitle} />;
+        case "official-time-intro":
+            return <OfficialTimeIntro />;
+        case "official-clock-intro":
+            return <OfficialClockIntro />;
+        case "official-minute-intro":
+            return <OfficialMinuteIntro />;
         case "number-speech-explainer":
             return <NumberSpeechExplainer />;
         case "number-line":

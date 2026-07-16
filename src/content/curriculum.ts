@@ -10,7 +10,7 @@ import type { IconKey } from "./icons";
 export type ExerciseConfig = {
     /** Permanent identifier for progress tracking. Keep unchanged when reordering content. */
     id: string;
-    type: "intro" | "number-speech-explainer" | "number-spelling-choice" | "analog-clock-choice" | "analog-clock-choice-24" | "analog-clock-choice-sequential" | "analog-clock-choice-sequential-24" | "analog-clock-choice-full-day" | "analog-clock-choice-pair" | "digital-clock-choice" | "grocery-scanner" | "hundreds-chart" | "context-number-listen" | "context-number-read" | "counting-match" | "number-line" | "number-line-listen" | "number-line-listen-pair" | "number-line-word" | "number-line-word-pair" | "number-line-read" | "number-word-choice" | "number-word-choice-audio" | "number-sort" | "number-sequence" | "number-match" | "number-match-fonts";
+    type: "intro" | "official-time-intro" | "official-clock-intro" | "official-minute-intro" | "number-speech-explainer" | "number-spelling-choice" | "analog-clock-choice" | "analog-clock-choice-24" | "analog-clock-choice-sequential" | "analog-clock-choice-sequential-24" | "analog-clock-choice-full-day" | "analog-clock-choice-pair" | "digital-clock-choice" | "grocery-scanner" | "hundreds-chart" | "context-number-listen" | "context-number-read" | "counting-match" | "number-line" | "number-line-listen" | "number-line-listen-pair" | "number-line-word" | "number-line-word-pair" | "number-line-read" | "number-word-choice" | "number-word-choice-audio" | "number-sort" | "number-sequence" | "number-match" | "number-match-fonts";
     /** Lowest number on the line. */
     min?: number;
     /** Highest number on the line. */
@@ -766,6 +766,15 @@ export const curriculum: CurriculumNode[] = [
                         slug: "digital-offiziell",
                         title: t("levels.raum-und-zeit.digital-offiziell"),
                         children: [
+                            {
+                                slug: "intro",
+                                title: t("levels.raum-und-zeit.intro"),
+                                exercises: [
+                                    { id: "exercise-c-01-01-01-01", type: "official-time-intro" },
+                                    { id: "exercise-c-01-01-01-02", type: "official-clock-intro" },
+                                    { id: "exercise-c-01-01-01-03", type: "official-minute-intro" },
+                                ],
+                            },
                             {
                                 slug: "xx-00",
                                 title: t("levels.raum-und-zeit.xx-00"),
