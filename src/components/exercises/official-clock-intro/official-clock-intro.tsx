@@ -6,6 +6,7 @@ import { toCardinal } from "n2words/de-DE";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 import { playAlignedStreamedTts } from "@/lib/audio/play-streamed-tts";
+import { cx } from "@/utils/cx";
 
 const positions = [...Array.from({ length: 12 }, (_, index) => index), 0];
 const positionCount = positions.length;
@@ -52,6 +53,7 @@ const AnimatedClock = ({ position, isDaytime }: { position: number; isDaytime: b
 
 export const OfficialClockIntro = () => {
     const tracking = useExerciseTracking();
+    const [showTitle, setShowTitle] = useState(true);
     const [position, setPosition] = useState(0);
     const [spokenHour, setSpokenHour] = useState(0);
     const [phrase, setPhrase] = useState("");
@@ -98,15 +100,36 @@ export const OfficialClockIntro = () => {
     };
 
     return (
-        <div className="relative aspect-video w-full max-w-3xl overflow-hidden rounded-lg bg-primary ring-2 ring-border-primary ring-inset">
-            <p className="absolute top-5 left-5 text-xs font-bold text-primary">alltagsmathematik.ch</p>
-            <nav aria-label="Breadcrumb" className="absolute top-5 right-5 flex flex-wrap items-center justify-end gap-1.5 text-xs font-medium text-tertiary">
+        <div
+            className={cx("relative aspect-video w-full max-w-3xl overflow-hidden rounded-lg bg-primary bg-cover bg-center", !showTitle && "ring-2 ring-border-primary ring-inset")}
+            style={showTitle ? { backgroundImage: "url('/transfer/gpt-image-2_close_up_female_wristwatch_on_wrist_showing_time_12_15_not_too_exclusive_casual_-0.jpg')" } : undefined}
+        >
+            <p className={cx("absolute top-5 left-5 text-xs font-bold", showTitle ? "text-white" : "text-primary")}>alltagsmathematik.ch</p>
+            <nav aria-label="Breadcrumb" className={cx("absolute top-5 right-5 flex flex-wrap items-center justify-end gap-1.5 text-xs font-medium", showTitle ? "text-white" : "text-tertiary")}>
                 <span>Raum und Zeit</span>
                 <span aria-hidden="true">›</span>
                 <span>Uhrzeiten</span>
             </nav>
 
             <div className="flex h-full flex-col px-8 pt-14 pb-5">
+                {showTitle ? (
+                    <button
+                        type="button"
+                        onClick={() => setShowTitle(false)}
+                        aria-label="Präsentation öffnen"
+                        className="flex min-h-0 flex-1 flex-col items-center justify-center outline-focus-ring focus-visible:outline-2 focus-visible:outline-inset"
+                    >
+                        <div className="relative top-16 -ml-8 w-[692px] self-start rounded-r-lg bg-sky-900 px-8 py-5">
+                            <h2 className="text-left text-display-sm leading-tight font-bold text-white">
+                                Analoge Uhrzeiten in inoffizieller Sprechweise
+                            </h2>
+                            <p className="mt-1 text-left text-display-sm leading-tight font-normal text-white">
+                                Die Stunden
+                            </p>
+                        </div>
+                    </button>
+                ) : (
+                    <>
                 <div className="grid min-h-0 flex-1 grid-cols-2 items-center gap-10">
                     <div className="flex items-center justify-center p-5">
                         <div className="w-[85%]">
@@ -138,6 +161,8 @@ export const OfficialClockIntro = () => {
                     </div>
                 </div>
                 <ProgressBar labelPosition="right" min={0} max={positionCount} value={progress} valueFormatter={(value) => `${value} / ${positionCount}`} />
+                    </>
+                )}
             </div>
         </div>
     );

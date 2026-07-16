@@ -21,6 +21,7 @@ const formatTimeWords = (hour: number, minute: number) => {
 };
 
 export const OfficialTimeIntro = () => {
+    const [showTitle, setShowTitle] = useState(true);
     const [selectedHour, setSelectedHour] = useState(12);
     const [displayedHour, setDisplayedHour] = useState(12);
     const [selectedMinute, setSelectedMinute] = useState(0);
@@ -85,15 +86,36 @@ export const OfficialTimeIntro = () => {
     };
 
     return (
-        <div className="relative aspect-video w-full max-w-3xl overflow-hidden rounded-lg bg-primary ring-2 ring-border-primary ring-inset">
-            <p className="absolute top-5 left-5 text-xs font-bold text-primary">alltagsmathematik.ch</p>
-            <nav aria-label="Breadcrumb" className="absolute top-5 right-5 flex flex-wrap items-center justify-end gap-1.5 text-xs font-medium text-tertiary">
+        <div
+            className="relative aspect-video w-full max-w-3xl overflow-hidden rounded-lg bg-primary bg-cover bg-center"
+            style={showTitle ? { backgroundImage: "url('/transfer/gpt-image-2_close_up_of_a_person_s_hand_holding_an_iPhone_with_the_screen_displaying_the_tim-2.jpg')" } : undefined}
+        >
+            <p className={cx("absolute top-5 left-5 text-xs font-bold", showTitle ? "text-white" : "text-primary")}>alltagsmathematik.ch</p>
+            <nav aria-label="Breadcrumb" className={cx("absolute top-5 right-5 flex flex-wrap items-center justify-end gap-1.5 text-xs font-medium", showTitle ? "text-white" : "text-tertiary")}>
                 <span>Raum und Zeit</span>
                 <span aria-hidden="true">›</span>
                 <span>Uhrzeiten</span>
             </nav>
 
             <div className="flex h-full flex-col px-5 pt-16 pb-5">
+                {showTitle ? (
+                    <button
+                        type="button"
+                        onClick={() => setShowTitle(false)}
+                        aria-label="Präsentation öffnen"
+                        className="flex min-h-0 flex-1 flex-col items-center justify-center outline-focus-ring focus-visible:outline-2 focus-visible:outline-inset"
+                    >
+                        <div className="relative top-[60px] -ml-5 w-[692px] self-start rounded-r-lg bg-sky-900 px-8 py-5">
+                            <h2 className="text-left text-display-sm leading-tight font-bold text-white">
+                                Digitale Uhrzeiten in offizieller Sprechweise
+                            </h2>
+                            <p className="mt-1 text-left text-display-sm leading-tight font-normal text-white">
+                                Von 12:15 zu «Zwölf Uhr fünfzehn»
+                            </p>
+                        </div>
+                    </button>
+                ) : (
+                    <>
                 <div className="grid gap-2">
                     {timeRows.map((hours, rowIndex) => (
                         <div key={rowIndex} className="grid grid-cols-12 gap-1.5">
@@ -159,6 +181,8 @@ export const OfficialTimeIntro = () => {
                     )}
                 </div>
                 <ProgressBar labelPosition="right" min={0} max={slideCount} value={progress} valueFormatter={(value) => `${value} / ${slideCount}`} />
+                    </>
+                )}
             </div>
         </div>
     );

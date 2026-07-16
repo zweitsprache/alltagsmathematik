@@ -5,6 +5,7 @@ import { Play } from "@untitledui/icons";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { useExerciseTracking } from "@/components/exercises/tracking/tracked-exercise";
 import { playAlignedStreamedTts } from "@/lib/audio/play-streamed-tts";
+import { cx } from "@/utils/cx";
 
 const stepCount = 55;
 const slideCount = 11;
@@ -32,9 +33,9 @@ const segmentRanges: Record<number, [number, number]> = {
     25: [25, 30],
     30: [30, 60],
     35: [30, 35],
-    40: [30, 40],
-    45: [30, 45],
-    50: [30, 50],
+    40: [40, 60],
+    45: [45, 60],
+    50: [50, 60],
     55: [55, 60],
 };
 
@@ -105,6 +106,7 @@ const MinuteClock = ({ minute, showSegment }: { minute: number; showSegment: boo
 
 export const OfficialMinuteIntro = () => {
     const tracking = useExerciseTracking();
+    const [showTitle, setShowTitle] = useState(true);
     const [minute, setMinute] = useState(0);
     const [progress, setProgress] = useState(0);
     const [phrase, setPhrase] = useState("");
@@ -113,6 +115,16 @@ export const OfficialMinuteIntro = () => {
     const playbackAbort = useRef<AbortController | null>(null);
 
     useEffect(() => () => playbackAbort.current?.abort(), []);
+
+    const jumpToMinute = (nextMinute: number) => {
+        playbackAbort.current?.abort();
+        playbackAbort.current = null;
+        setMinute(nextMinute);
+        setProgress(nextMinute / 5);
+        setPhrase(slidePhrases[nextMinute]);
+        setPlaybackError("");
+        setIsPlaying(false);
+    };
 
     const start = async () => {
         playbackAbort.current?.abort();
@@ -150,15 +162,36 @@ export const OfficialMinuteIntro = () => {
     };
 
     return (
-        <div className="relative aspect-video w-full max-w-3xl overflow-hidden rounded-lg bg-primary ring-2 ring-border-primary ring-inset">
-            <p className="absolute top-5 left-5 text-xs font-bold text-primary">alltagsmathematik.ch</p>
-            <nav aria-label="Breadcrumb" className="absolute top-5 right-5 flex flex-wrap items-center justify-end gap-1.5 text-xs font-medium text-tertiary">
+        <div
+            className={cx("relative aspect-video w-full max-w-3xl overflow-hidden rounded-lg bg-primary bg-cover bg-center", !showTitle && "ring-2 ring-border-primary ring-inset")}
+            style={showTitle ? { backgroundImage: "url('/transfer/gpt-image-2_close_up_male_with_dark_skin_tone_black_sports_fitnesstracker_wristwatch_on_wris-0 (1).jpg')" } : undefined}
+        >
+            <p className={cx("absolute top-5 left-5 text-xs font-bold", showTitle ? "text-white" : "text-primary")}>alltagsmathematik.ch</p>
+            <nav aria-label="Breadcrumb" className={cx("absolute top-5 right-5 flex flex-wrap items-center justify-end gap-1.5 text-xs font-medium", showTitle ? "text-white" : "text-tertiary")}>
                 <span>Raum und Zeit</span>
                 <span aria-hidden="true">›</span>
                 <span>Uhrzeiten</span>
             </nav>
 
             <div className="flex h-full flex-col px-8 pt-14 pb-5">
+                {showTitle ? (
+                    <button
+                        type="button"
+                        onClick={() => setShowTitle(false)}
+                        aria-label="Präsentation öffnen"
+                        className="flex min-h-0 flex-1 flex-col items-center justify-center outline-focus-ring focus-visible:outline-2 focus-visible:outline-inset"
+                    >
+                        <div className="relative top-16 -ml-8 w-[692px] self-start rounded-r-lg bg-sky-900 px-8 py-5">
+                            <h2 className="text-left text-display-sm leading-tight font-bold text-white">
+                                Analoge Uhrzeiten in inoffizieller Sprechweise
+                            </h2>
+                            <p className="mt-1 text-left text-display-sm leading-tight font-normal text-white">
+                                Die Minuten
+                            </p>
+                        </div>
+                    </button>
+                ) : (
+                    <>
                 <div className="grid min-h-0 flex-1 grid-cols-2 items-center gap-10">
                     <div className="flex items-center justify-center p-5">
                         <div className="w-[85%]">
@@ -182,7 +215,27 @@ export const OfficialMinuteIntro = () => {
                         {playbackError && <p className="text-xs text-error-primary" role="alert">{playbackError}</p>}
                     </div>
                 </div>
-                <ProgressBar labelPosition="right" min={0} max={slideCount} value={progress} valueFormatter={(value) => `${value} / ${slideCount}`} />
+                <div className="relative">
+                    <ProgressBar labelPosition="right" min={0} max={slideCount} value={progress} valueFormatter={(value) => `${value} / ${slideCount}`} />
+                    <div className="pointer-events-none absolute inset-y-0 right-14 left-0">
+                        {Array.from({ length: slideCount }, (_, index) => {
+                            const markerMinute = (index + 1) * 5;
+                            return (
+                                <button
+                                    key={markerMinute}
+                                    type="button"
+                                    title={`:${pad(markerMinute)}`}
+                                    aria-label={`Direkt zu :${pad(markerMinute)}`}
+                                    onClick={() => jumpToMinute(markerMinute)}
+                                    style={{ left: `${((index + 1) / slideCount) * 100}%` }}
+                                    className="pointer-events-auto absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-bg-primary bg-fg-brand-primary outline-focus-ring hover:scale-125 focus-visible:outline-2"
+                                />
+                            );
+                        })}
+                    </div>
+                </div>
+                    </>
+                )}
             </div>
         </div>
     );

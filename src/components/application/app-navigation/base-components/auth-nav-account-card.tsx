@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronSelectorVertical } from "@untitledui/icons";
 import { Button as AriaButton, DialogTrigger as AriaDialogTrigger, Popover as AriaPopover } from "react-aria-components";
@@ -11,13 +11,16 @@ import { authClient } from "@/lib/auth/client";
 import { cx } from "@/utils/cx";
 import { NavAccountMenu, type NavAccountType } from "./nav-account-card";
 
+const subscribeToHydration = () => () => undefined;
+
 export const AuthNavAccountCard = () => {
     const router = useRouter();
     const triggerRef = useRef<HTMLDivElement>(null);
     const isDesktop = useBreakpoint("lg");
     const { data: session, isPending } = authClient.useSession();
+    const isHydrated = useSyncExternalStore(subscribeToHydration, () => true, () => false);
 
-    if (isPending) {
+    if (!isHydrated || isPending) {
         return <div className="h-[70px] animate-pulse rounded-xl bg-secondary ring-1 ring-secondary ring-inset" aria-label="Loading account" />;
     }
 
