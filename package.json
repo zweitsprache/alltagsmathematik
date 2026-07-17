@@ -11,7 +11,12 @@
         "audio:generate-11-24": "node scripts/generate-number-audio.mjs",
         "audio:upload-11-24": "node scripts/upload-number-audio.mjs",
         "capture": "node scripts/marketing-capture.mjs",
-        "capture:list": "node scripts/marketing-capture.mjs --list"
+        "capture:list": "node scripts/marketing-capture.mjs --list",
+        "video:number-line:audio": "node scripts/generate-remotion-number-line-audio.mjs",
+        "video:number-line": "remotion render src/remotion/index.ts NumberLineZeroToTen marketing/videos/a-01-01-number-line.mp4 --codec=h264",
+        "video:count-to-ten": "remotion render src/remotion/index.ts CountToTen marketing/videos/a-01-01-count-to-ten.mp4 --codec=h264",
+        "video:two-digit-numbers": "remotion render src/remotion/index.ts TwoDigitNumbers marketing/videos/a-01-04-two-digit-numbers.mp4 --codec=h264",
+        "video:percentage-whole": "remotion render src/remotion/index.ts PercentageWhole marketing/videos/percentage-whole.mp4 --codec=h264"
     },
     "dependencies": {
         "@fontsource/encode-sans-semi-condensed": "^5.2.8",
@@ -19,6 +24,7 @@
         "@neondatabase/serverless": "^1.1.0",
         "@react-aria/utils": "^3.34.1",
         "@react-stately/utils": "^3.12.1",
+        "@remotion/player": "^4.0.490",
         "@tailwindcss/postcss": "^4.2.2",
         "@tailwindcss/typography": "^0.5.19",
         "@untitledui/file-icons": "^0.0.9",
@@ -37,12 +43,15 @@
         "react-dom": "^19.2.4",
         "react-hotkeys-hook": "^5.2.4",
         "recharts": "^3.8.0",
+        "remotion": "^4.0.490",
         "tailwind-merge": "^3.5.0",
         "tailwindcss": "^4.2.2",
         "tailwindcss-animate": "^1.0.7",
-        "tailwindcss-react-aria-components": "^2.0.1"
+        "tailwindcss-react-aria-components": "^2.0.1",
+        "zod": "4.3.6"
     },
     "devDependencies": {
+        "@remotion/cli": "^4.0.490",
         "@trivago/prettier-plugin-sort-imports": "^6.0.2",
         "@types/node": "^25.5.0",
         "@types/react": "^19.2.14",

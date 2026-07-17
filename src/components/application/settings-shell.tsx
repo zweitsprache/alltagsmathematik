@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { BarChartSquare02, Calculator, Clock, Cube01, Headphones01, HomeLine, LayoutAlt01, LifeBuoy01, LineChartUp01, List, Ruler, Settings01 } from "@untitledui/icons";
+import { BarChartSquare02, Calculator, Clock, Cube01, Headphones01, HomeLine, LayoutAlt01, LifeBuoy01, LineChartUp01, List, PlayCircle, Ruler, Settings01 } from "@untitledui/icons";
 import { usePathname } from "next/navigation";
 import type { NavItemType } from "@/components/application/app-navigation/config";
 import { SidebarNavigationSimple } from "@/components/application/app-navigation/sidebar-navigation/sidebar-simple";
@@ -59,6 +59,7 @@ const footerNavItems: NavItemType[] = [
     { label: "Settings", href: "/settings", icon: Settings01 },
     { label: "Curriculum", href: "/settings/curriculum", icon: List },
     { label: "Audio", href: "/settings/audio", icon: Headphones01 },
+    { label: "Videos", href: "/settings/videos", icon: PlayCircle },
     { label: "Support", href: "/support", icon: LifeBuoy01 },
     { label: "Open in browser", href: "#", icon: LayoutAlt01 },
 ];
