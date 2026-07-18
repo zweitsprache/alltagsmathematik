@@ -1,26 +1,59 @@
 "use client";
 
 import { useState } from "react";
+import type { ComponentType } from "react";
 import { Player } from "@remotion/player";
 import { compositionCatalog } from "@/remotion/composition-catalog";
 import { CountToTenComposition } from "@/remotion/compositions/count-to-ten";
 import { TwoDigitNumbersComposition } from "@/remotion/compositions/two-digit-numbers";
 import { PercentageWholeComposition } from "@/remotion/compositions/percentage-whole";
-import { TimeComposition } from "@/remotion/compositions/time";
+import { LocalPrepositionsComposition } from "@/remotion/compositions/local-prepositions";
+import {
+    FiveMinuteTimeComposition,
+    FiveMinuteTimeVariantComposition,
+    DigitalFiveMinuteTimeVariantComposition,
+    DigitalInformalHourTimeComposition,
+    HalfHourTimeComposition,
+    InformalHourTimeComposition,
+    QuarterHourTimeComposition,
+    TenMinuteTimeComposition,
+    TimeComposition,
+} from "@/remotion/compositions/time";
 import { NumberLineComposition } from "@/app/remotion-test/page";
 
-const compositionComponents = {
+const compositionComponents: Record<string, ComponentType<any>> = {
     NumberLineZeroToTen: NumberLineComposition,
     CountToTen: CountToTenComposition,
     TwoDigitNumbers: TwoDigitNumbersComposition,
     PercentageWhole: PercentageWholeComposition,
+    LocalPrepositions: LocalPrepositionsComposition,
     Time: TimeComposition,
+    TimeHalfHour: HalfHourTimeComposition,
+    TimeQuarterHours: QuarterHourTimeComposition,
+    TimeTenMinuteGroups: TenMinuteTimeComposition,
+    TimeFiveMinuteGroups: FiveMinuteTimeComposition,
+    TimeFiveMinuteGroupsVariant: FiveMinuteTimeVariantComposition,
+    DigitalTimeFiveMinuteGroupsVariant: DigitalFiveMinuteTimeVariantComposition,
 } as const;
 
 export const RemotionManagement = () => {
     const [selectedId, setSelectedId] = useState<(typeof compositionCatalog)[number]["id"]>(compositionCatalog[0].id);
     const selected = compositionCatalog.find((composition) => composition.id === selectedId) ?? compositionCatalog[0];
-    const SelectedComposition = compositionComponents[selected.id];
+    const isInformalHourlyComposition = "startHour" in selected;
+    const isDigitalInformalHourlyComposition = "digitalStartHour" in selected;
+    const SelectedComposition: ComponentType<any> = isDigitalInformalHourlyComposition
+        ? DigitalInformalHourTimeComposition
+        : isInformalHourlyComposition
+          ? InformalHourTimeComposition
+          : compositionComponents[selected.id];
+    const selectedInputProps: any =
+        selected.id === "NumberLineZeroToTen"
+            ? { useLocalAudio: true }
+            : isDigitalInformalHourlyComposition
+              ? { startHour: selected.digitalStartHour }
+              : isInformalHourlyComposition
+              ? { startHour: selected.startHour }
+              : {};
     const duration = selected.durationInFrames / selected.fps;
 
     return (
@@ -55,7 +88,7 @@ export const RemotionManagement = () => {
                     <Player
                         key={selected.id}
                         component={SelectedComposition}
-                        inputProps={selected.id === "NumberLineZeroToTen" ? { useLocalAudio: true } : {}}
+                        inputProps={selectedInputProps}
                         durationInFrames={selected.durationInFrames}
                         compositionWidth={selected.width}
                         compositionHeight={selected.height}

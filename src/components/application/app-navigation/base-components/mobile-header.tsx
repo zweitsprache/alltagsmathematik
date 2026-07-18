@@ -15,7 +15,11 @@ export const MobileNavigationHeader = ({ children }: PropsWithChildren) => {
     return (
         <AriaDialogTrigger>
             <header className="flex h-14 items-center justify-between border-b border-secondary bg-primary p-3 pl-4 lg:hidden">
-                <img src="/alltagsmathematik_logo.svg" alt="Alltagsmathematik" className="size-9" />
+                <img
+                    src="/alltagsmathematik_logo_color_outline.svg?v=20260718-0635"
+                    alt="Alltagsmathematik"
+                    className="size-9"
+                />
 
                 <AriaButton
                     aria-label="Expand navigation menu"

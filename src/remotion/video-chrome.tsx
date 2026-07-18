@@ -3,7 +3,7 @@ import { Img, staticFile } from "remotion";
 
 export const videoCopyright = "© 2026 alltagsmathematik.ch | Marcel Allenspach. Alle Rechte vorbehalten.";
 
-export const VideoChrome = ({ curriculumLabel, children }: { curriculumLabel: string; children: ReactNode }) => (
+export const VideoChrome = ({ curriculumLabel, children }: { curriculumLabel: ReactNode; children: ReactNode }) => (
     <>
         <p
             style={{
@@ -21,7 +21,7 @@ export const VideoChrome = ({ curriculumLabel, children }: { curriculumLabel: st
         </p>
 
         <Img
-            src={staticFile("alltagsmathematik_logo.svg")}
+            src={staticFile("alltagsmathematik_logo_color_outline.svg")}
             style={{
                 position: "absolute",
                 top: 60,

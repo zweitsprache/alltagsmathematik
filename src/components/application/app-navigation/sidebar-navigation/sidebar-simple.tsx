@@ -54,7 +54,11 @@ export const SidebarNavigationSimple = ({
             )}
         >
             <div className="flex flex-col gap-5 px-4 lg:px-5">
-                <img src="/alltagsmathematik_logo.svg" alt="Alltagsmathematik" className="size-10" />
+                <img
+                    src="/alltagsmathematik_logo_color_outline.svg?v=20260718-0635"
+                    alt="Alltagsmathematik"
+                    className="size-10"
+                />
 
                 {/* Mobile search input */}
                 <Input size="md" aria-label="Search" placeholder="Search" icon={SearchLg} className="md:hidden" />
