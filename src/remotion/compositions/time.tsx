@@ -1,5 +1,5 @@
 import { MoonStar, Sun } from "@untitledui/icons";
-import { AbsoluteFill, Easing, Html5Audio, Img, interpolate, Sequence, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Easing, Html5Audio, Img, Sequence, interpolate, staticFile, useCurrentFrame } from "remotion";
 import { VideoChrome, videoCopyright } from "../video-chrome";
 
 const highlightFrame = 45;
@@ -15,10 +15,10 @@ const titleSlideFrames = 45;
 const endSlideFrames = 120;
 const yellow = "#eab308";
 const teal = "#0e9384";
-const amber500 = "#f59e0b";
-const amber700 = "#b45309";
 const nightBlue = "#0369a1";
 const upcomingHourRed = "#d92d20";
+const digitalHourSky = "#0369a1";
+const digitalMinuteSky = "#0ea5e9";
 
 const hourSequence = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const hourWords: Record<number, { file: string; text: string; frames: number }> = {
@@ -110,7 +110,7 @@ const createClockStatesFromTimes = (
 const createClockStates = (minutes: number[]) =>
     createClockStatesFromTimes(
         hourSequence.flatMap((hour, hourIndex) =>
-        minutes.map((minute) => ({ hour, minute, totalMinutes: hourIndex * 60 + minute })),
+            minutes.map((minute) => ({ hour, minute, totalMinutes: hourIndex * 60 + minute })),
         ),
     );
 
@@ -277,11 +277,7 @@ const createInformalHourSetup = (startHour: number) => {
     ]);
     const finalPhraseFrames = getInformalTimePhrase(startHour, 60).frames;
     const contentDuration =
-        titleSlideFrames +
-        states.at(-1)!.arrival +
-        finalPhraseFrames * 2 +
-        pauseBetweenRepetitions +
-        30;
+        titleSlideFrames + states.at(-1)!.arrival + finalPhraseFrames * 2 + pauseBetweenRepetitions + 30;
 
     return { config, states, contentDuration };
 };
@@ -393,22 +389,15 @@ const ClockTimeComposition = ({
     const analogueStartHour = config.displayStyle === "digital" ? 12 : (config.informalStartHour ?? 12);
     const normalizedAnalogueStartHour = analogueStartHour % 12;
     const shortestInitialHourOffset =
-        normalizedAnalogueStartHour > 6
-            ? (normalizedAnalogueStartHour - 12) * 60
-            : normalizedAnalogueStartHour * 60;
+        normalizedAnalogueStartHour > 6 ? (normalizedAnalogueStartHour - 12) * 60 : normalizedAnalogueStartHour * 60;
     const settledInitialHourOffset = normalizedAnalogueStartHour * 60;
     const initialHourOffset =
         normalizedAnalogueStartHour !== 0 && activeStateIndex === 0 && frame < activeState.arrival
-            ? interpolate(
-                  frame,
-                  [5, 35],
-                  [0, shortestInitialHourOffset],
-                  {
-                      extrapolateLeft: "clamp",
-                      extrapolateRight: "clamp",
-                      easing: Easing.inOut(Easing.ease),
-                  },
-              )
+            ? interpolate(frame, [5, 35], [0, shortestInitialHourOffset], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                  easing: Easing.inOut(Easing.ease),
+              })
             : settledInitialHourOffset;
     const hourHandDisplayedTotalMinutes = initialHourOffset + displayedTotalMinutes;
     const hourHandRotation = hourHandDisplayedTotalMinutes / 2;
@@ -445,18 +434,18 @@ const ClockTimeComposition = ({
         ? 0
         : activeStateIndex === 0 && frame < hourStates[0].arrival
           ? interpolate(
-              frame,
-              [initialSegmentGrowthStart, initialSegmentGrowthStart + halfHourSegmentGrowthFrames],
-              [0, activeState.minute * 6],
-              {
-                  extrapolateLeft: "clamp",
-                  extrapolateRight: "clamp",
-                  easing: Easing.inOut(Easing.ease),
-              },
-          )
+                frame,
+                [initialSegmentGrowthStart, initialSegmentGrowthStart + halfHourSegmentGrowthFrames],
+                [0, activeState.minute * 6],
+                {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                    easing: Easing.inOut(Easing.ease),
+                },
+            )
           : crossesHourBoundary && displayedTotalMinutes < nextHourBoundary
             ? 0
-          : displayedMinute * 6;
+            : displayedMinute * 6;
     const informalMinute = minuteSegmentAngle / 6;
     const minuteSegmentStartAngle = usesInformalLabels
         ? informalMinute > 20 && informalMinute < 30
@@ -475,10 +464,7 @@ const ClockTimeComposition = ({
               : minuteSegmentAngle
         : minuteSegmentAngle;
     const switchesFromAfterHalfToBeforeHour =
-        usesInformalLabels &&
-        isHourHandMoving &&
-        activeState.minute === 35 &&
-        nextState?.minute === 40;
+        usesInformalLabels && isHourHandMoving && activeState.minute === 35 && nextState?.minute === 40;
     const minuteSegmentArcAngle = switchesFromAfterHalfToBeforeHour
         ? 0
         : minuteSegmentEndAngle - minuteSegmentStartAngle;
@@ -513,8 +499,8 @@ const ClockTimeComposition = ({
                 />
                 <div style={{ width: 1440, fontSize: 48, fontWeight: 400, lineHeight: 1.35 }}>
                     <div>
-                        Dieses Video ist urheberrechtlich geschützt. Jegliche kommerzielle Nutzung ist ohne
-                        schriftliche Genehmigung nicht gestattet.
+                        Dieses Video ist urheberrechtlich geschützt. Jegliche kommerzielle Nutzung ist ohne schriftliche
+                        Genehmigung nicht gestattet.
                     </div>
                     <div style={{ marginTop: 36, fontWeight: 700 }}>alltagsmathematik.ch</div>
                 </div>
@@ -607,11 +593,11 @@ const ClockTimeComposition = ({
                                     lineHeight: 1,
                                 }}
                             >
-                                <span style={{ color: "#344054" }}>
+                                <span style={{ color: digitalHourSky }}>
                                     {String(config.digitalStartHour ?? 12).padStart(2, "0")}
                                 </span>
                                 <span style={{ color: "#344054", transform: "translateY(-7px)" }}>:</span>
-                                <span style={{ color: "#344054" }}>
+                                <span style={{ color: digitalMinuteSky }}>
                                     {String(config.titleIllustrationMinute ?? 35).padStart(2, "0")}
                                 </span>
                             </div>
@@ -703,59 +689,59 @@ const ClockTimeComposition = ({
                         </div>
                     )}
                     {config.displayStyle !== "digital" && (
-                    <div
-                        style={{
-                            position: "absolute",
-                            top: 300,
-                            right: -145,
-                            width: 900,
-                            height: 900,
-                            opacity: 0.08,
-                        }}
-                    >
-                        <Img
-                            src={staticFile("transfer/am_zifferblatt_0000.svg")}
-                            style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-                        />
-                        <svg
-                            viewBox="0 0 680 680"
-                            aria-hidden="true"
-                            style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+                        <div
+                            style={{
+                                position: "absolute",
+                                top: 300,
+                                right: -145,
+                                width: 900,
+                                height: 900,
+                                opacity: 0.08,
+                            }}
                         >
-                            <path
-                                fill="#ffffff"
-                                stroke="#ffffff"
-                                strokeWidth="3"
-                                d="M340 120c5.523 0 10 4.477 10 10v200c0 5.523-4.477 10-10 10s-10-4.477-10-10V130c0-5.523 4.477-10 10-10Z"
+                            <Img
+                                src={staticFile("transfer/am_zifferblatt_0000.svg")}
+                                style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
                             />
-                            <path
-                                fill="#ffffff"
-                                stroke="#ffffff"
-                                strokeWidth="3"
-                                d="M340 15c4.694 0 8.5 3.806 8.5 8.5v308c0 4.694-3.806 8.5-8.5 8.5s-8.5-3.806-8.5-8.5v-308c0-4.694 3.806-8.5 8.5-8.5Z"
-                            />
-                            <rect x="330" y="0" width="20" height="60" rx="2" fill="#231f20" />
-                            <line
-                                x1="340"
-                                y1="340"
-                                x2="59"
-                                y2="503"
-                                stroke="#101828"
-                                strokeWidth="17"
-                                strokeLinecap="round"
-                            />
-                            <line
-                                x1="340"
-                                y1="340"
-                                x2="199"
-                                y2="171"
-                                stroke="#101828"
-                                strokeWidth="20"
-                                strokeLinecap="round"
-                            />
-                            <circle cx="340" cy="340" r="17" fill="#101828" />
-                        </svg>
-                    </div>
+                            <svg
+                                viewBox="0 0 680 680"
+                                aria-hidden="true"
+                                style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+                            >
+                                <path
+                                    fill="#ffffff"
+                                    stroke="#ffffff"
+                                    strokeWidth="3"
+                                    d="M340 120c5.523 0 10 4.477 10 10v200c0 5.523-4.477 10-10 10s-10-4.477-10-10V130c0-5.523 4.477-10 10-10Z"
+                                />
+                                <path
+                                    fill="#ffffff"
+                                    stroke="#ffffff"
+                                    strokeWidth="3"
+                                    d="M340 15c4.694 0 8.5 3.806 8.5 8.5v308c0 4.694-3.806 8.5-8.5 8.5s-8.5-3.806-8.5-8.5v-308c0-4.694 3.806-8.5 8.5-8.5Z"
+                                />
+                                <rect x="330" y="0" width="20" height="60" rx="2" fill="#231f20" />
+                                <line
+                                    x1="340"
+                                    y1="340"
+                                    x2="59"
+                                    y2="503"
+                                    stroke="#101828"
+                                    strokeWidth="17"
+                                    strokeLinecap="round"
+                                />
+                                <line
+                                    x1="340"
+                                    y1="340"
+                                    x2="199"
+                                    y2="171"
+                                    stroke="#101828"
+                                    strokeWidth="20"
+                                    strokeLinecap="round"
+                                />
+                                <circle cx="340" cy="340" r="17" fill="#101828" />
+                            </svg>
+                        </div>
                     )}
                     <div
                         style={{
@@ -815,8 +801,7 @@ const ClockTimeComposition = ({
                             ? getInformalTimePhrase(config.informalStartHour ?? 12, state.totalMinutes)
                             : undefined;
                     if (informalPhrase) {
-                        const repeatedPhraseFrame =
-                            state.arrival + informalPhrase.frames + pauseBetweenRepetitions;
+                        const repeatedPhraseFrame = state.arrival + informalPhrase.frames + pauseBetweenRepetitions;
 
                         return [
                             <Sequence
@@ -825,9 +810,7 @@ const ClockTimeComposition = ({
                                 durationInFrames={informalPhrase.frames + 2}
                                 premountFor={30}
                             >
-                                <Html5Audio
-                                    src={staticFile(`remotion/number-line-audio/${informalPhrase.file}.mp3`)}
-                                />
+                                <Html5Audio src={staticFile(`remotion/number-line-audio/${informalPhrase.file}.mp3`)} />
                             </Sequence>,
                             <Sequence
                                 key={`${index}-informal-2`}
@@ -835,9 +818,7 @@ const ClockTimeComposition = ({
                                 durationInFrames={informalPhrase.frames + 2}
                                 premountFor={30}
                             >
-                                <Html5Audio
-                                    src={staticFile(`remotion/number-line-audio/${informalPhrase.file}.mp3`)}
-                                />
+                                <Html5Audio src={staticFile(`remotion/number-line-audio/${informalPhrase.file}.mp3`)} />
                             </Sequence>,
                         ];
                     }
@@ -924,7 +905,7 @@ const ClockTimeComposition = ({
                             bottom: 190,
                             left: 0,
                             display: "flex",
-                            width: "50%",
+                            width: "45%",
                             alignItems: "center",
                             justifyContent: "center",
                             overflow: "hidden",
@@ -989,19 +970,20 @@ const ClockTimeComposition = ({
                                 <span
                                     style={{
                                         color:
-                                            isHighlighted && !isHourHandMoving
-                                                ? activeState.minute >= 25 && activeState.minute !== 0
-                                                    ? upcomingHourRed
-                                                    : amber500
-                                                : "#000000",
+                                            isHighlighted &&
+                                            !isHourHandMoving &&
+                                            activeState.minute >= 25 &&
+                                            activeState.minute !== 0
+                                                ? upcomingHourRed
+                                                : digitalHourSky,
                                     }}
                                 >
                                     {digitalHour}
                                 </span>
-                                <span style={{ color: "#000000", transform: "translateY(-7px)" }}>:</span>
+                                <span style={{ color: "#344054", transform: "translateY(-7px)" }}>:</span>
                                 <span
                                     style={{
-                                        color: isHighlighted && !isHourHandMoving ? amber700 : "#000000",
+                                        color: digitalMinuteSky,
                                     }}
                                 >
                                     {digitalMinute}
@@ -1087,232 +1069,231 @@ const ClockTimeComposition = ({
                         </div>
                     </div>
                 ) : (
-                <div
-                    style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        display: "flex",
-                        width: "60%",
-                        height: "100%",
-                        alignItems: "center",
-                        justifyContent: "center",
-                    }}
-                >
                     <div
                         style={{
-                            position: "relative",
-                            width: 740,
-                            height: 740,
-                            transform: hasMinuteLabels ? "translateY(10px) scale(0.92)" : undefined,
-                            transformOrigin: "center",
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            display: "flex",
+                            width: "60%",
+                            height: "100%",
+                            alignItems: "center",
+                            justifyContent: "center",
                         }}
                     >
-                        <Img
-                            src={staticFile("transfer/am_zifferblatt_0000.svg")}
+                        <div
                             style={{
-                                position: "absolute",
-                                top: "50%",
-                                left: "50%",
-                                width: 560,
-                                height: 560,
-                                objectFit: "contain",
-                                transform: "translate(-50%, -50%)",
-                            }}
-                        />
-                        <svg
-                            viewBox="0 0 680 680"
-                            aria-hidden="true"
-                            style={{
-                                position: "absolute",
-                                top: "50%",
-                                left: "50%",
-                                width: 560,
-                                height: 560,
-                                pointerEvents: "none",
-                                transform: "translate(-50%, -50%)",
+                                position: "relative",
+                                width: 740,
+                                height: 740,
+                                transform: hasMinuteLabels ? "translateY(10px) scale(0.92)" : undefined,
+                                transformOrigin: "center",
                             }}
                         >
-                            <path
-                                fill="#ffffff"
-                                stroke="#ffffff"
-                                strokeWidth="3"
-                                d="M340 120c5.523 0 10 4.477 10 10v200c0 5.523-4.477 10-10 10s-10-4.477-10-10V130c0-5.523 4.477-10 10-10Z"
+                            <Img
+                                src={staticFile("transfer/am_zifferblatt_0000.svg")}
+                                style={{
+                                    position: "absolute",
+                                    top: "50%",
+                                    left: "50%",
+                                    width: 560,
+                                    height: 560,
+                                    objectFit: "contain",
+                                    transform: "translate(-50%, -50%)",
+                                }}
                             />
-                            <path
-                                fill="#ffffff"
-                                stroke="#ffffff"
-                                strokeWidth="3"
-                                d="M340 15c4.694 0 8.5 3.806 8.5 8.5v308c0 4.694-3.806 8.5-8.5 8.5s-8.5-3.806-8.5-8.5v-308c0-4.694 3.806-8.5 8.5-8.5Z"
-                            />
-                            <rect x="330" y="0" width="20" height="60" rx="2" fill="#231f20" />
-                            {hasMinuteLabels && minuteSegmentArcAngle > 0 && (
+                            <svg
+                                viewBox="0 0 680 680"
+                                aria-hidden="true"
+                                style={{
+                                    position: "absolute",
+                                    top: "50%",
+                                    left: "50%",
+                                    width: 560,
+                                    height: 560,
+                                    pointerEvents: "none",
+                                    transform: "translate(-50%, -50%)",
+                                }}
+                            >
                                 <path
-                                    d={`M340 340 L${minuteSegmentStartX} ${minuteSegmentStartY} A240 240 0 ${minuteSegmentArcAngle > 180 ? 1 : 0} 1 ${minuteSegmentEndX} ${minuteSegmentEndY} Z`}
-                                    fill="#f0fdfa"
+                                    fill="#ffffff"
+                                    stroke="#ffffff"
+                                    strokeWidth="3"
+                                    d="M340 120c5.523 0 10 4.477 10 10v200c0 5.523-4.477 10-10 10s-10-4.477-10-10V130c0-5.523 4.477-10 10-10Z"
                                 />
-                            )}
-                            <line
-                                x1="340"
-                                y1="340"
-                                x2={minuteHandEndX}
-                                y2={minuteHandEndY}
-                                stroke={
+                                <path
+                                    fill="#ffffff"
+                                    stroke="#ffffff"
+                                    strokeWidth="3"
+                                    d="M340 15c4.694 0 8.5 3.806 8.5 8.5v308c0 4.694-3.806 8.5-8.5 8.5s-8.5-3.806-8.5-8.5v-308c0-4.694 3.806-8.5 8.5-8.5Z"
+                                />
+                                <rect x="330" y="0" width="20" height="60" rx="2" fill="#231f20" />
+                                {hasMinuteLabels && minuteSegmentArcAngle > 0 && (
+                                    <path
+                                        d={`M340 340 L${minuteSegmentStartX} ${minuteSegmentStartY} A240 240 0 ${minuteSegmentArcAngle > 180 ? 1 : 0} 1 ${minuteSegmentEndX} ${minuteSegmentEndY} Z`}
+                                        fill="#f0fdfa"
+                                    />
+                                )}
+                                <line
+                                    x1="340"
+                                    y1="340"
+                                    x2={minuteHandEndX}
+                                    y2={minuteHandEndY}
+                                    stroke={
+                                        isHighlighted &&
+                                        hasMinuteLabels &&
+                                        (activeState.minute !== 0 || usesInformalLabels)
+                                            ? teal
+                                            : "#231f20"
+                                    }
+                                    strokeWidth="17"
+                                    strokeLinecap="round"
+                                />
+                                <line
+                                    x1="340"
+                                    y1="340"
+                                    x2={hourHandEndX}
+                                    y2={hourHandEndY}
+                                    stroke={
+                                        isHighlighted &&
+                                        usesInformalLabels &&
+                                        activeState.minute >= 25 &&
+                                        activeState.minute !== 0
+                                            ? upcomingHourRed
+                                            : isHighlighted
+                                              ? accentColor
+                                              : "#231f20"
+                                    }
+                                    strokeWidth="20"
+                                    strokeLinecap="round"
+                                />
+                                <circle cx="340" cy="340" r="17" fill="#231f20" />
+                            </svg>
+                            {Array.from({ length: 12 }, (_, index) => {
+                                const hour = index + 1;
+                                const firstLabelValue = hour === 12 ? 0 : hour;
+                                const secondLabelValue = hour === 12 ? 12 : hour + 12;
+                                const informalHourIsChanging =
+                                    isHourHandMoving &&
+                                    nextState &&
+                                    (nextState.hour % 12 || 12) !== (activeState.hour % 12 || 12);
+                                const isFirstLabelActive =
                                     isHighlighted &&
-                                    hasMinuteLabels &&
-                                    (activeState.minute !== 0 || usesInformalLabels)
-                                        ? teal
-                                        : "#231f20"
-                                }
-                                strokeWidth="17"
-                                strokeLinecap="round"
-                            />
-                            <line
-                                x1="340"
-                                y1="340"
-                                x2={hourHandEndX}
-                                y2={hourHandEndY}
-                                stroke={
+                                    (usesInformalLabels
+                                        ? !informalHourIsChanging && (activeState.hour % 12 || 12) === hour
+                                        : !isHourHandMoving && activeState.hour === firstLabelValue);
+                                const isSecondLabelActive =
+                                    !usesInformalLabels &&
                                     isHighlighted &&
+                                    !isHourHandMoving &&
+                                    activeState.hour === secondLabelValue;
+                                const upcomingInformalHour = (activeState.hour + 1) % 12 || 12;
+                                const isUpcomingInformalHour =
                                     usesInformalLabels &&
+                                    !isHourHandMoving &&
                                     activeState.minute >= 25 &&
-                                    activeState.minute !== 0
-                                        ? upcomingHourRed
-                                        : isHighlighted
-                                          ? accentColor
-                                          : "#231f20"
-                                }
-                                strokeWidth="20"
-                                strokeLinecap="round"
-                            />
-                            <circle cx="340" cy="340" r="17" fill="#231f20" />
-                        </svg>
-                        {Array.from({ length: 12 }, (_, index) => {
-                            const hour = index + 1;
-                            const firstLabelValue = hour === 12 ? 0 : hour;
-                            const secondLabelValue = hour === 12 ? 12 : hour + 12;
-                            const informalHourIsChanging =
-                                isHourHandMoving &&
-                                nextState &&
-                                (nextState.hour % 12 || 12) !== (activeState.hour % 12 || 12);
-                            const isFirstLabelActive =
-                                isHighlighted &&
-                                (usesInformalLabels
-                                    ? !informalHourIsChanging && (activeState.hour % 12 || 12) === hour
-                                    : !isHourHandMoving && activeState.hour === firstLabelValue);
-                            const isSecondLabelActive =
-                                !usesInformalLabels &&
-                                isHighlighted &&
-                                !isHourHandMoving &&
-                                activeState.hour === secondLabelValue;
-                            const upcomingInformalHour = (activeState.hour + 1) % 12 || 12;
-                            const isUpcomingInformalHour =
-                                usesInformalLabels &&
-                                !isHourHandMoving &&
-                                activeState.minute >= 25 &&
-                                activeState.minute !== 0 &&
-                                hour === upcomingInformalHour;
-                            const angle = (hour * 30 - 90) * (Math.PI / 180);
-                            const useRightEdgeAnchor = hour >= 7 && hour <= 11;
-                            const useLeftEdgeAnchor = hour >= 1 && hour <= 5;
-                            const useTopLabelAnchor = hour === 12;
-                            const useBottomLabelAnchor = hour === 6;
-                            const minuteValue = (hour * 5) % 60;
-                            const minuteLabel = usesInformalLabels
-                                ? informalMinuteLabels[minuteValue]
-                                : String(minuteValue).padStart(2, "0");
-                            const isMinuteLabelActive =
-                                isHighlighted &&
-                                !isHourHandMoving &&
-                                (activeState.minute !== 0 || usesInformalLabels) &&
-                                (hour * 5) % 60 === activeState.minute;
-                            const minuteLabelAlignment =
-                                hour >= 1 && hour <= 5 ? "left" : hour >= 7 && hour <= 11 ? "right" : "center";
-                            const radius = useRightEdgeAnchor || useLeftEdgeAnchor || useTopLabelAnchor || useBottomLabelAnchor
-                                ? 325
-                                : 302 + Math.abs(Math.cos(angle)) * 62 + Math.abs(Math.sin(angle)) * 20;
+                                    activeState.minute !== 0 &&
+                                    hour === upcomingInformalHour;
+                                const angle = (hour * 30 - 90) * (Math.PI / 180);
+                                const useRightEdgeAnchor = hour >= 7 && hour <= 11;
+                                const useLeftEdgeAnchor = hour >= 1 && hour <= 5;
+                                const useTopLabelAnchor = hour === 12;
+                                const useBottomLabelAnchor = hour === 6;
+                                const minuteValue = (hour * 5) % 60;
+                                const minuteLabel = usesInformalLabels
+                                    ? informalMinuteLabels[minuteValue]
+                                    : String(minuteValue).padStart(2, "0");
+                                const isMinuteLabelActive =
+                                    isHighlighted &&
+                                    !isHourHandMoving &&
+                                    (activeState.minute !== 0 || usesInformalLabels) &&
+                                    (hour * 5) % 60 === activeState.minute;
+                                const minuteLabelAlignment =
+                                    hour >= 1 && hour <= 5 ? "left" : hour >= 7 && hour <= 11 ? "right" : "center";
+                                const radius =
+                                    useRightEdgeAnchor || useLeftEdgeAnchor || useTopLabelAnchor || useBottomLabelAnchor
+                                        ? 325
+                                        : 302 + Math.abs(Math.cos(angle)) * 62 + Math.abs(Math.sin(angle)) * 20;
 
-                            return (
-                                <div
-                                    key={hour}
-                                    style={{
-                                        position: "absolute",
-                                        top: 370 + Math.sin(angle) * radius,
-                                        left: 370 + Math.cos(angle) * radius,
-                                        color: hasMinuteLabels ? "#98a2b3" : "#101828",
-                                        fontSize: 40,
-                                        fontWeight: 500,
-                                        lineHeight: 1,
-                                        fontVariantNumeric: "tabular-nums",
-                                        whiteSpace: "nowrap",
-                                        transform: useRightEdgeAnchor
-                                            ? "translate(-100%, -50%)"
-                                            : useLeftEdgeAnchor
-                                              ? "translate(0, -50%)"
-                                              : useTopLabelAnchor
-                                                ? "translate(-50%, -100%)"
-                                                : "translate(-50%, 0)",
-                                    }}
-                                >
+                                return (
                                     <div
-                                        style={
-                                            usesInformalLabels
-                                                ? { display: "flex", alignItems: "center", gap: 8 }
-                                                : {
-                                                      display: "grid",
-                                                      gridTemplateColumns: "2ch auto 2ch",
-                                                      columnGap: 8,
-                                                      alignItems: "center",
-                                                  }
-                                        }
+                                        key={hour}
+                                        style={{
+                                            position: "absolute",
+                                            top: 370 + Math.sin(angle) * radius,
+                                            left: 370 + Math.cos(angle) * radius,
+                                            color: hasMinuteLabels ? "#98a2b3" : "#101828",
+                                            fontSize: 40,
+                                            fontWeight: 500,
+                                            lineHeight: 1,
+                                            fontVariantNumeric: "tabular-nums",
+                                            whiteSpace: "nowrap",
+                                            transform: useRightEdgeAnchor
+                                                ? "translate(-100%, -50%)"
+                                                : useLeftEdgeAnchor
+                                                  ? "translate(0, -50%)"
+                                                  : useTopLabelAnchor
+                                                    ? "translate(-50%, -100%)"
+                                                    : "translate(-50%, 0)",
+                                        }}
                                     >
-                                        <span
-                                            style={{
-                                                textAlign: "right",
-                                                color: isUpcomingInformalHour
-                                                    ? upcomingHourRed
-                                                    : isFirstLabelActive
-                                                      ? accentColor
-                                                      : undefined,
-                                                fontWeight:
-                                                    isUpcomingInformalHour || isFirstLabelActive ? 700 : undefined,
-                                                opacity: isUpcomingInformalHour ? upcomingHourBlinkOpacity : 1,
-                                            }}
-                                        >
-                                            {usesInformalLabels
-                                                ? hour
-                                                : String(firstLabelValue).padStart(2, "0")}
-                                        </span>
-                                        <span>|</span>
-                                        <span
-                                            style={{
-                                                textAlign: "left",
-                                                color: isSecondLabelActive ? accentColor : undefined,
-                                                fontWeight: isSecondLabelActive ? 700 : undefined,
-                                            }}
-                                        >
-                                            {usesInformalLabels ? informalHourLabels[hour] : secondLabelValue}
-                                        </span>
-                                    </div>
-                                    {hasMinuteLabels && (
                                         <div
-                                            style={{
-                                                marginTop: 7,
-                                                color: isMinuteLabelActive ? teal : "#98a2b3",
-                                                fontSize: 30,
-                                                fontWeight: isMinuteLabelActive ? 700 : 500,
-                                                lineHeight: 1,
-                                                textAlign: minuteLabelAlignment,
-                                            }}
+                                            style={
+                                                usesInformalLabels
+                                                    ? { display: "flex", alignItems: "center", gap: 8 }
+                                                    : {
+                                                          display: "grid",
+                                                          gridTemplateColumns: "2ch auto 2ch",
+                                                          columnGap: 8,
+                                                          alignItems: "center",
+                                                      }
+                                            }
                                         >
-                                            {minuteLabel}
+                                            <span
+                                                style={{
+                                                    textAlign: "right",
+                                                    color: isUpcomingInformalHour
+                                                        ? upcomingHourRed
+                                                        : isFirstLabelActive
+                                                          ? accentColor
+                                                          : undefined,
+                                                    fontWeight:
+                                                        isUpcomingInformalHour || isFirstLabelActive ? 700 : undefined,
+                                                    opacity: isUpcomingInformalHour ? upcomingHourBlinkOpacity : 1,
+                                                }}
+                                            >
+                                                {usesInformalLabels ? hour : String(firstLabelValue).padStart(2, "0")}
+                                            </span>
+                                            <span>|</span>
+                                            <span
+                                                style={{
+                                                    textAlign: "left",
+                                                    color: isSecondLabelActive ? accentColor : undefined,
+                                                    fontWeight: isSecondLabelActive ? 700 : undefined,
+                                                }}
+                                            >
+                                                {usesInformalLabels ? informalHourLabels[hour] : secondLabelValue}
+                                            </span>
                                         </div>
-                                    )}
-                                </div>
-                            );
-                        })}
+                                        {hasMinuteLabels && (
+                                            <div
+                                                style={{
+                                                    marginTop: 7,
+                                                    color: isMinuteLabelActive ? teal : "#98a2b3",
+                                                    fontSize: 30,
+                                                    fontWeight: isMinuteLabelActive ? 700 : 500,
+                                                    lineHeight: 1,
+                                                    textAlign: minuteLabelAlignment,
+                                                }}
+                                            >
+                                                {minuteLabel}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
                 )}
                 <div
                     style={{
@@ -1320,7 +1301,7 @@ const ClockTimeComposition = ({
                         top: 0,
                         right: 0,
                         display: "flex",
-                        width: config.displayStyle === "digital" ? "50%" : "40%",
+                        width: config.displayStyle === "digital" ? "55%" : "40%",
                         height: "100%",
                         alignItems: "flex-start",
                         flexDirection: "column",
@@ -1344,7 +1325,7 @@ const ClockTimeComposition = ({
                                 <>
                                     <span
                                         style={{
-                                            color: config.displayStyle === "digital" ? amber700 : teal,
+                                            color: config.displayStyle === "digital" ? digitalMinuteSky : teal,
                                         }}
                                     >
                                         {activeInformalPhrase.lead}
@@ -1357,7 +1338,7 @@ const ClockTimeComposition = ({
                                         activeState.minute >= 25 && activeState.minute !== 0
                                             ? upcomingHourRed
                                             : config.displayStyle === "digital"
-                                              ? amber500
+                                              ? digitalHourSky
                                               : accentColor,
                                     fontWeight: 700,
                                     opacity:
@@ -1368,7 +1349,16 @@ const ClockTimeComposition = ({
                             >
                                 {activeInformalPhrase.hour}
                             </span>
-                            {activeInformalPhrase.suffix && <> {activeInformalPhrase.suffix}</>}
+                            {activeInformalPhrase.suffix && (
+                                <span
+                                    style={{
+                                        color: config.displayStyle === "digital" ? digitalMinuteSky : undefined,
+                                    }}
+                                >
+                                    {" "}
+                                    {activeInformalPhrase.suffix}
+                                </span>
+                            )}
                         </div>
                     ) : (
                         <>
@@ -1479,21 +1469,13 @@ export const DigitalInformalHourTimeComposition = ({ startHour }: { startHour: n
     const setup = createDigitalInformalHourSetup(startHour);
 
     return (
-        <ClockTimeComposition
-            config={setup.config}
-            hourStates={setup.states}
-            contentDuration={setup.contentDuration}
-        />
+        <ClockTimeComposition config={setup.config} hourStates={setup.states} contentDuration={setup.contentDuration} />
     );
 };
 export const InformalHourTimeComposition = ({ startHour }: { startHour: number }) => {
     const setup = createInformalHourSetup(startHour);
 
     return (
-        <ClockTimeComposition
-            config={setup.config}
-            hourStates={setup.states}
-            contentDuration={setup.contentDuration}
-        />
+        <ClockTimeComposition config={setup.config} hourStates={setup.states} contentDuration={setup.contentDuration} />
     );
 };

@@ -2,13 +2,15 @@
 
 import { Player } from "@remotion/player";
 import { AbsoluteFill, Html5Audio, interpolate, Sequence, staticFile, useCurrentFrame } from "remotion";
+import { TitleSlidePattern } from "../../remotion/title-slide-pattern";
 import { VideoChrome } from "../../remotion/video-chrome";
 
 const initialDelay = 30;
 const stepDuration = 360;
 const stepCount = 10;
 const finalHold = 60;
-export const compositionDuration = initialDelay + stepCount * stepDuration + finalHold;
+const titleSlideFrames = 45;
+export const compositionDuration = titleSlideFrames + initialDelay + stepCount * stepDuration + finalHold;
 const numberWords = ["null", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn"];
 
 const audioFileNames: Record<string, string> = {
@@ -33,7 +35,56 @@ const audioUrl = (text: string, useLocalAudio: boolean) =>
         : `/api/tts/stream?text=${encodeURIComponent(text)}`;
 
 export const NumberLineComposition = ({ useLocalAudio = false }: { useLocalAudio?: boolean }) => {
-    const frame = useCurrentFrame();
+    const absoluteFrame = useCurrentFrame();
+    const frame = absoluteFrame - titleSlideFrames;
+
+    if (absoluteFrame < titleSlideFrames) {
+        return (
+            <AbsoluteFill
+                style={{
+                    backgroundColor: "#ffffff",
+                    fontFamily: "Encode Sans Semi Condensed, sans-serif",
+                }}
+            >
+                <VideoChrome curriculumLabel="A.01.01 Zahlen von 0 bis 10">
+                    <TitleSlidePattern color="#0ea5e9" variant="wave-grid" />
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: 550,
+                            left: 60,
+                            width: 1740,
+                            textAlign: "left",
+                        }}
+                    >
+                        <h1
+                            style={{
+                                margin: 0,
+                                color: "#101828",
+                                fontSize: 80,
+                                fontWeight: 700,
+                                lineHeight: 1.15,
+                            }}
+                        >
+                            Plus eins am Zahlenstrahl
+                        </h1>
+                        <p
+                            style={{
+                                margin: "18px 0 0",
+                                color: "#101828",
+                                fontSize: 80,
+                                fontWeight: 400,
+                                lineHeight: 1.15,
+                            }}
+                        >
+                            Zahlen von 0 bis 10
+                        </p>
+                    </div>
+                </VideoChrome>
+            </AbsoluteFill>
+        );
+    }
+
     const stepIndex = frame < initialDelay ? null : Math.min(Math.floor((frame - initialDelay) / stepDuration), stepCount - 1);
     const stepFrame = stepIndex === null ? 0 : frame - (initialDelay + stepIndex * stepDuration);
     const startValue = stepIndex;
@@ -67,7 +118,7 @@ export const NumberLineComposition = ({ useLocalAudio = false }: { useLocalAudio
             <VideoChrome curriculumLabel="A.01.01 Zahlen von 0 bis 10">
                 {Array.from({ length: stepCount }, (_, index) => {
                 const value = index;
-                const stepStart = initialDelay + index * stepDuration;
+                const stepStart = titleSlideFrames + initialDelay + index * stepDuration;
                 return [
                         <Sequence key={`${value}-start`} from={stepStart} premountFor={stepStart}>
                             <Html5Audio src={audioUrl(numberWords[value], useLocalAudio)} />

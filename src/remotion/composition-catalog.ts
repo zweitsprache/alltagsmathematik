@@ -21,7 +21,7 @@ export const compositionCatalog = [
         width: 1920,
         height: 1080,
         fps: 30,
-        durationInFrames: 3690,
+        durationInFrames: 3735,
         outputPath: "marketing/videos/a-01-01-number-line.mp4",
     },
     {

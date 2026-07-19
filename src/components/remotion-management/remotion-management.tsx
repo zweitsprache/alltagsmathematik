@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import type { ComponentType } from "react";
+import { Check, Copy01 } from "@untitledui/icons";
 import { Player } from "@remotion/player";
+import { useClipboard } from "@/hooks/use-clipboard";
 import { compositionCatalog } from "@/remotion/composition-catalog";
 import { CountToTenComposition } from "@/remotion/compositions/count-to-ten";
 import { TwoDigitNumbersComposition } from "@/remotion/compositions/two-digit-numbers";
@@ -37,6 +39,7 @@ const compositionComponents: Record<string, ComponentType<any>> = {
 } as const;
 
 export const RemotionManagement = () => {
+    const clipboard = useClipboard();
     const [selectedId, setSelectedId] = useState<(typeof compositionCatalog)[number]["id"]>(compositionCatalog[0].id);
     const selected = compositionCatalog.find((composition) => composition.id === selectedId) ?? compositionCatalog[0];
     const isInformalHourlyComposition = "startHour" in selected;
@@ -67,17 +70,30 @@ export const RemotionManagement = () => {
                     {compositionCatalog.map((composition) => {
                         const active = composition.id === selected.id;
                         return (
-                            <button
-                                key={composition.id}
-                                type="button"
-                                onClick={() => setSelectedId(composition.id)}
-                                className={`flex w-full flex-col rounded-md px-3 py-2.5 text-left outline-focus-ring transition ${
-                                    active ? "bg-brand-primary text-brand-secondary" : "text-primary hover:bg-primary_hover"
-                                }`}
-                            >
-                                <span className="text-sm font-semibold">{composition.title}</span>
-                                <span className="mt-0.5 text-xs text-tertiary">{composition.curriculumLabel}</span>
-                            </button>
+                            <div key={composition.id} className="relative">
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedId(composition.id)}
+                                    className={`flex w-full flex-col rounded-md px-3 py-2.5 pr-9 text-left outline-focus-ring transition ${
+                                        active ? "bg-brand-primary text-brand-secondary" : "text-primary hover:bg-primary_hover"
+                                    }`}
+                                >
+                                    <span className="text-sm font-semibold">{composition.title}</span>
+                                    <span className="mt-0.5 text-xs text-tertiary">{composition.curriculumLabel}</span>
+                                    <span className="mt-1 break-all font-mono text-[11px] text-tertiary">
+                                        ID: {composition.id}
+                                    </span>
+                                </button>
+                                <button
+                                    type="button"
+                                    title={`ID ${composition.id} kopieren`}
+                                    aria-label={`ID ${composition.id} kopieren`}
+                                    onClick={() => clipboard.copy(composition.id, composition.id)}
+                                    className="absolute right-2.5 bottom-2 flex size-5 items-center justify-center rounded text-tertiary outline-focus-ring transition hover:bg-primary_hover hover:text-primary"
+                                >
+                                    {clipboard.copied === composition.id ? <Check size={12} /> : <Copy01 size={12} />}
+                                </button>
+                            </div>
                         );
                     })}
                 </div>
