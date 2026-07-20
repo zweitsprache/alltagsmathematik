@@ -134,6 +134,16 @@ await sql`
 await sql`CREATE INDEX IF NOT EXISTS activity_sessions_student_activity_idx ON activity_sessions (student_id, activity_id, started_at DESC)`;
 await sql`CREATE INDEX IF NOT EXISTS task_attempts_student_activity_idx ON task_attempts (student_id, created_at DESC)`;
 
+await sql`
+    CREATE TABLE IF NOT EXISTS video_composition_metadata (
+        composition_id TEXT PRIMARY KEY,
+        metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+        updated_by UUID REFERENCES neon_auth."user"(id) ON DELETE SET NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+`;
+
 const legacyActivityIds = [
     ["zahlen-und-variablen/zahlen-benennen-und-schreiben/zahlen-von-0-bis-10/zahlen-vergleichen#1", "exercise-0008"],
     ["zahlen-und-variablen/zahlen-benennen-und-schreiben/zahlen-von-0-bis-10/zahlen-vergleichen#2", "exercise-0009"],
@@ -146,4 +156,4 @@ for (const [legacyId, permanentId] of legacyActivityIds) {
     await sql`UPDATE student_activity_progress SET activity_id = ${permanentId} WHERE activity_id = ${legacyId}`;
 }
 
-console.log("Database migration complete: audio, users, roles, and activity progress are ready.");
+console.log("Database migration complete: audio, users, roles, activity progress, and video metadata are ready.");

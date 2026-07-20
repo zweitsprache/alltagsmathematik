@@ -1,0 +1,13 @@
+:root{
+--font-brand:"Encode Sans Semi Condensed",system-ui,sans-serif;
+/* Display (headlines, slides) — tighter tracking, heavier weights */
+--display-2xl:72px;--display-2xl-lh:90px;--display-xl:60px;--display-xl-lh:72px;--display-lg:48px;--display-lg-lh:60px;--display-md:36px;--display-md-lh:44px;--display-sm:30px;--display-sm-lh:38px;--display-xs:24px;--display-xs-lh:32px;
+--tracking-display:-0.02em;--tracking-body:0;
+/* Text */
+--text-xl:20px;--text-xl-lh:30px;--text-lg:18px;--text-lg-lh:28px;--text-md:16px;--text-md-lh:24px;--text-sm:14px;--text-sm-lh:20px;--text-xs:12px;--text-xs-lh:18px;
+/* Weights */
+--weight-regular:400;--weight-medium:500;--weight-semibold:600;--weight-bold:700;--weight-extrabold:800;--weight-black:900;
+}
+body{font-family:var(--font-brand);color:var(--text-primary)}
+a{color:var(--link);text-decoration:underline;text-underline-offset:2px}
+a:hover{color:var(--link-hover)}

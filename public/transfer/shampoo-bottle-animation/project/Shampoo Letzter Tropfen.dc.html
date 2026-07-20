@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/alltagsmathematik-design-system-d0bd279a-404b-4f36-85ab-816ac94e2150/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/alltagsmathematik-design-system-d0bd279a-404b-4f36-85ab-816ac94e2150/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/alltagsmathematik-design-system-d0bd279a-404b-4f36-85ab-816ac94e2150/styles.css">
+  <script src="_ds/alltagsmathematik-design-system-d0bd279a-404b-4f36-85ab-816ac94e2150/_ds_bundle.js"></script>
+  <style>
+    body { margin: 0; }
+    a { color: var(--accent-500, #cc6600); }
+    a:hover { color: var(--accent-600, #b35a00); }
+    @keyframes ama-flip {
+      0%, 8%   { transform: translateY(0) rotate(0deg); }
+      22%, 27% { transform: translateY(0) rotate(180deg); }
+      30% { transform: translateY(-5px) rotate(calc(180deg - var(--amp, 9deg))); }
+      33% { transform: translateY(3px)  rotate(calc(180deg + var(--amp, 9deg))); }
+      36% { transform: translateY(-5px) rotate(calc(180deg - var(--amp, 9deg))); }
+      39% { transform: translateY(3px)  rotate(calc(180deg + var(--amp, 9deg))); }
+      42% { transform: translateY(-3px) rotate(calc(180deg - var(--amp, 9deg) * 0.5)); }
+      45% { transform: translateY(0)    rotate(calc(180deg + var(--amp, 9deg) * 0.3)); }
+      48%, 78% { transform: translateY(0) rotate(180deg); }
+      92%, 100% { transform: translateY(0) rotate(360deg); }
+    }
+    @keyframes ama-pool-bottom {
+      0%, 12% { opacity: 1; }
+      22%, 84% { opacity: 0; }
+      92%, 100% { opacity: 1; }
+    }
+    @keyframes ama-pool-neck {
+      0%, 19% { opacity: 0; }
+      27%, 52% { opacity: 1; }
+      58%, 100% { opacity: 0; }
+    }
+    @keyframes ama-lines {
+      0%, 27% { opacity: 0; }
+      31% { opacity: 1; }
+      34% { opacity: 0; }
+      37% { opacity: 1; }
+      40% { opacity: 0; }
+      43% { opacity: 1; }
+      47%, 100% { opacity: 0; }
+    }
+    @keyframes ama-drop {
+      0%, 47% { transform: translateY(0) scale(0); opacity: 1; }
+      54% { transform: translateY(0) scale(1.05); opacity: 1; }
+      56% { transform: translateY(3px) scale(1); opacity: 1; }
+      68% { transform: translateY(76px) scale(1); opacity: 1; }
+      71%, 100% { transform: translateY(84px) scale(0.5); opacity: 0; }
+    }
+    @keyframes ama-splash {
+      0%, 67% { opacity: 0; transform: scale(0.3); }
+      70% { opacity: 1; transform: scale(1); }
+      78%, 100% { opacity: 0; transform: scale(1.2); }
+    }
+    @keyframes ama-route {
+      0%, 8% { offset-distance: 0%; }
+      88%, 100% { offset-distance: 100%; }
+    }
+    @keyframes ama-pop {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</helmet>
+<div style="width: 100%; min-height: 100vh; display: flex; flex-wrap: wrap; gap: 24px; align-items: center; justify-content: center; background: var(--gray-50, #f7f8fa); padding: 24px; box-sizing: border-box;">
+  <div data-screen-label="Szene 1 – Shampoo" style="--dur: {{ dur }}; --iter: {{ iter }}; --amp: {{ amp }}; width: min(90vmin, 640px); aspect-ratio: 1 / 1; background: #ffffff; border-radius: 12px;">
+    <svg viewBox="0 0 480 480" width="100%" height="100%" role="img" aria-label="Fast leere Shampooflasche wird umgedreht und geschuettelt, der letzte Tropfen faellt heraus">
+      <g transform="translate(21.6 -19.9) scale(0.91)">
+      <defs>
+        <clipPath id="ama-bottle-clip">
+          <path d="M 228 146 L 228 162 C 228 176 188 174 188 196 L 188 328 Q 188 350 210 350 L 270 350 Q 292 350 292 328 L 292 196 C 292 174 252 176 252 162 L 252 146 Z"></path>
+        </clipPath>
+      </defs>
+      <g style="animation: ama-flip var(--dur, 6s) ease-in-out var(--iter, infinite); transform-origin: 240px 240px;">
+        <path d="M 228 146 L 228 162 C 228 176 188 174 188 196 L 188 328 Q 188 350 210 350 L 270 350 Q 292 350 292 328 L 292 196 C 292 174 252 176 252 162 L 252 146 Z" style="fill: #ffffff;"></path>
+        <g clip-path="url(#ama-bottle-clip)">
+          <rect x="198" y="322" width="84" height="18" rx="8" style="fill: var(--accent-500, #cc6600); animation: ama-pool-bottom var(--dur, 6s) linear var(--iter, infinite);"></rect>
+          <path d="M 232 148 L 248 148 L 248 164 L 232 164 Z" style="fill: var(--accent-500, #cc6600); animation: ama-pool-neck var(--dur, 6s) linear var(--iter, infinite);"></path>
+        </g>
+        <path d="M 228 146 L 228 162 C 228 176 188 174 188 196 L 188 328 Q 188 350 210 350 L 270 350 Q 292 350 292 328 L 292 196 C 292 174 252 176 252 162 L 252 146 Z" style="fill: none; stroke: var(--brand-800, #1e2c52); stroke-width: 9; stroke-linejoin: round;"></path>
+        <rect x="204" y="212" width="72" height="62" rx="10" style="fill: none; stroke: var(--brand-800, #1e2c52); stroke-width: 6;"></rect>
+        <line x1="220" y1="234" x2="260" y2="234" style="stroke: var(--accent-500, #cc6600); stroke-width: 7; stroke-linecap: round;"></line>
+        <line x1="220" y1="252" x2="246" y2="252" style="stroke: var(--accent-500, #cc6600); stroke-width: 7; stroke-linecap: round;"></line>
+        <rect x="214" y="118" width="52" height="30" rx="7" style="fill: var(--brand-800, #1e2c52);"></rect>
+        <rect x="232" y="106" width="16" height="14" rx="4" style="fill: var(--brand-800, #1e2c52);"></rect>
+      </g>
+      <g style="animation: ama-lines var(--dur, 6s) linear var(--iter, infinite);">
+        <path d="M 152 198 Q 138 240 152 282" style="fill: none; stroke: var(--accent-500, #cc6600); stroke-width: 7; stroke-linecap: round;"></path>
+        <path d="M 128 214 Q 118 240 128 266" style="fill: none; stroke: var(--accent-500, #cc6600); stroke-width: 7; stroke-linecap: round; opacity: 0.55;"></path>
+        <path d="M 328 198 Q 342 240 328 282" style="fill: none; stroke: var(--accent-500, #cc6600); stroke-width: 7; stroke-linecap: round;"></path>
+        <path d="M 352 214 Q 362 240 352 266" style="fill: none; stroke: var(--accent-500, #cc6600); stroke-width: 7; stroke-linecap: round; opacity: 0.55;"></path>
+      </g>
+      <g transform="translate(240 372)">
+        <path d="M 0 0 C 7 9 11 14 11 19 A 11 11 0 1 1 -11 19 C -11 14 -7 9 0 0 Z" style="fill: var(--accent-500, #cc6600); animation: ama-drop var(--dur, 6s) ease-in var(--iter, infinite); transform-box: fill-box; transform-origin: 50% 0%;"></path>
+      </g>
+      <g transform="translate(240 464)"><g style="animation: ama-splash var(--dur, 6s) linear var(--iter, infinite); transform-box: fill-box; transform-origin: 50% 50%;">
+        <path d="M -20 0 Q -26 -8 -24 -14" style="fill: none; stroke: var(--accent-500, #cc6600); stroke-width: 6; stroke-linecap: round;"></path>
+        <path d="M 20 0 Q 26 -8 24 -14" style="fill: none; stroke: var(--accent-500, #cc6600); stroke-width: 6; stroke-linecap: round;"></path>
+        <circle cx="0" cy="-6" r="4" style="fill: var(--accent-500, #cc6600);"></circle>
+      </g></g>
+      </g>
+    </svg>
+  </div>
+  <div data-screen-label="Szene 2 – Weg zum Supermarkt" style="--dur: {{ dur }}; --iter: {{ iter }}; width: min(90vmin, 640px); aspect-ratio: 1 / 1; background: #ffffff; border-radius: 12px;">
+    <svg viewBox="0 0 480 480" width="100%" height="100%" role="img" aria-label="Ein Punkt bewegt sich auf dem Weg vom Haus zum Supermarkt">
+      <path d="M 148 344 C 240 316 170 215 250 192 C 315 174 316 172 334 150" style="fill: none; stroke: var(--brand-800, #1e2c52); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 0.5 16; opacity: 0.45;"></path>
+      <g transform="translate(72 336) scale(2.9)" style="fill: none; stroke: var(--brand-800, #1e2c52); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
+        <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
+      </g>
+      <g transform="translate(338 74) scale(2.9)" style="fill: none; stroke: var(--brand-800, #1e2c52); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
+        <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"></path>
+        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+        <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"></path>
+        <path d="M2 7h20"></path>
+        <path d="M22 7v3a2 2 0 0 1-2 2 2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"></path>
+      </g>
+      <circle r="11" style="fill: var(--accent-500, #cc6600); offset-path: path('M 148 344 C 240 316 170 215 250 192 C 315 174 316 172 334 150'); offset-rotate: 0deg; animation: ama-route var(--dur, 6s) ease-in-out var(--iter, infinite);"></circle>
+    </svg>
+  </div>
+  <div data-screen-label="Szene 3 – Flaschen zählen" style="width: min(90vmin, 640px); aspect-ratio: 1 / 1; background: #ffffff; border-radius: 12px;">
+    <svg viewBox="0 0 480 480" width="100%" height="100%" role="img" aria-label="Eine, zwei und drei volle Shampooflaschen in drei Reihen">
+      <g transform="translate(38.8 40.5) scale(0.83)">
+      <defs>
+        <clipPath id="ama-bottle-clip2">
+          <path d="M 228 146 L 228 162 C 228 176 188 174 188 196 L 188 328 Q 188 350 210 350 L 270 350 Q 292 350 292 328 L 292 196 C 292 174 252 176 252 162 L 252 146 Z"></path>
+        </clipPath>
+        <g id="ama-bottle-full">
+          <path d="M 228 146 L 228 162 C 228 176 188 174 188 196 L 188 328 Q 188 350 210 350 L 270 350 Q 292 350 292 328 L 292 196 C 292 174 252 176 252 162 L 252 146 Z" style="fill: #ffffff;"></path>
+          <rect x="184" y="150" width="112" height="204" clip-path="url(#ama-bottle-clip2)" style="fill: var(--accent-500, #cc6600);"></rect>
+          <path d="M 228 146 L 228 162 C 228 176 188 174 188 196 L 188 328 Q 188 350 210 350 L 270 350 Q 292 350 292 328 L 292 196 C 292 174 252 176 252 162 L 252 146 Z" style="fill: none; stroke: var(--brand-800, #1e2c52); stroke-width: 9; stroke-linejoin: round;"></path>
+          <rect x="204" y="212" width="72" height="62" rx="10" style="fill: #ffffff; stroke: var(--brand-800, #1e2c52); stroke-width: 6;"></rect>
+          <line x1="220" y1="234" x2="260" y2="234" style="stroke: var(--accent-500, #cc6600); stroke-width: 7; stroke-linecap: round;"></line>
+          <line x1="220" y1="252" x2="246" y2="252" style="stroke: var(--accent-500, #cc6600); stroke-width: 7; stroke-linecap: round;"></line>
+          <rect x="214" y="118" width="52" height="30" rx="7" style="fill: var(--brand-800, #1e2c52);"></rect>
+          <rect x="232" y="106" width="16" height="14" rx="4" style="fill: var(--brand-800, #1e2c52);"></rect>
+        </g>
+      </defs>
+      <g transform="translate(-52 -15) scale(0.5)"><use href="#ama-bottle-full" style="animation: ama-pop 0.5s ease-out 0.1s both;"></use></g>
+      <g transform="translate(-52 125) scale(0.5)"><use href="#ama-bottle-full" style="animation: ama-pop 0.5s ease-out 0.5s both;"></use></g>
+      <g transform="translate(12 125) scale(0.5)"><use href="#ama-bottle-full" style="animation: ama-pop 0.5s ease-out 0.7s both;"></use></g>
+      <g transform="translate(-52 265) scale(0.5)"><use href="#ama-bottle-full" style="animation: ama-pop 0.5s ease-out 1.1s both;"></use></g>
+      <g transform="translate(12 265) scale(0.5)"><use href="#ama-bottle-full" style="animation: ama-pop 0.5s ease-out 1.3s both;"></use></g>
+      <g transform="translate(76 265) scale(0.5)"><use href="#ama-bottle-full" style="animation: ama-pop 0.5s ease-out 1.5s both;"></use></g>
+      <g style="animation: ama-pop 0.5s ease-out 1s both;">
+        <rect x="34" y="264" width="134" height="28" rx="5" style="fill: var(--accent-500, #cc6600);"></rect>
+        <text x="101" y="279" text-anchor="middle" dominant-baseline="central" style="font-family: 'Encode Sans Semi Condensed', sans-serif; font-weight: 700; font-size: 19px; fill: #ffffff;">Duopack</text>
+      </g>
+      <g style="animation: ama-pop 0.5s ease-out 1.8s both;">
+        <rect x="34" y="404" width="198" height="28" rx="5" style="fill: var(--accent-500, #cc6600);"></rect>
+        <text x="133" y="419" text-anchor="middle" dominant-baseline="central" style="font-family: 'Encode Sans Semi Condensed', sans-serif; font-weight: 700; font-size: 19px; fill: #ffffff;">Multipack</text>
+      </g>
+      <defs>
+        <g id="ama-price-tag" style="fill: none; stroke: var(--brand-800, #1e2c52); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round;">
+          <path d="M -66 0 L -34 -24 L 48 -24 Q 58 -24 58 -14 L 58 14 Q 58 24 48 24 L -34 24 Z"></path>
+          <circle cx="-42" cy="0" r="4.5" style="fill: var(--brand-800, #1e2c52); stroke: none;"></circle>
+        </g>
+      </defs>
+      <g transform="translate(380 100) rotate(-10)"><g style="animation: ama-pop 0.5s ease-out 0.3s both;"><use href="#ama-price-tag"></use><text x="14" y="1" text-anchor="middle" dominant-baseline="central" style="font-family: 'Encode Sans Semi Condensed', sans-serif; font-weight: 600; font-size: 28px; fill: var(--brand-800, #1e2c52);">4.50</text></g></g>
+      <g transform="translate(380 240) rotate(-10)"><g style="animation: ama-pop 0.5s ease-out 0.9s both;"><use href="#ama-price-tag"></use><text x="14" y="1" text-anchor="middle" dominant-baseline="central" style="font-family: 'Encode Sans Semi Condensed', sans-serif; font-weight: 600; font-size: 28px; fill: var(--brand-800, #1e2c52);">8.20</text></g></g>
+      <g transform="translate(380 380) rotate(-10)"><g style="animation: ama-pop 0.5s ease-out 1.7s both;"><use href="#ama-price-tag"></use><text x="14" y="1" text-anchor="middle" dominant-baseline="central" style="font-family: 'Encode Sans Semi Condensed', sans-serif; font-weight: 600; font-size: 28px; fill: var(--brand-800, #1e2c52);">9.90</text></g></g>
+      </g>
+    </svg>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: {&quot;width&quot;: 560, &quot;height&quot;: 560},
+  &quot;speed&quot;: {&quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 1, &quot;min&quot;: 0.4, &quot;max&quot;: 2, &quot;step&quot;: 0.1, &quot;unit&quot;: &quot;x&quot;, &quot;section&quot;: &quot;Animation&quot;, &quot;tsType&quot;: &quot;number&quot;},
+  &quot;shake&quot;: {&quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 9, &quot;min&quot;: 3, &quot;max&quot;: 15, &quot;step&quot;: 1, &quot;unit&quot;: &quot;deg&quot;, &quot;section&quot;: &quot;Animation&quot;, &quot;tsType&quot;: &quot;number&quot;},
+  &quot;loop&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;section&quot;: &quot;Animation&quot;, &quot;tsType&quot;: &quot;boolean&quot;}
+}">
+class Component extends DCLogic {
+  renderVals() {
+    const speed = this.props.speed ?? 1;
+    return {
+      dur: (6 / speed).toFixed(2) + 's',
+      iter: (this.props.loop ?? true) ? 'infinite' : '1',
+      amp: (this.props.shake ?? 9) + 'deg'
+    };
+  }
+}
+</script>
+</body>
+</html>

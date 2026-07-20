@@ -1,23 +1,36 @@
 import type { ReactNode } from "react";
 import { Img, staticFile } from "remotion";
+import { useCompositionMetadata } from "./branded-slides";
+import { videoCopyright } from "./video-constants";
 
-export const videoCopyright = "© 2026 alltagsmathematik.ch | Marcel Allenspach. Alle Rechte vorbehalten.";
+export { videoCopyright } from "./video-constants";
 
-export const VideoChrome = ({ curriculumLabel, children }: { curriculumLabel: ReactNode; children: ReactNode }) => (
-    <>
+export const VideoChrome = ({ curriculumLabel, children }: { curriculumLabel: ReactNode; children: ReactNode }) => {
+    const metadata = useCompositionMetadata();
+    const displayedHeader = metadata?.header ? (
+        <>
+            <strong>{metadata.header.split("|")[0].trim()}</strong>
+            {metadata.header.includes("|") ? ` | ${metadata.header.split("|").slice(1).join("|").trim()}` : ""}
+        </>
+    ) : (
+        curriculumLabel
+    );
+
+    return (
+        <>
         <p
             style={{
                 position: "absolute",
                 top: 60,
                 left: 60,
                 margin: 0,
-                color: "#667085",
+                color: "#101828",
                 fontSize: 24,
                 fontWeight: 400,
                 lineHeight: 1.4,
             }}
         >
-            {curriculumLabel}
+            {displayedHeader}
         </p>
 
         <Img
@@ -46,5 +59,6 @@ export const VideoChrome = ({ curriculumLabel, children }: { curriculumLabel: Re
         >
             {videoCopyright}
         </p>
-    </>
-);
+        </>
+    );
+};

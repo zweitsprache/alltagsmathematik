@@ -1,4 +1,6 @@
+import { MapPin } from "lucide-react";
 import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
+import { BrandedTitleSlide, StandardEndSlide } from "../branded-slides";
 import { VideoChrome } from "../video-chrome";
 
 const titleFrames = 60;
@@ -93,7 +95,26 @@ const Box = ({ transform }: { transform?: string }) => (
 
 export const LocalPrepositionsComposition = () => {
     const frame = useCurrentFrame();
-    const isTitle = frame < titleFrames;
+
+    if (frame >= titleFrames + sceneFrames * scenes.length) return <StandardEndSlide />;
+
+    if (frame < titleFrames) {
+        return (
+            <BrandedTitleSlide
+                seed="LocalPrepositions"
+                curriculumLabel={
+                    <>
+                        <strong>Deutsch</strong>
+                        {" | Lokale Präpositionen"}
+                    </>
+                }
+                title="Lokale Präpositionen"
+                subtitle="9 wichtige lokale Präpositionen"
+                icon={<MapPin size={64} strokeWidth={2.5} />}
+            />
+        );
+    }
+
     const contentFrame = Math.max(0, frame - titleFrames);
     const sceneIndex = Math.min(scenes.length - 1, Math.floor(contentFrame / sceneFrames));
     const sceneFrame = contentFrame - sceneIndex * sceneFrames;
@@ -143,37 +164,7 @@ export const LocalPrepositionsComposition = () => {
                     </>
                 }
             >
-                {isTitle ? (
-                    <>
-                        <div
-                            style={{
-                                position: "absolute",
-                                right: -90,
-                                bottom: 70,
-                                width: 760,
-                                height: 760,
-                                borderRadius: "50%",
-                                backgroundColor: "#e0f2fe",
-                            }}
-                        />
-                        <div style={{ position: "absolute", top: 480, left: 60, width: 1500 }}>
-                            <h1 style={{ margin: 0, fontSize: 92, fontWeight: 700, lineHeight: 1.08 }}>
-                                Lokale Präpositionen
-                            </h1>
-                            <p
-                                style={{
-                                    margin: "22px 0 0",
-                                    color: "#0b4a6f",
-                                    fontSize: 66,
-                                    fontWeight: 400,
-                                }}
-                            >
-                                9 wichtige lokale Präpositionen
-                            </p>
-                        </div>
-                    </>
-                ) : (
-                    <div
+                <div
                         style={{
                             position: "absolute",
                             inset: "150px 60px 115px",
@@ -332,7 +323,6 @@ export const LocalPrepositionsComposition = () => {
                             </div>
                         </div>
                     </div>
-                )}
             </VideoChrome>
         </AbsoluteFill>
     );

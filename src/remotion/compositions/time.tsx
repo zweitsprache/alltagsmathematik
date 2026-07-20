@@ -1,5 +1,7 @@
 import { MoonStar, Sun } from "@untitledui/icons";
+import { CalendarClock } from "lucide-react";
 import { AbsoluteFill, Easing, Html5Audio, Img, Sequence, interpolate, staticFile, useCurrentFrame } from "remotion";
+import { BrandedTitleSlide, StandardEndSlide } from "../branded-slides";
 import { VideoChrome, videoCopyright } from "../video-chrome";
 
 const highlightFrame = 45;
@@ -84,6 +86,9 @@ type ClockCompositionConfig = {
     movementFrames?: number;
     digitalStartHour?: number;
     titleIllustrationMinute?: number;
+    titleBackground?: string;
+    headerLabel?: string;
+    titleSeed?: string;
 };
 
 const getInitialArrival = (firstMinute: number) =>
@@ -121,22 +126,33 @@ const getCompositionDuration = (states: ClockState[]) => {
     return titleSlideFrames + finalState.arrival + finalPhraseFrames * 2 + pauseBetweenRepetitions + 30;
 };
 
-const fullHourConfig = { minutes: [0], subtitle: "XX:00", headerMinutes: "XX:00" };
-const halfHourConfig = { minutes: [30], subtitle: "XX:30", headerMinutes: "XX:30" };
+const fullHourConfig = { minutes: [0], subtitle: "XX:00", headerMinutes: "XX:00", titleSeed: "Time" };
+const halfHourConfig = {
+    minutes: [30],
+    title: "Analoge Uhrzeiten",
+    subtitle: "Offizielle Sprechweise | XX.30",
+    headerMinutes: "XX:30",
+    titleBackground: "title_slides/dark/am_title_slide_140.png",
+    headerLabel: "Zeit und Raum | Uhrzeiten",
+    titleSeed: "TimeHalfHour",
+};
 const quarterHourConfig = {
     minutes: [15, 45],
     subtitle: "XX:15 | XX:45",
     headerMinutes: "XX:15 | XX:45",
+    titleSeed: "TimeQuarterHours",
 };
 const tenMinuteConfig = {
     minutes: [10, 20, 40, 50],
     subtitle: "XX:10 | XX:20 | XX:40 | XX:50",
     headerMinutes: "XX:10 | XX:20 | XX:40 | XX:50",
+    titleSeed: "TimeTenMinuteGroups",
 };
 const fiveMinuteConfig = {
     minutes: [5, 25, 35, 55],
     subtitle: "XX:05 | XX:25 | XX:35 | XX:55",
     headerMinutes: "XX:05 | XX:25 | XX:35 | XX:55",
+    titleSeed: "TimeFiveMinuteGroups",
 };
 const fiveMinuteVariantConfig: ClockCompositionConfig = {
     ...fiveMinuteConfig,
@@ -148,6 +164,7 @@ const fiveMinuteVariantConfig: ClockCompositionConfig = {
     hideDaytimeIcon: true,
     speechStyle: "informal",
     informalStartHour: 12,
+    titleSeed: "TimeFiveMinuteGroupsVariant",
 };
 
 const informalTimePhrases: Record<
@@ -260,6 +277,10 @@ const createInformalHourSetup = (startHour: number) => {
         title: `Analoge Uhrzeiten | ${formattedStartHour}:00 – ${formattedNextHour}:00`,
         headerMinutes: `${formattedStartHour}:00 – ${formattedNextHour}:00`,
         informalStartHour: startHour,
+        titleSeed:
+            startHour === 12
+                ? "TimeFiveMinuteGroupsVariant"
+                : `TimeInformal${formattedStartHour}To${formattedNextHour}`,
     };
     const states = createClockStatesFromTimes([
         ...Array.from({ length: 12 }, (_, index) => ({
@@ -317,6 +338,10 @@ const createDigitalInformalHourSetup = (displayStartHour: number) => {
             movementFrames: 75,
             digitalStartHour: displayStartHour,
             titleIllustrationMinute: digitalTitleMinutes[speechStartHour],
+            titleSeed:
+                displayStartHour === 12
+                    ? "DigitalTimeFiveMinuteGroupsVariant"
+                    : `DigitalTimeInformal${formattedStartHour}To${formattedEndHour}`,
         } satisfies ClockCompositionConfig,
     };
 };
@@ -475,53 +500,115 @@ const ClockTimeComposition = ({
     const minuteSegmentEndX = 340 + Math.sin(minuteSegmentEndRadians) * 240;
     const minuteSegmentEndY = 340 - Math.cos(minuteSegmentEndRadians) * 240;
 
-    if (isEndSlide) {
+    if (isEndSlide) return <StandardEndSlide />;
+
+    if (isTitleSlide) {
         return (
-            <AbsoluteFill
-                style={{
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: "#ffffff",
-                    color: "#101828",
-                    fontFamily: "Encode Sans Semi Condensed, sans-serif",
-                    textAlign: "center",
-                }}
-            >
-                <Img
-                    src={staticFile("alltagsmathematik_logo_color_outline.svg")}
-                    style={{
-                        position: "absolute",
-                        top: 60,
-                        right: 60,
-                        width: 90,
-                        height: 90,
-                    }}
-                />
-                <div style={{ width: 1440, fontSize: 48, fontWeight: 400, lineHeight: 1.35 }}>
-                    <div>
-                        Dieses Video ist urheberrechtlich geschützt. Jegliche kommerzielle Nutzung ist ohne schriftliche
-                        Genehmigung nicht gestattet.
-                    </div>
-                    <div style={{ marginTop: 36, fontWeight: 700 }}>alltagsmathematik.ch</div>
-                </div>
-                <p
-                    style={{
-                        position: "absolute",
-                        bottom: 48,
-                        left: 60,
-                        margin: 0,
-                        color: "#667085",
-                        fontSize: 24,
-                        lineHeight: 1.4,
-                    }}
-                >
-                    {videoCopyright}
-                </p>
-            </AbsoluteFill>
+            <BrandedTitleSlide
+                seed={config.titleSeed ?? `${config.clockType ?? "Analog"}-${config.headerMinutes}`}
+                curriculumLabel={
+                    config.headerLabel ? (
+                        <>
+                            <strong>Zeit und Raum</strong>
+                            {" | Uhrzeiten"}
+                        </>
+                    ) : (
+                        <>
+                            <strong>Zeit und Raum</strong>
+                            {`\u00a0| Uhrzeiten | ${config.clockType ?? "Analog"} > ${usesInformalLabels ? "inoffiziell" : "offiziell"} | ${config.headerMinutes}`}
+                        </>
+                    )
+                }
+                title={config.title ?? "Analoge Uhrzeiten | Offizielle Sprechweise"}
+                subtitle={config.subtitle}
+                icon={<CalendarClock size={64} strokeWidth={2.5} />}
+            />
         );
     }
 
     if (isTitleSlide) {
+        if (config.titleBackground) {
+            const usesLightTitleBackground = config.titleBackground!.includes("/light/");
+            const titleColor = usesLightTitleBackground ? "#101828" : "#ffffff";
+
+            return (
+                <AbsoluteFill
+                    style={{
+                        color: titleColor,
+                        fontFamily: "Encode Sans Semi Condensed, sans-serif",
+                    }}
+                >
+                    <Img
+                        src={staticFile(config.titleBackground!)}
+                        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                    <p style={{ position: "absolute", top: 60, left: 60, margin: 0, fontSize: 24, lineHeight: 1.4 }}>
+                        {config.headerLabel ? (
+                            <>
+                                <strong>Zeit und Raum</strong>
+                                {" | Uhrzeiten"}
+                            </>
+                        ) : (
+                            <>
+                                <strong>Zeit und Raum</strong>
+                                {`\u00a0| Uhrzeiten | ${config.clockType ?? "Analog"} > ${usesInformalLabels ? "inoffiziell" : "offiziell"} | ${config.headerMinutes}`}
+                            </>
+                        )}
+                    </p>
+                    <Img
+                        src={staticFile(
+                            usesLightTitleBackground
+                                ? "alltagsmathematik_logo_color_outline.svg"
+                                : "alltagsmathematik_brandmark_primary_invert.svg",
+                        )}
+                        style={{ position: "absolute", top: 60, right: 60, width: 90, height: 90 }}
+                    />
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: "50%",
+                            left: 160,
+                            transform: "translateY(-50%)",
+                            textAlign: "left",
+                        }}
+                    >
+                        <div
+                            style={{
+                                display: "flex",
+                                width: 104,
+                                height: 104,
+                                marginBottom: 34,
+                                alignItems: "center",
+                                justifyContent: "center",
+                                border: `3px solid ${titleColor}`,
+                                borderRadius: 21,
+                            }}
+                        >
+                            <CalendarClock size={64} strokeWidth={2.5} />
+                        </div>
+                        <h1 style={{ margin: 0, fontSize: 92, fontWeight: 700, lineHeight: 1.05 }}>
+                            {config.title ?? "Analoge Uhrzeiten | Offizielle Sprechweise"}
+                        </h1>
+                        <p style={{ margin: "18px 0 0", fontSize: 58, fontWeight: 400, lineHeight: 1.15 }}>
+                            {config.subtitle}
+                        </p>
+                    </div>
+                    <p
+                        style={{
+                            position: "absolute",
+                            bottom: 48,
+                            left: 60,
+                            margin: 0,
+                            fontSize: 24,
+                            lineHeight: 1.4,
+                        }}
+                    >
+                        {videoCopyright}
+                    </p>
+                </AbsoluteFill>
+            );
+        }
+
         return (
             <AbsoluteFill
                 style={{
@@ -789,10 +876,17 @@ const ClockTimeComposition = ({
         >
             <VideoChrome
                 curriculumLabel={
-                    <>
-                        <strong>Zeit und Raum</strong>
-                        {`\u00a0| Uhrzeiten | ${config.clockType ?? "Analog"} > ${usesInformalLabels ? "inoffiziell" : "offiziell"} | ${config.headerMinutes}`}
-                    </>
+                    config.headerLabel ? (
+                        <>
+                            <strong>Zeit und Raum</strong>
+                            {" | Uhrzeiten"}
+                        </>
+                    ) : (
+                        <>
+                            <strong>Zeit und Raum</strong>
+                            {`\u00a0| Uhrzeiten | ${config.clockType ?? "Analog"} > ${usesInformalLabels ? "inoffiziell" : "offiziell"} | ${config.headerMinutes}`}
+                        </>
+                    )
                 }
             >
                 {hourStates.flatMap((state, index) => {

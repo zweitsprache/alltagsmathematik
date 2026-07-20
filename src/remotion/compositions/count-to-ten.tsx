@@ -1,4 +1,6 @@
-import { AbsoluteFill, Html5Audio, interpolate, Sequence, staticFile, useCurrentFrame } from "remotion";
+import { Tally5 } from "lucide-react";
+import { AbsoluteFill, Html5Audio, Img, interpolate, Sequence, staticFile, useCurrentFrame } from "remotion";
+import { BrandedTitleSlide, StandardEndSlide } from "../branded-slides";
 import { VideoChrome } from "../video-chrome";
 
 const seededRandom = (() => {
@@ -18,8 +20,8 @@ const circlePositions: Array<{ x: number; y: number }> = [];
 
 while (circlePositions.length < 32) {
     const candidate = {
-        x: 90 + seededRandom() * 770,
-        y: 190 + seededRandom() * 680,
+        x: 125 + seededRandom() * 710,
+        y: 220 + seededRandom() * 610,
     };
     const hasEnoughSpace = circlePositions.every(
         (circle) => Math.hypot(circle.x - candidate.x, circle.y - candidate.y) >= minimumDistance,
@@ -49,7 +51,7 @@ const countingGroups: CountingGroup[] = Array.from({ length: 10 }, (_, countInde
             const unselectedDistance = distances[count].distance;
             const radius = selectedDistance + 28;
             const outerDrawingRadius = radius + 3;
-            if (outerDrawingRadius >= unselectedDistance - 20) continue;
+            if (outerDrawingRadius >= unselectedDistance - 4) continue;
             if (outerDrawingRadius > Math.min(x - 40, 920 - x, y - 170, 930 - y)) continue;
 
             const indices = distances.slice(0, count).map(({ index }) => index);
@@ -65,14 +67,17 @@ const countingGroups: CountingGroup[] = Array.from({ length: 10 }, (_, countInde
 
     candidates.sort((first, second) => second.gap - first.gap);
     const signatures = new Set<string>();
-    return candidates
-        .filter((candidate) => {
+    const selectedCandidates = candidates.filter((candidate) => {
             if (signatures.has(candidate.signature)) return false;
             signatures.add(candidate.signature);
             return true;
-        })
-        .slice(0, 3)
-        .map(({ indices, center, radius }) => ({ indices, center, radius }));
+        }).slice(0, 3);
+
+    if (selectedCandidates.length < 3) {
+        throw new Error(`Unable to create three distinct counting groups for ${count}.`);
+    }
+
+    return selectedCandidates.map(({ indices, center, radius }) => ({ indices, center, radius }));
 }).flat();
 
 const numberAudioFiles = ["null", "eins", "zwei", "drei", "vier", "fuenf", "sechs", "sieben", "acht", "neun", "zehn"];
@@ -103,6 +108,7 @@ const standardRoundDuration = 120;
 const reviewLeadIn = 30;
 const reviewStepDuration = 45;
 const reviewTail = 30;
+const endSlideFrames = 120;
 
 type CountingScene = {
     type: "standard" | "review";
@@ -126,10 +132,31 @@ for (let target = 1; target <= 10; target++) {
     timelineCursor += reviewDuration;
 }
 
-export const countToTenDuration = timelineCursor;
+const countToTenContentDuration = timelineCursor;
+export const countToTenDuration = countToTenContentDuration + endSlideFrames;
 
 export const CountToTenComposition = () => {
     const frame = useCurrentFrame();
+
+    if (frame >= countToTenContentDuration) return <StandardEndSlide />;
+
+    if (frame < 45) {
+        return (
+            <BrandedTitleSlide
+                seed="CountToTen"
+                curriculumLabel={
+                    <>
+                    <strong>Zahlen und Variablen</strong>
+                    {" | Zahlen von 0 bis 10"}
+                    </>
+                }
+                title="Zählen bis 10"
+                subtitle="Mengen erkennen"
+                icon={<Tally5 size={64} strokeWidth={2.5} />}
+            />
+        );
+    }
+
     const scene = countingScenes.find(({ start, duration }) => frame >= start && frame < start + duration) ?? null;
     const sceneIndex = scene ? countingScenes.indexOf(scene) : -1;
     const nextScene = sceneIndex >= 0 ? countingScenes[sceneIndex + 1] : null;
@@ -194,7 +221,14 @@ export const CountToTenComposition = () => {
                 fontFamily: "Encode Sans Semi Condensed, sans-serif",
             }}
         >
-            <VideoChrome curriculumLabel="A.01.01 Zahlen von 0 bis 10">
+            <VideoChrome
+                curriculumLabel={
+                    <>
+                        <strong>Zahlen und Variablen</strong>
+                        {" | Zahlen von 0 bis 10"}
+                    </>
+                }
+            >
                 {countingScenes.flatMap((audioScene, sceneIndex) => {
                     if (audioScene.type === "standard") {
                         const audioStart = audioScene.start + 45;

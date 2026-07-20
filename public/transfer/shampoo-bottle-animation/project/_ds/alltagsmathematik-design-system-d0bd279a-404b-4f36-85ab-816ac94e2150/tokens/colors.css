@@ -1,0 +1,20 @@
+:root{
+/* Brand — Tiefblau (primary #1e2c52 = brand-800) */
+--brand-25:#f7f9fc;--brand-50:#eff2f8;--brand-100:#dfe5f0;--brand-200:#c3cde3;--brand-300:#9dadce;--brand-400:#7188b4;--brand-500:#4f6899;--brand-600:#3a4f7c;--brand-700:#2b3c64;--brand-800:#1e2c52;--brand-900:#16213f;--brand-950:#0e1629;
+/* Accent — Ocker (accent #cc6600 = accent-500) */
+--accent-25:#fefaf5;--accent-50:#fdf3e7;--accent-100:#fae3c7;--accent-200:#f5c891;--accent-300:#eea75b;--accent-400:#e08a2e;--accent-500:#cc6600;--accent-600:#b25400;--accent-700:#8f4300;--accent-800:#743605;--accent-900:#5f2d08;--accent-950:#3d1c04;
+/* Gray — cool, navy-tinted */
+--gray-25:#fcfcfd;--gray-50:#f8f9fb;--gray-100:#eef0f4;--gray-200:#dcdfe7;--gray-300:#c2c7d4;--gray-400:#9aa2b5;--gray-500:#6f7891;--gray-600:#545d75;--gray-700:#414a60;--gray-800:#2c3346;--gray-900:#1a1f2e;--gray-950:#10131d;
+/* Semantic status */
+--success-50:#ecfdf3;--success-100:#dcfae6;--success-500:#17b26a;--success-600:#079455;--success-700:#067647;
+--error-50:#fef3f2;--error-100:#fee4e2;--error-500:#f04438;--error-600:#d92d20;--error-700:#b42318;
+--warning-50:var(--accent-50);--warning-100:var(--accent-100);--warning-500:var(--accent-500);--warning-600:var(--accent-600);--warning-700:var(--accent-700);
+/* Aliases — text */
+--text-primary:var(--brand-800);--text-secondary:var(--gray-600);--text-tertiary:var(--gray-500);--text-disabled:var(--gray-400);--text-on-brand:#ffffff;--text-on-accent:#ffffff;--text-accent:var(--accent-600);--text-inverse-secondary:var(--brand-200);
+/* Aliases — surfaces */
+--surface-page:#ffffff;--surface-subtle:var(--gray-50);--surface-card:#ffffff;--surface-brand-subtle:var(--brand-50);--surface-accent-subtle:var(--accent-50);--surface-inverse:var(--brand-800);--surface-inverse-deep:var(--brand-900);
+/* Aliases — borders */
+--border-default:var(--gray-200);--border-strong:var(--gray-300);--border-brand:var(--brand-800);--border-accent:var(--accent-500);
+/* Interaction */
+--action-primary:var(--brand-800);--action-primary-hover:var(--brand-700);--action-primary-press:var(--brand-900);--action-accent:var(--accent-500);--action-accent-hover:var(--accent-600);--action-accent-press:var(--accent-700);--link:var(--accent-600);--link-hover:var(--accent-700);
+}

@@ -1,8 +1,17 @@
 "use client";
 
 import { Player } from "@remotion/player";
-import { AbsoluteFill, Html5Audio, interpolate, Sequence, staticFile, useCurrentFrame } from "remotion";
-import { TitleSlidePattern } from "../../remotion/title-slide-pattern";
+import { Tally5 } from "lucide-react";
+import {
+    AbsoluteFill,
+    Html5Audio,
+    interpolate,
+    interpolateColors,
+    Sequence,
+    staticFile,
+    useCurrentFrame,
+} from "remotion";
+import { BrandedTitleSlide, StandardEndSlide } from "../../remotion/branded-slides";
 import { VideoChrome } from "../../remotion/video-chrome";
 
 const initialDelay = 30;
@@ -10,7 +19,9 @@ const stepDuration = 360;
 const stepCount = 10;
 const finalHold = 60;
 const titleSlideFrames = 45;
-export const compositionDuration = titleSlideFrames + initialDelay + stepCount * stepDuration + finalHold;
+const endSlideFrames = 120;
+const contentDuration = titleSlideFrames + initialDelay + stepCount * stepDuration + finalHold;
+export const compositionDuration = contentDuration + endSlideFrames;
 const numberWords = ["null", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn"];
 
 const audioFileNames: Record<string, string> = {
@@ -38,50 +49,22 @@ export const NumberLineComposition = ({ useLocalAudio = false }: { useLocalAudio
     const absoluteFrame = useCurrentFrame();
     const frame = absoluteFrame - titleSlideFrames;
 
+    if (absoluteFrame >= contentDuration) return <StandardEndSlide />;
+
     if (absoluteFrame < titleSlideFrames) {
         return (
-            <AbsoluteFill
-                style={{
-                    backgroundColor: "#ffffff",
-                    fontFamily: "Encode Sans Semi Condensed, sans-serif",
-                }}
-            >
-                <VideoChrome curriculumLabel="A.01.01 Zahlen von 0 bis 10">
-                    <TitleSlidePattern color="#0ea5e9" variant="wave-grid" />
-                    <div
-                        style={{
-                            position: "absolute",
-                            top: 550,
-                            left: 60,
-                            width: 1740,
-                            textAlign: "left",
-                        }}
-                    >
-                        <h1
-                            style={{
-                                margin: 0,
-                                color: "#101828",
-                                fontSize: 80,
-                                fontWeight: 700,
-                                lineHeight: 1.15,
-                            }}
-                        >
-                            Plus eins am Zahlenstrahl
-                        </h1>
-                        <p
-                            style={{
-                                margin: "18px 0 0",
-                                color: "#101828",
-                                fontSize: 80,
-                                fontWeight: 400,
-                                lineHeight: 1.15,
-                            }}
-                        >
-                            Zahlen von 0 bis 10
-                        </p>
-                    </div>
-                </VideoChrome>
-            </AbsoluteFill>
+            <BrandedTitleSlide
+                seed="NumberLineZeroToTen"
+                curriculumLabel={
+                    <>
+                    <strong>Zahlen und Variablen</strong>
+                    {" | Zahlen von 0 bis 10"}
+                    </>
+                }
+                title="Addition +1"
+                subtitle="auf dem Zahlenstrahl"
+                icon={<Tally5 size={64} strokeWidth={2.5} />}
+            />
         );
     }
 
@@ -105,6 +88,12 @@ export const NumberLineComposition = ({ useLocalAudio = false }: { useLocalAudio
     const startX = (startValue ?? 0) * 140;
     const resultX = (resultValue ?? 1) * 140;
     const midpointX = (startX + resultX) / 2;
+    const markerProgress = interpolate(stepFrame, [155, 190], [0, 1], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+    });
+    const markerX = interpolate(markerProgress, [0, 1], [startX, resultX]);
+    const markerColor = interpolateColors(markerProgress, [0, 1], ["#0BA5EC", "#079455"]);
 
     return (
         <AbsoluteFill
@@ -136,6 +125,21 @@ export const NumberLineComposition = ({ useLocalAudio = false }: { useLocalAudio
                 })}
 
                 <div style={{ position: "relative", width: 1400, height: 180 }}>
+                {stepIndex !== null && (
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: 73,
+                            left: markerX,
+                            zIndex: 4,
+                            width: 28,
+                            height: 28,
+                            borderRadius: "50%",
+                            backgroundColor: markerColor,
+                            transform: "translate(-50%, -50%)",
+                        }}
+                    />
+                )}
                 <div
                     style={{
                         position: "absolute",
