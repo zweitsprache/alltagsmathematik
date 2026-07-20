@@ -1,42 +1,39 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { ComponentType } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { ComponentType, RefObject } from "react";
+import { Player, type PlayerRef } from "@remotion/player";
 import { Check, Copy01, Download01, Film01, Image01, RefreshCw01 } from "@untitledui/icons";
-import { Player } from "@remotion/player";
+import { NumberLineComposition } from "@/app/remotion-test/page";
 import { Button } from "@/components/base/buttons/button";
 import { Input } from "@/components/base/input/input";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { NativeSelect } from "@/components/base/select/select-native";
 import { useClipboard } from "@/hooks/use-clipboard";
+import type { VideoTtsItem } from "@/lib/video-tts";
+import { type CompositionMetadataOverrides, CompositionMetadataProvider, type TitleIconName, getRandomTitleBackground } from "@/remotion/branded-slides";
 import { compositionCatalog } from "@/remotion/composition-catalog";
 import type { CompositionCatalogItem } from "@/remotion/composition-catalog";
-import {
-    CompositionMetadataProvider,
-    type CompositionMetadataOverrides,
-    type TitleIconName,
-    getRandomTitleBackground,
-} from "@/remotion/branded-slides";
 import { CountToTenComposition } from "@/remotion/compositions/count-to-ten";
-import { TwoDigitNumbersComposition } from "@/remotion/compositions/two-digit-numbers";
-import { PercentageWholeComposition } from "@/remotion/compositions/percentage-whole";
-import { LocalPrepositionsComposition } from "@/remotion/compositions/local-prepositions";
 import { CuisenaireBlocksComposition } from "@/remotion/compositions/cuisenaire-blocks";
-import { StackedNumberLinesComposition } from "@/remotion/compositions/number-line-stacked";
+import { LocalPrepositionsComposition } from "@/remotion/compositions/local-prepositions";
 import { NumberLineCountingComposition } from "@/remotion/compositions/number-line-counting";
+import { StackedNumberLinesComposition } from "@/remotion/compositions/number-line-stacked";
+import { PercentageWholeComposition } from "@/remotion/compositions/percentage-whole";
 import { RuleOfThreeShampooComposition } from "@/remotion/compositions/rule-of-three-shampoo";
 import {
-    FiveMinuteTimeComposition,
-    FiveMinuteTimeVariantComposition,
     DigitalFiveMinuteTimeVariantComposition,
     DigitalInformalHourTimeComposition,
+    FiveMinuteTimeComposition,
+    FiveMinuteTimeVariantComposition,
     HalfHourTimeComposition,
     InformalHourTimeComposition,
     QuarterHourTimeComposition,
     TenMinuteTimeComposition,
     TimeComposition,
 } from "@/remotion/compositions/time";
-import { NumberLineComposition } from "@/app/remotion-test/page";
+import { TwoDigitNumbersComposition } from "@/remotion/compositions/two-digit-numbers";
+import { RveTtsTimeline } from "./rve-tts-timeline";
 
 const compositionComponents: Record<string, ComponentType<any>> = {
     RuleOfThreeShampoo: RuleOfThreeShampooComposition,
@@ -64,6 +61,39 @@ const iconOptions = [
     { label: "Rechner", value: "calculator" },
     { label: "Prozent", value: "percent" },
 ];
+
+const ManagedRemotionPlayer = memo(
+    ({
+        selected,
+        component,
+        inputProps,
+        metadata,
+        playerRef,
+    }: {
+        selected: CompositionCatalogItem;
+        component: ComponentType<any>;
+        inputProps: any;
+        metadata: CompositionMetadataOverrides;
+        playerRef: RefObject<PlayerRef | null>;
+    }) => (
+        <CompositionMetadataProvider value={metadata}>
+            <Player
+                key={selected.id}
+                ref={playerRef}
+                component={component}
+                inputProps={inputProps}
+                durationInFrames={selected.durationInFrames}
+                compositionWidth={selected.width}
+                compositionHeight={selected.height}
+                fps={selected.fps}
+                numberOfSharedAudioTags={250}
+                controls
+                style={{ width: "100%", height: "100%" }}
+            />
+        </CompositionMetadataProvider>
+    ),
+);
+ManagedRemotionPlayer.displayName = "ManagedRemotionPlayer";
 
 type RenderJob = {
     renderId: string;
@@ -132,6 +162,10 @@ const getDefaultMetadata = (composition: CompositionCatalogItem): Required<Compo
 
 export const RemotionManagement = () => {
     const clipboard = useClipboard();
+    const playerRef = useRef<PlayerRef>(null);
+    const lastTimelineFrameUpdateRef = useRef(0);
+    const [currentFrame, setCurrentFrame] = useState(0);
+    const [ttsItems, setTtsItems] = useState<VideoTtsItem[]>([]);
     const [selectedId, setSelectedId] = useState<(typeof compositionCatalog)[number]["id"]>(compositionCatalog[0].id);
     const [metadataByComposition, setMetadataByComposition] = useState<Record<string, CompositionMetadataOverrides>>({});
     const [metadataIsLoaded, setMetadataIsLoaded] = useState(false);
@@ -149,7 +183,7 @@ export const RemotionManagement = () => {
     const [stillOutput, setStillOutput] = useState<string | null>(null);
     const [stillError, setStillError] = useState<string | null>(null);
     const selected = compositionCatalog.find((composition) => composition.id === selectedId) ?? compositionCatalog[0];
-    const metadata = { ...getDefaultMetadata(selected), ...metadataByComposition[selected.id] };
+    const metadata = useMemo(() => ({ ...getDefaultMetadata(selected), ...metadataByComposition[selected.id] }), [metadataByComposition, selected]);
     const isInformalHourlyComposition = "startHour" in selected;
     const isDigitalInformalHourlyComposition = "digitalStartHour" in selected;
     const SelectedComposition: ComponentType<any> = isDigitalInformalHourlyComposition
@@ -157,14 +191,24 @@ export const RemotionManagement = () => {
         : isInformalHourlyComposition
           ? InformalHourTimeComposition
           : compositionComponents[selected.id];
-    const selectedInputProps: any =
-        selected.id === "NumberLineZeroToTen"
-            ? { useLocalAudio: true }
-            : isDigitalInformalHourlyComposition
-              ? { startHour: selected.digitalStartHour }
-              : isInformalHourlyComposition
-              ? { startHour: selected.startHour }
-              : {};
+    const selectedInputProps: any = useMemo(
+        () =>
+            selected.id === "RuleOfThreeShampoo"
+                ? {
+                      ttsItems: ttsItems.map((item) => ({
+                          ...item,
+                          audioUrl: `/api/admin/videos/tts?blobPath=${encodeURIComponent(item.blobPath)}`,
+                      })),
+                  }
+                : selected.id === "NumberLineZeroToTen"
+                  ? { useLocalAudio: true }
+                  : isDigitalInformalHourlyComposition
+                    ? { startHour: selected.digitalStartHour }
+                    : isInformalHourlyComposition
+                      ? { startHour: selected.startHour }
+                      : {},
+        [isDigitalInformalHourlyComposition, isInformalHourlyComposition, selected, ttsItems],
+    );
     const duration = selected.durationInFrames / selected.fps;
     const updateMetadata = (updates: Partial<CompositionMetadataOverrides>) => {
         const revision = (metadataRevisions.current.get(selected.id) ?? 0) + 1;
@@ -188,9 +232,9 @@ export const RemotionManagement = () => {
             const response = await fetch("/api/admin/videos/render", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ compositionId: selected.id, metadata }),
+                body: JSON.stringify({ compositionId: selected.id, metadata, ttsItems }),
             });
-            const result = await response.json() as RenderJob & { error?: string };
+            const result = (await response.json()) as RenderJob & { error?: string };
             if (!response.ok) throw new Error(result.error || "The video render could not be started.");
 
             setRenderJob({
@@ -215,7 +259,7 @@ export const RemotionManagement = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ compositionId: selected.id, metadata }),
             });
-            const result = await response.json() as { outputFile?: string; error?: string };
+            const result = (await response.json()) as { outputFile?: string; error?: string };
             if (!response.ok || !result.outputFile) {
                 throw new Error(result.error || "The first frame could not be rendered.");
             }
@@ -234,7 +278,7 @@ export const RemotionManagement = () => {
         const loadMetadata = async () => {
             try {
                 const response = await fetch("/api/admin/videos/metadata");
-                const result = await response.json() as {
+                const result = (await response.json()) as {
                     metadata?: Record<string, CompositionMetadataOverrides>;
                     error?: string;
                 };
@@ -278,7 +322,7 @@ export const RemotionManagement = () => {
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ compositionId, metadata }),
                         });
-                        const result = await response.json() as { error?: string };
+                        const result = (await response.json()) as { error?: string };
                         if (!response.ok) throw new Error(result.error || "Video metadata could not be saved.");
                     }),
                 );
@@ -316,7 +360,7 @@ export const RemotionManagement = () => {
             try {
                 const query = new URLSearchParams(renderJob);
                 const response = await fetch(`/api/admin/videos/render/progress?${query}`);
-                const result = await response.json() as {
+                const result = (await response.json()) as {
                     done?: boolean;
                     progress?: number;
                     outputFile?: string | null;
@@ -366,6 +410,21 @@ export const RemotionManagement = () => {
         setStillError(null);
     }, [selected.id]);
 
+    useEffect(() => {
+        const player = playerRef.current;
+        if (!player) return;
+        const handleFrameUpdate = (event: { detail: { frame: number } }) => {
+            const now = performance.now();
+            if (now - lastTimelineFrameUpdateRef.current < 100) return;
+            lastTimelineFrameUpdateRef.current = now;
+            setCurrentFrame(event.detail.frame);
+        };
+        player.addEventListener("frameupdate", handleFrameUpdate);
+        return () => player.removeEventListener("frameupdate", handleFrameUpdate);
+    }, [selected.id]);
+
+    const updateTtsItems = useCallback((items: VideoTtsItem[]) => setTtsItems(items), []);
+
     return (
         <div className="grid min-w-0 gap-6 xl:grid-cols-[20rem_minmax(0,1fr)]">
             <section className="overflow-hidden rounded-lg bg-primary ring-1 ring-secondary">
@@ -391,12 +450,8 @@ export const RemotionManagement = () => {
                                 >
                                     <span className="text-sm font-semibold">{listMetadata.title}</span>
                                     <span className="mt-0.5 line-clamp-2 text-xs text-tertiary">{listMetadata.header}</span>
-                                    {listMetadata.subtitle && (
-                                        <span className="mt-0.5 line-clamp-1 text-xs text-tertiary">{listMetadata.subtitle}</span>
-                                    )}
-                                    <span className="mt-1 break-all font-mono text-[11px] text-tertiary">
-                                        ID: {composition.id}
-                                    </span>
+                                    {listMetadata.subtitle && <span className="mt-0.5 line-clamp-1 text-xs text-tertiary">{listMetadata.subtitle}</span>}
+                                    <span className="mt-1 font-mono text-[11px] break-all text-tertiary">ID: {composition.id}</span>
                                 </button>
                                 {"titleBackgroundNumber" in composition && (
                                     <span className="pointer-events-none absolute top-2.5 right-2.5 rounded bg-secondary px-1.5 py-0.5 font-mono text-[11px] font-semibold text-secondary">
@@ -420,36 +475,38 @@ export const RemotionManagement = () => {
 
             <section className="min-w-0">
                 <div className="aspect-video w-full overflow-hidden rounded-lg bg-white ring-1 ring-secondary">
-                    <CompositionMetadataProvider value={metadata}>
-                        <Player
-                            key={selected.id}
-                            component={SelectedComposition}
-                            inputProps={selectedInputProps}
-                            durationInFrames={selected.durationInFrames}
-                            compositionWidth={selected.width}
-                            compositionHeight={selected.height}
-                            fps={selected.fps}
-                            numberOfSharedAudioTags={250}
-                            controls
-                            style={{ width: "100%", height: "100%" }}
-                        />
-                    </CompositionMetadataProvider>
+                    <ManagedRemotionPlayer
+                        selected={selected}
+                        component={SelectedComposition}
+                        inputProps={selectedInputProps}
+                        metadata={metadata}
+                        playerRef={playerRef}
+                    />
                 </div>
+
+                {selected.id === "RuleOfThreeShampoo" && (
+                    <RveTtsTimeline
+                        compositionId={selected.id}
+                        durationInFrames={selected.durationInFrames}
+                        fps={selected.fps}
+                        currentFrame={currentFrame}
+                        onFrameChange={(frame) => {
+                            setCurrentFrame(frame);
+                            playerRef.current?.seekTo(frame);
+                            playerRef.current?.pause();
+                        }}
+                        onItemsChange={updateTtsItems}
+                    />
+                )}
 
                 <div className="mt-4 rounded-lg bg-primary p-4 ring-1 ring-secondary">
                     <div className="flex items-start justify-between gap-4">
                         <div>
                             <h2 className="text-lg font-semibold text-primary">Titel-Metadaten</h2>
-                            <p className="mt-1 text-sm text-tertiary">
-                                Änderungen werden direkt angezeigt und automatisch gespeichert.
-                            </p>
+                            <p className="mt-1 text-sm text-tertiary">Änderungen werden direkt angezeigt und automatisch gespeichert.</p>
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
-                            <span
-                                className={`text-xs font-medium ${
-                                    autosaveState === "error" ? "text-error-primary" : "text-tertiary"
-                                }`}
-                            >
+                            <span className={`text-xs font-medium ${autosaveState === "error" ? "text-error-primary" : "text-tertiary"}`}>
                                 {autosaveState === "loading" && "Wird geladen…"}
                                 {autosaveState === "saving" && "Wird gespeichert…"}
                                 {autosaveState === "saved" && "Gespeichert"}
@@ -466,27 +523,15 @@ export const RemotionManagement = () => {
                         </p>
                     )}
                     <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                        <Input
-                            label="Kopfzeile links"
-                            value={metadata.header}
-                            onChange={(value) => updateMetadata({ header: value })}
-                        />
+                        <Input label="Kopfzeile links" value={metadata.header} onChange={(value) => updateMetadata({ header: value })} />
                         <NativeSelect
                             label="Icon"
                             value={metadata.icon}
                             onChange={(event) => updateMetadata({ icon: event.target.value as TitleIconName })}
                             options={iconOptions}
                         />
-                        <Input
-                            label="Titel"
-                            value={metadata.title}
-                            onChange={(value) => updateMetadata({ title: value })}
-                        />
-                        <Input
-                            label="Untertitel"
-                            value={metadata.subtitle}
-                            onChange={(value) => updateMetadata({ subtitle: value })}
-                        />
+                        <Input label="Titel" value={metadata.title} onChange={(value) => updateMetadata({ title: value })} />
+                        <Input label="Untertitel" value={metadata.subtitle} onChange={(value) => updateMetadata({ subtitle: value })} />
                     </div>
                     <div className="mt-4 flex flex-col gap-4 border-t border-secondary pt-4">
                         {(renderState === "starting" || renderState === "rendering" || renderState === "done") && (
@@ -495,9 +540,7 @@ export const RemotionManagement = () => {
                                     <span className="text-sm font-medium text-secondary">
                                         {renderState === "done" ? "Video ist bereit" : "Video wird gerendert"}
                                     </span>
-                                    <span className="text-sm font-semibold text-secondary tabular-nums">
-                                        {Math.round(renderProgress)} %
-                                    </span>
+                                    <span className="text-sm font-semibold text-secondary tabular-nums">{Math.round(renderProgress)} %</span>
                                 </div>
                                 <ProgressBar value={renderProgress} />
                             </div>
@@ -526,24 +569,12 @@ export const RemotionManagement = () => {
                                 Anderen Hintergrund wählen
                             </Button>
                             {renderOutput && (
-                                <Button
-                                    size="sm"
-                                    color="secondary"
-                                    iconLeading={Download01}
-                                    href={renderOutput}
-                                    download={`${selected.id}.mp4`}
-                                >
+                                <Button size="sm" color="secondary" iconLeading={Download01} href={renderOutput} download={`${selected.id}.mp4`}>
                                     MP4 herunterladen
                                 </Button>
                             )}
                             {stillOutput ? (
-                                <Button
-                                    size="sm"
-                                    color="secondary"
-                                    iconLeading={Download01}
-                                    href={stillOutput}
-                                    download={`${selected.id}-frame-0000.png`}
-                                >
+                                <Button size="sm" color="secondary" iconLeading={Download01} href={stillOutput} download={`${selected.id}-frame-0000.png`}>
                                     PNG herunterladen
                                 </Button>
                             ) : (
@@ -583,10 +614,22 @@ export const RemotionManagement = () => {
                         </span>
                     </div>
                     <dl className="mt-4 grid grid-cols-2 gap-4 border-t border-secondary pt-4 text-sm sm:grid-cols-4">
-                        <div><dt className="text-tertiary">ID</dt><dd className="mt-1 font-medium text-primary">{selected.id}</dd></div>
-                        <div><dt className="text-tertiary">Dauer</dt><dd className="mt-1 font-medium text-primary">{duration.toFixed(0)} Sek.</dd></div>
-                        <div><dt className="text-tertiary">Bildrate</dt><dd className="mt-1 font-medium text-primary">{selected.fps} fps</dd></div>
-                        <div><dt className="text-tertiary">Ausgabe</dt><dd className="mt-1 truncate font-medium text-primary">{selected.outputPath}</dd></div>
+                        <div>
+                            <dt className="text-tertiary">ID</dt>
+                            <dd className="mt-1 font-medium text-primary">{selected.id}</dd>
+                        </div>
+                        <div>
+                            <dt className="text-tertiary">Dauer</dt>
+                            <dd className="mt-1 font-medium text-primary">{duration.toFixed(0)} Sek.</dd>
+                        </div>
+                        <div>
+                            <dt className="text-tertiary">Bildrate</dt>
+                            <dd className="mt-1 font-medium text-primary">{selected.fps} fps</dd>
+                        </div>
+                        <div>
+                            <dt className="text-tertiary">Ausgabe</dt>
+                            <dd className="mt-1 truncate font-medium text-primary">{selected.outputPath}</dd>
+                        </div>
                     </dl>
                 </div>
             </section>

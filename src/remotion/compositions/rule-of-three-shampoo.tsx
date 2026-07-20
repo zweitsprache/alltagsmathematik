@@ -1,4 +1,5 @@
 import { AbsoluteFill, Html5Audio, OffthreadVideo, Sequence, staticFile, useCurrentFrame } from "remotion";
+import type { VideoTtsItem } from "@/lib/video-tts";
 import { BottleVisual, OffersVisual, QuestionMarkFirework, RouteVisual, SupermarketShelfVisual } from "./rule-of-three-shampoo-visuals";
 
 export const ruleOfThreeShampooDuration = 1050;
@@ -18,7 +19,9 @@ const narrationCues = [
     { clip: "12", frame: 920 },
 ];
 
-export const RuleOfThreeShampooComposition = () => {
+type RenderableVideoTtsItem = VideoTtsItem & { audioUrl: string };
+
+export const RuleOfThreeShampooComposition = ({ ttsItems = [] }: { ttsItems?: RenderableVideoTtsItem[] }) => {
     const frame = useCurrentFrame();
 
     return (
@@ -29,11 +32,17 @@ export const RuleOfThreeShampooComposition = () => {
                 style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "82% center" }}
             />
 
-            {narrationCues.map(({ clip, frame: cueFrame, premountFor = 25 }) => (
-                <Sequence key={clip} from={cueFrame} premountFor={premountFor}>
-                    <Html5Audio src={staticFile(`remotion/dreisatz/shampoo/voiceover_${clip}.mp3`)} />
-                </Sequence>
-            ))}
+            {ttsItems.length > 0
+                ? ttsItems.map((item) => (
+                      <Sequence key={item.id} from={item.from} durationInFrames={item.durationInFrames} premountFor={25}>
+                          <Html5Audio src={item.audioUrl} />
+                      </Sequence>
+                  ))
+                : narrationCues.map(({ clip, frame: cueFrame, premountFor = 25 }) => (
+                      <Sequence key={clip} from={cueFrame} premountFor={premountFor}>
+                          <Html5Audio src={staticFile(`remotion/dreisatz/shampoo/voiceover_${clip}.mp3`)} />
+                      </Sequence>
+                  ))}
 
             <div
                 style={{

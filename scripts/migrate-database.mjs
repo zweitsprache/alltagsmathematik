@@ -144,6 +144,16 @@ await sql`
     )
 `;
 
+await sql`
+    CREATE TABLE IF NOT EXISTS video_timeline_projects (
+        composition_id TEXT PRIMARY KEY,
+        tts_items JSONB NOT NULL DEFAULT '[]'::jsonb,
+        updated_by UUID REFERENCES neon_auth."user"(id) ON DELETE SET NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+`;
+
 const legacyActivityIds = [
     ["zahlen-und-variablen/zahlen-benennen-und-schreiben/zahlen-von-0-bis-10/zahlen-vergleichen#1", "exercise-0008"],
     ["zahlen-und-variablen/zahlen-benennen-und-schreiben/zahlen-von-0-bis-10/zahlen-vergleichen#2", "exercise-0009"],
@@ -156,4 +166,4 @@ for (const [legacyId, permanentId] of legacyActivityIds) {
     await sql`UPDATE student_activity_progress SET activity_id = ${permanentId} WHERE activity_id = ${legacyId}`;
 }
 
-console.log("Database migration complete: audio, users, roles, activity progress, and video metadata are ready.");
+console.log("Database migration complete: audio, users, roles, activity progress, video metadata, and timelines are ready.");
