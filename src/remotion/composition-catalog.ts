@@ -6,7 +6,7 @@ import { localPrepositionsDuration } from "./compositions/local-prepositions";
 import { cuisenaireBlocksDuration } from "./compositions/cuisenaire-blocks";
 import { stackedNumberLinesDuration } from "./compositions/number-line-stacked";
 import { numberLineCountingDuration } from "./compositions/number-line-counting";
-import { ruleOfThreeShampooDuration } from "./compositions/rule-of-three-shampoo";
+import { ruleOfThreeShampooDuration, ruleOfThreeShampooFps } from "./compositions/rule-of-three-shampoo";
 import { getTitleBackground } from "./branded-slides";
 import {
     fiveMinuteTimeCompositionDuration,
@@ -28,7 +28,7 @@ export const compositionCatalog = [
         description: "Erklärvideo zum Dreisatz mit einer animierten Shampooflasche.",
         width: 1920,
         height: 1080,
-        fps: 25,
+        fps: ruleOfThreeShampooFps,
         durationInFrames: ruleOfThreeShampooDuration,
         outputPath: "marketing/videos/dreisatz-shampoo.mp4",
         titleBackgroundNumber: getTitleBackground("RuleOfThreeShampoo").number,

@@ -1,6 +1,6 @@
 import { PlayCircle } from "@untitledui/icons";
 import { PageHeader } from "@/components/curriculum/page-header";
-import { RemotionManagement } from "@/components/remotion-management/remotion-management";
+import { RemotionManagementClient } from "@/components/remotion-management/remotion-management-client";
 
 export default function VideoManagementPage() {
     return (
@@ -10,7 +10,7 @@ export default function VideoManagementPage() {
                 description="Remotion-Kompositionen zentral prüfen, abspielen und für den Export vorbereiten."
                 icon={PlayCircle}
             />
-            <RemotionManagement />
+            <RemotionManagementClient />
         </div>
     );
 }

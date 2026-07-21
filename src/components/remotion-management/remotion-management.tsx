@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import type { ComponentType, RefObject } from "react";
 import { Player, type PlayerRef } from "@remotion/player";
 import { Check, Copy01, Download01, Film01, Image01, RefreshCw01 } from "@untitledui/icons";
@@ -10,7 +10,6 @@ import { Input } from "@/components/base/input/input";
 import { ProgressBar } from "@/components/base/progress-indicators/progress-indicators";
 import { NativeSelect } from "@/components/base/select/select-native";
 import { useClipboard } from "@/hooks/use-clipboard";
-import type { VideoTtsItem } from "@/lib/video-tts";
 import { type CompositionMetadataOverrides, CompositionMetadataProvider, type TitleIconName, getRandomTitleBackground } from "@/remotion/branded-slides";
 import { compositionCatalog } from "@/remotion/composition-catalog";
 import type { CompositionCatalogItem } from "@/remotion/composition-catalog";
@@ -33,7 +32,6 @@ import {
     TimeComposition,
 } from "@/remotion/compositions/time";
 import { TwoDigitNumbersComposition } from "@/remotion/compositions/two-digit-numbers";
-import { RveTtsTimeline } from "./rve-tts-timeline";
 
 const compositionComponents: Record<string, ComponentType<any>> = {
     RuleOfThreeShampoo: RuleOfThreeShampooComposition,
@@ -75,23 +73,25 @@ const ManagedRemotionPlayer = memo(
         inputProps: any;
         metadata: CompositionMetadataOverrides;
         playerRef: RefObject<PlayerRef | null>;
-    }) => (
-        <CompositionMetadataProvider value={metadata}>
-            <Player
-                key={selected.id}
-                ref={playerRef}
-                component={component}
-                inputProps={inputProps}
-                durationInFrames={selected.durationInFrames}
-                compositionWidth={selected.width}
-                compositionHeight={selected.height}
-                fps={selected.fps}
-                numberOfSharedAudioTags={250}
-                controls
-                style={{ width: "100%", height: "100%" }}
-            />
-        </CompositionMetadataProvider>
-    ),
+    }) => {
+        return (
+            <CompositionMetadataProvider value={metadata}>
+                <Player
+                    key={selected.id}
+                    ref={playerRef}
+                    component={component}
+                    inputProps={inputProps}
+                    durationInFrames={selected.durationInFrames}
+                    compositionWidth={selected.width}
+                    compositionHeight={selected.height}
+                    fps={selected.fps}
+                    numberOfSharedAudioTags={250}
+                    controls
+                    style={{ width: "100%", height: "100%" }}
+                />
+            </CompositionMetadataProvider>
+        );
+    },
 );
 ManagedRemotionPlayer.displayName = "ManagedRemotionPlayer";
 
@@ -163,9 +163,6 @@ const getDefaultMetadata = (composition: CompositionCatalogItem): Required<Compo
 export const RemotionManagement = () => {
     const clipboard = useClipboard();
     const playerRef = useRef<PlayerRef>(null);
-    const lastTimelineFrameUpdateRef = useRef(0);
-    const [currentFrame, setCurrentFrame] = useState(0);
-    const [ttsItems, setTtsItems] = useState<VideoTtsItem[]>([]);
     const [selectedId, setSelectedId] = useState<(typeof compositionCatalog)[number]["id"]>(compositionCatalog[0].id);
     const [metadataByComposition, setMetadataByComposition] = useState<Record<string, CompositionMetadataOverrides>>({});
     const [metadataIsLoaded, setMetadataIsLoaded] = useState(false);
@@ -193,21 +190,14 @@ export const RemotionManagement = () => {
           : compositionComponents[selected.id];
     const selectedInputProps: any = useMemo(
         () =>
-            selected.id === "RuleOfThreeShampoo"
-                ? {
-                      ttsItems: ttsItems.map((item) => ({
-                          ...item,
-                          audioUrl: `/api/admin/videos/tts?blobPath=${encodeURIComponent(item.blobPath)}`,
-                      })),
-                  }
-                : selected.id === "NumberLineZeroToTen"
+            selected.id === "NumberLineZeroToTen"
                   ? { useLocalAudio: true }
                   : isDigitalInformalHourlyComposition
                     ? { startHour: selected.digitalStartHour }
                     : isInformalHourlyComposition
                       ? { startHour: selected.startHour }
                       : {},
-        [isDigitalInformalHourlyComposition, isInformalHourlyComposition, selected, ttsItems],
+        [isDigitalInformalHourlyComposition, isInformalHourlyComposition, selected],
     );
     const duration = selected.durationInFrames / selected.fps;
     const updateMetadata = (updates: Partial<CompositionMetadataOverrides>) => {
@@ -232,7 +222,7 @@ export const RemotionManagement = () => {
             const response = await fetch("/api/admin/videos/render", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ compositionId: selected.id, metadata, ttsItems }),
+                body: JSON.stringify({ compositionId: selected.id, metadata }),
             });
             const result = (await response.json()) as RenderJob & { error?: string };
             if (!response.ok) throw new Error(result.error || "The video render could not be started.");
@@ -410,21 +400,6 @@ export const RemotionManagement = () => {
         setStillError(null);
     }, [selected.id]);
 
-    useEffect(() => {
-        const player = playerRef.current;
-        if (!player) return;
-        const handleFrameUpdate = (event: { detail: { frame: number } }) => {
-            const now = performance.now();
-            if (now - lastTimelineFrameUpdateRef.current < 100) return;
-            lastTimelineFrameUpdateRef.current = now;
-            setCurrentFrame(event.detail.frame);
-        };
-        player.addEventListener("frameupdate", handleFrameUpdate);
-        return () => player.removeEventListener("frameupdate", handleFrameUpdate);
-    }, [selected.id]);
-
-    const updateTtsItems = useCallback((items: VideoTtsItem[]) => setTtsItems(items), []);
-
     return (
         <div className="grid min-w-0 gap-6 xl:grid-cols-[20rem_minmax(0,1fr)]">
             <section className="overflow-hidden rounded-lg bg-primary ring-1 ring-secondary">
@@ -483,21 +458,6 @@ export const RemotionManagement = () => {
                         playerRef={playerRef}
                     />
                 </div>
-
-                {selected.id === "RuleOfThreeShampoo" && (
-                    <RveTtsTimeline
-                        compositionId={selected.id}
-                        durationInFrames={selected.durationInFrames}
-                        fps={selected.fps}
-                        currentFrame={currentFrame}
-                        onFrameChange={(frame) => {
-                            setCurrentFrame(frame);
-                            playerRef.current?.seekTo(frame);
-                            playerRef.current?.pause();
-                        }}
-                        onItemsChange={updateTtsItems}
-                    />
-                )}
 
                 <div className="mt-4 rounded-lg bg-primary p-4 ring-1 ring-secondary">
                     <div className="flex items-start justify-between gap-4">

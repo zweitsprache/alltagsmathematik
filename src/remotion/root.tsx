@@ -12,7 +12,7 @@ import { LocalPrepositionsComposition, localPrepositionsDuration } from "./compo
 import { CuisenaireBlocksComposition, cuisenaireBlocksDuration } from "./compositions/cuisenaire-blocks";
 import { StackedNumberLinesComposition, stackedNumberLinesDuration } from "./compositions/number-line-stacked";
 import { NumberLineCountingComposition, numberLineCountingDuration } from "./compositions/number-line-counting";
-import { RuleOfThreeShampooComposition, ruleOfThreeShampooDuration } from "./compositions/rule-of-three-shampoo";
+import { RuleOfThreeShampooComposition, ruleOfThreeShampooDuration, ruleOfThreeShampooFps } from "./compositions/rule-of-three-shampoo";
 import {
     FiveMinuteTimeComposition,
     FiveMinuteTimeVariantComposition,
@@ -77,7 +77,7 @@ export const RemotionRoot = () => (
             id="RuleOfThreeShampoo"
             component={RuleOfThreeShampooWithMetadata}
             durationInFrames={ruleOfThreeShampooDuration}
-            fps={25}
+            fps={ruleOfThreeShampooFps}
             width={1920}
             height={1080}
         />
